@@ -1,26 +1,33 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "svgmap/style.min";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Landly-style warm cream */
+  --color-background: #f2f0e6;
+  --color-surface: #faf8f2;
+  --color-border: #e3dfd4;
+  --color-foreground: #14120f;
+  --color-muted: #7a7568;
+  --color-tag: #e8e4d9;
+
+  --color-blue: #2b5ceb;
+  --color-blue-light: #e8edfd;
+
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* World game map: force tooltip hidden (no hover names). */
+.svgMap-tooltip {
+  display: none !important;
 }

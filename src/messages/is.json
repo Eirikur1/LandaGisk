@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Heim",
+    "games": "Leikir"
+  },
+  "home": {
+    "title": "Landly",
+    "subtitle": "Daglegir leikir með íslenskt hjarta",
+    "todaysGames": "Leikir dagsins",
+    "playNow": "Spila",
+    "comingSoon": "Kemur bráðlega"
+  },
+  "games": {
+    "waterfall": {
+      "title": "Foss",
+      "description": "Giskaðu á íslenska fossinn á myndinni"
+    },
+    "flags": {
+      "title": "Fáni",
+      "description": "Þekktu fánann — með íslenskum blæ"
+    },
+    "world": {
+      "title": "Heimur",
+      "description": "Giskaðu á landið út frá lögun þess"
+    }
+  },
+  "game": {
+    "guess": "Giska",
+    "submit": "Staðfesta",
+    "giveUp": "Gefast upp",
+    "correct": "Rétt!",
+    "wrong": "Rangt",
+    "tryAgain": "Reyna aftur",
+    "share": "Deila",
+    "nextGame": "Næsti leikur á morgun",
+    "streak": "Röð",
+    "guessesLeft": "{count} tilraunir eftir"
+  },
+  "footer": {
+    "madeIn": "Gert á Íslandi"
+  }
+}

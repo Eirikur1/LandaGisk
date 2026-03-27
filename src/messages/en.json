@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "games": "Games"
+  },
+  "home": {
+    "title": "Landly",
+    "subtitle": "Daily games with an Icelandic heart",
+    "todaysGames": "Today's games",
+    "playNow": "Play",
+    "comingSoon": "Coming soon"
+  },
+  "games": {
+    "waterfall": {
+      "title": "Foss",
+      "description": "Guess the Icelandic waterfall from a photo"
+    },
+    "flags": {
+      "title": "Fáni",
+      "description": "Identify the world flag — with an Icelandic twist"
+    },
+    "world": {
+      "title": "Heimur",
+      "description": "Guess the country from its silhouette"
+    }
+  },
+  "game": {
+    "guess": "Make a guess",
+    "submit": "Submit",
+    "giveUp": "Give up",
+    "correct": "Correct!",
+    "wrong": "Wrong",
+    "tryAgain": "Try again",
+    "share": "Share",
+    "nextGame": "Next game tomorrow",
+    "streak": "Streak",
+    "guessesLeft": "{count} guesses left"
+  },
+  "footer": {
+    "madeIn": "Made in Iceland"
+  }
+}
