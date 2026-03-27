@@ -5,6 +5,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
 
 const playfair = Playfair_Display({
@@ -22,7 +23,7 @@ const interSans = Inter({
 
 export const metadata: Metadata = {
   title: "Dagrun — Daily Icelandic Games",
-  description: "Daily games with an Icelandic heart",
+  description: "A fresh world puzzle, every day",
 };
 
 export default async function LocaleLayout({
@@ -47,8 +48,9 @@ export default async function LocaleLayout({
         className="min-h-full flex flex-col bg-(--color-background)"
       >
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main className="flex-1 pt-20">{children}</main>
+          <AuthProvider>
+            <Header />
+            <main className="flex-1 pt-20">{children}</main>
           <footer className="py-10 text-center">
             <p
               className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"
@@ -57,6 +59,7 @@ export default async function LocaleLayout({
               Made in Iceland
             </p>
           </footer>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { TbDroplet, TbFlag3, TbWorld } from "react-icons/tb";
-import { FaGamepad } from "react-icons/fa6";
+import { TbDroplet, TbFlag3, TbWorld, TbArrowRight } from "react-icons/tb";
 import type { IconType } from "react-icons";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
@@ -20,6 +19,35 @@ const gameTags: Record<string, string[]> = {
   flags:     ["World",   "Flags",  "Daily"],
   world:     ["World",   "Geography", "Daily"],
 };
+
+// ── Variants ───────────────────────────────────────────────────────────────
+
+const card = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  hover:   { x: 5 },
+};
+
+const leftIcon = {
+  animate: { rotate: 0, scale: 1, y: 0 },
+  hover: {
+    rotate: -14,
+    scale: 1.3,
+    y: -3,
+    transition: { type: "spring" as const, stiffness: 380, damping: 10 },
+  },
+};
+
+const rightArrow = {
+  animate: { x: 0, opacity: 0.4 },
+  hover: {
+    x: 5,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 350, damping: 22 },
+  },
+};
+
+// ── Component ──────────────────────────────────────────────────────────────
 
 type GameCardProps = {
   slug: string;
@@ -44,21 +72,28 @@ export default function GameCard({
 
   const inner = (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.25, ease: "easeOut" }}
+      variants={card}
+      initial="initial"
+      animate="animate"
+      whileHover={available ? "hover" : undefined}
+      transition={{ delay: index * 0.07, duration: 0.28, ease: "easeOut" }}
       className="group flex items-start justify-between gap-4 py-6 border-b border-(--color-border)"
       style={{ opacity: available ? 1 : 0.4, cursor: available ? "pointer" : "default" }}
     >
       {/* Left: icon + content */}
       <div className="flex items-start gap-4 min-w-0">
-        <div className="mt-1 shrink-0">
-          <Icon size={15} className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors" />
-        </div>
+        {/* Animated game-type icon */}
+        <motion.div variants={leftIcon} className="mt-1 shrink-0">
+          <Icon
+            size={16}
+            className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors duration-200"
+          />
+        </motion.div>
+
         <div className="min-w-0">
           <div className="flex items-baseline gap-3 flex-wrap mb-2">
             <h3
-              className="text-xl font-bold text-(--color-foreground) group-hover:text-(--color-blue) transition-colors leading-tight"
+              className="text-xl font-bold text-(--color-foreground) group-hover:text-(--color-blue) transition-colors duration-200 leading-tight"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {t(titleKey as Parameters<typeof t>[0])}
@@ -79,13 +114,16 @@ export default function GameCard({
         </div>
       </div>
 
-      {/* Game icon */}
+      {/* Right: animated arrow */}
       <div className="shrink-0 pt-1">
         {available ? (
-          <FaGamepad
-            size={23}
-            className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors"
-          />
+          <motion.div variants={rightArrow}>
+            <TbArrowRight
+              size={20}
+              className="text-(--color-blue)"
+              strokeWidth={2}
+            />
+          </motion.div>
         ) : (
           <span className="text-[10px] font-semibold tracking-wide text-(--color-muted)">
             {t("home.comingSoon")}

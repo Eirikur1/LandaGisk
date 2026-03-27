@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
 import {
   ComposableMap,
@@ -9,6 +9,9 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import { WORLD_COUNTRIES, type WorldCountry } from "@/data/worldCountries";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { guessesToXp, xpLabel } from "@/lib/xp";
 
 type GuessRow = {
   name: string;
@@ -176,9 +179,12 @@ function WorldMap({
 export default function WorldGuesser() {
   const locale = (useLocale() as "en" | "is") || "en";
   const t = copy[locale];
+  const { user } = useAuth();
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
+  const [earnedXp, setEarnedXp] = useState<number | null>(null);
+  const scoreSavedRef = useRef(false);
 
   const day = useMemo(() => ymdNow(), []);
   const storageKey = `world-guesser:${day}`;
@@ -201,6 +207,32 @@ export default function WorldGuesser() {
       window.localStorage.setItem(storageKey, JSON.stringify(guesses));
     } catch {}
   }, [guesses, storageKey]);
+
+  // Save score once when the user wins (first play only — DB unique constraint prevents duplicates)
+  const won = guesses
+    .map((name) => WORLD_COUNTRIES.find((c) => c.name === name))
+    .some((c) => c?.code === target.code);
+
+  useEffect(() => {
+    if (!won || scoreSavedRef.current || !user) return;
+    scoreSavedRef.current = true;
+    const guessCount = guesses.length;
+    const xp = guessesToXp(guessCount);
+    supabase
+      .from("game_scores")
+      .insert({
+        user_id: user.id,
+        game_type: "world",
+        game_date: day,
+        guesses: guessCount,
+        xp,
+        won: true,
+      })
+      .then(({ error: err }) => {
+        // Only update earnedXp if this is a new insert (not a duplicate)
+        if (!err) setEarnedXp(xp);
+      });
+  }, [won, user, day, guesses.length]);
 
   const rows = useMemo<GuessRow[]>(() => {
     return guesses
@@ -236,8 +268,6 @@ export default function WorldGuesser() {
       c.name.toLowerCase().includes(q)
     ).slice(0, 8);
   }, [value]);
-
-  const won = rows.some((r) => r.exact);
 
   function onGuess() {
     const normalized = value.trim().toLowerCase();
@@ -327,11 +357,22 @@ export default function WorldGuesser() {
       {error ? <p className="text-xs text-red-600 mb-4">{error}</p> : null}
 
       {won ? (
-        <div className="mb-5 rounded-xl border border-(--color-border) bg-white px-4 py-3">
-          <p className="font-bold text-(--color-blue)">{t.solved}</p>
-          <p className="text-sm text-(--color-muted)">
-            {t.solvedText} ({target.name})
-          </p>
+        <div className="mb-5 rounded-xl border border-(--color-border) bg-white px-4 py-3 flex items-start justify-between gap-3">
+          <div>
+            <p className="font-bold text-(--color-blue)">{t.solved}</p>
+            <p className="text-sm text-(--color-muted)">
+              {t.solvedText} ({target.name})
+            </p>
+            <p className="text-xs text-(--color-muted) mt-0.5">
+              {xpLabel(rows.length)}
+            </p>
+          </div>
+          {earnedXp !== null && (
+            <div className="shrink-0 rounded-xl bg-(--color-blue) text-white px-3 py-1.5 text-center">
+              <p className="text-xs font-semibold opacity-80 leading-none mb-0.5">XP earned</p>
+              <p className="text-xl font-black leading-none">+{earnedXp}</p>
+            </div>
+          )}
         </div>
       ) : null}
 
