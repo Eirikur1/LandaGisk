@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+
 import createGlobe from "cobe";
 
 const ROT_SPEED      = 0.003;
@@ -91,7 +91,7 @@ export default function AsciiArt() {
         style={{ width: "min(56vw, 24rem)", background: LEFT_FADE }}
       />
 
-      <motion.div
+      <div
         className="absolute will-change-transform"
         style={{
           width: "min(120vmin, min(118dvh, 1160px))",
@@ -99,9 +99,6 @@ export default function AsciiArt() {
           right: "max(-17vw, -9.5rem)",
           bottom: "max(-26dvh, -11rem)",
         }}
-        initial={{ opacity: 0, scale: 0.86, x: "22vw" }}
-        animate={{ opacity: 1, scale: 1, x: 0 }}
-        transition={{ duration: 1.2, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
       >
         <div
           ref={containerRef}
@@ -117,7 +114,7 @@ export default function AsciiArt() {
             }}
           />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,62 @@
+"use client";
+
+import Link from "next/link";
+import { useLocale } from "next-intl";
+import { motion } from "framer-motion";
+import GameCard from "@/components/ui/GameCard";
+
+const PREVIEW_COUNT = 3;
+
+type Game = {
+  slug: string;
+  titleKey: string;
+  descriptionKey: string;
+  color: "navy" | "forest" | "amber" | "rust";
+  available: boolean;
+};
+
+export default function GameList({ games }: { games: readonly Game[] }) {
+  const locale = useLocale();
+  const preview = games.slice(0, PREVIEW_COUNT);
+  const hasMore = games.length > PREVIEW_COUNT;
+
+  return (
+    <div className="border-t border-(--color-border)">
+      {/* Header */}
+      <motion.div
+        className="flex items-center justify-between pt-5 pb-1"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <h2
+          className="text-base font-bold tracking-tight"
+          style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
+        >
+          Top games this week
+        </h2>
+      </motion.div>
+
+      {preview.map((game, i) => (
+        <GameCard key={game.slug} {...game} index={i} />
+      ))}
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="pt-4 pb-2"
+      >
+        <motion.div whileHover={{ x: 6 }} transition={{ type: "spring", stiffness: 400, damping: 20 }} className="inline-block">
+          <Link
+            href={`/${locale}/games`}
+            className="text-[11px] tracking-[0.18em] uppercase font-semibold"
+            style={{ color: "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
+          >
+            See all games →
+          </Link>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}

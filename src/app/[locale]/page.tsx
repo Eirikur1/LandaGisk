@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import GameCard from "@/components/ui/GameCard";
 import AsciiArt from "@/components/ui/AsciiArt";
 import HeroSplitText from "@/components/ui/HeroSplitText";
+import GameList from "@/components/ui/GameList";
 
 const GAMES = [
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy" as const, available: true },
@@ -33,7 +33,7 @@ export default async function HomePage({
       <AsciiArt />
 
       {/* Left content column */}
-      <div className="relative z-10 max-w-xl px-8 py-10">
+      <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
 
         {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
         <div className="mb-12">
@@ -57,12 +57,8 @@ export default async function HomePage({
           </p>
         </div>
 
-        {/* Game list */}
-        <div className="border-t border-(--color-border)">
-          {GAMES.map((game, i) => (
-            <GameCard key={game.slug} {...game} index={i} />
-          ))}
-        </div>
+        <GameList games={GAMES} />
+
 
         {/* Stats — wide tracking labels like reference */}
         <div className="mt-12 pt-8 border-t border-(--color-border) grid grid-cols-3 gap-6">
