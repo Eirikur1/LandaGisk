@@ -51,7 +51,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <Header />
             <main className="flex-1 pt-20">{children}</main>
-          <footer className="py-10 text-center">
+          <footer className="border-t border-(--color-border) py-10 text-center">
             <p
               className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"
               style={{ fontFamily: "var(--font-sans)" }}
