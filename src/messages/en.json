@@ -17,7 +17,7 @@
     },
     "flags": {
       "title": "Flag of the day",
-      "description": "Identify the world flag — with an Icelandic twist"
+      "description": "Guess the country from its flag"
     },
     "world": {
       "title": "Country guess",

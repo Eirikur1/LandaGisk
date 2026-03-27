@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 /** adamsky/globe Earth template (ASCII texture source). */
 const EARTH_TEMPLATE_TXT =
@@ -245,7 +246,7 @@ export default function AsciiArt() {
       scene.background = new THREE.Color(BG_HEX);
 
       camera = new THREE.PerspectiveCamera(53, w / h, 0.1, 100);
-      camera.position.set(0, 0.24, 2.2);
+      camera.position.set(0, 0.24, 2.05);
 
       geometry = new THREE.SphereGeometry(0.96, 128, 128);
       material = new THREE.MeshBasicMaterial({ color: 0x2b5ceb });
@@ -363,18 +364,25 @@ export default function AsciiArt() {
             "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)",
         }}
       />
-      <div
+      <motion.div
         ref={dishRef}
-        className="absolute overflow-hidden rounded-full"
+        className="absolute overflow-hidden rounded-full will-change-transform"
         style={{
-          width: "min(112vmin, min(110dvh, 1040px))",
-          height: "min(112vmin, min(110dvh, 1040px))",
-          right: "max(-16vw, -9rem)",
-          bottom: "max(-18dvh, -8rem)",
+          width: "min(120vmin, min(118dvh, 1160px))",
+          height: "min(120vmin, min(118dvh, 1160px))",
+          right: "max(-17vw, -9.5rem)",
+          bottom: "max(-26dvh, -11rem)",
+        }}
+        initial={{ opacity: 0, scale: 0.95, x: "22vw" }}
+        animate={{ opacity: 1, scale: 1, x: 0 }}
+        transition={{
+          duration: 1.2,
+          delay: 0.14,
+          ease: [0.22, 1, 0.36, 1],
         }}
       >
         <div ref={mountRef} className="absolute inset-0" />
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import GameCard from "@/components/ui/GameCard";
 import AsciiArt from "@/components/ui/AsciiArt";
+import HeroSplitText from "@/components/ui/HeroSplitText";
 
 const GAMES = [
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy" as const, available: true },
@@ -36,18 +37,18 @@ export default async function HomePage({
 
         {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
         <div className="mb-12">
-          <h1
+          <HeroSplitText
+            as="h1"
+            text={t("title")}
             className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
-          >
-            {t("title")}
-          </h1>
-          <p
+          />
+          <HeroSplitText
+            as="p"
+            text={t("subtitle")}
             className="text-sm text-(--color-muted) max-w-sm leading-relaxed"
             style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {t("subtitle")}
-          </p>
+          />
           <p
             className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-6 opacity-80"
             style={{ fontFamily: "var(--font-sans)" }}
