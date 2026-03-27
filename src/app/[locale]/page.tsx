@@ -23,7 +23,7 @@ export default function HomePage() {
       {/* Left content column */}
       <div className="relative z-10 max-w-xl px-8 py-10">
 
-        {/* Title block — Landly: big serif wordmark + quiet subtitle */}
+        {/* Title block — Dagspil: big serif wordmark + quiet subtitle */}
         <div className="mb-12">
           <h1
             className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"

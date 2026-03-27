@@ -21,7 +21,7 @@ const interSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Landly — Daily Icelandic Games",
+  title: "Dagspil — Daily Icelandic Games",
   description: "Daily games with an Icelandic heart",
 };
 

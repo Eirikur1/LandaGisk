@@ -48,7 +48,7 @@ export default function Header() {
           className="text-[11px] font-bold tracking-[0.18em] uppercase text-(--color-blue) hover:opacity-60 transition-opacity whitespace-nowrap"
           style={{ fontFamily: "var(--font-sans)" }}
         >
-          LANDLY
+          DAGSPIL
         </Link>
 
         {/* Center nav */}

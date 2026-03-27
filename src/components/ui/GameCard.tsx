@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { TbDroplet, TbFlag3, TbWorld, TbArrowUpRight } from "react-icons/tb";
+import { TbDroplet, TbFlag3, TbWorld } from "react-icons/tb";
+import { FaGamepad } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
@@ -78,10 +79,13 @@ export default function GameCard({
         </div>
       </div>
 
-      {/* Arrow */}
+      {/* Game icon */}
       <div className="shrink-0 pt-1">
         {available ? (
-          <TbArrowUpRight size={17} className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors" />
+          <FaGamepad
+            size={23}
+            className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors"
+          />
         ) : (
           <span className="text-[10px] font-semibold tracking-wide text-(--color-muted)">
             {t("home.comingSoon")}

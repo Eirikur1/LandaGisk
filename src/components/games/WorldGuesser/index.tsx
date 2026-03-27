@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useLocale } from "next-intl";
 import { WORLD_COUNTRIES, type WorldCountry } from "@/data/worldCountries";
 
@@ -103,14 +103,22 @@ function InteractiveWorldGlobe({
   target: WorldCountry;
   won: boolean;
 }) {
-  const mapHostIdRef = useRef(
-    `world-svg-map-${Math.random().toString(36).slice(2, 9)}`
-  );
+  const hostRef = useRef<HTMLDivElement>(null);
+  const mapHostId = "world-svg-map";
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isMounted) return;
     let disposed = false;
-    const host = document.getElementById(mapHostIdRef.current);
+    let raf = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    const host = hostRef.current;
     if (!host) return;
+    host.id = mapHostId;
 
     const values: Record<string, { status: number; color: string }> = {};
     guessedCountries.forEach((c) => {
@@ -120,50 +128,84 @@ function InteractiveWorldGlobe({
       values[target.code.toUpperCase()] = { status: 2, color: "#22c55e" };
     }
 
-    void import("svgmap").then((mod) => {
+    let attempt = 0;
+    const initMap = async () => {
+      if (disposed) return;
+      // svgMap can fail on refresh if initialized before layout size settles.
+      if ((host.clientWidth === 0 || host.clientHeight === 0) && attempt < 10) {
+        attempt += 1;
+        raf = requestAnimationFrame(() => {
+          void initMap();
+        });
+        return;
+      }
+      const mod = await import("svgmap");
       if (disposed) return;
       const SvgMapCtor = (mod as { default?: new (opts: unknown) => unknown })
         .default;
       if (!SvgMapCtor) return;
-      host.innerHTML = "";
-      new SvgMapCtor({
-        targetElementID: mapHostIdRef.current,
-        minZoom: 1,
-        maxZoom: 20,
-        initialZoom: 1.22,
-        initialPan: { x: 0, y: 12 },
-        showContinentSelector: false,
-        showZoomReset: false,
-        mouseWheelZoomEnabled: true,
-        colorNoData: "#eef2ff",
-        colorMin: "#dbeafe",
-        colorMax: "#2563eb",
-        countries: { EH: false },
-        noDataText: "",
-        hideFlag: true,
-        onGetTooltip: (): string => "",
-        data: {
+      try {
+        host.innerHTML = "";
+        new SvgMapCtor({
+          targetElementID: mapHostId,
+          minZoom: 1,
+          maxZoom: 20,
+          initialZoom: 1.22,
+          initialPan: { x: 0, y: 12 },
+          showContinentSelector: false,
+          showZoomReset: false,
+          mouseWheelZoomEnabled: true,
+          colorNoData: "#eef2ff",
+          colorMin: "#dbeafe",
+          colorMax: "#2563eb",
+          countries: { EH: false },
+          noDataText: "",
+          hideFlag: true,
+          onGetTooltip: (): string => "",
           data: {
-            status: { name: "status", format: "{0}" },
+            data: {
+              status: { name: "status", format: "{0}" },
+            },
+            applyData: "status",
+            values,
           },
-          applyData: "status",
-          values,
-        },
-      } as unknown as never);
-    });
+        } as unknown as never);
+        // Some refreshes race with style/layout; verify an SVG was actually mounted.
+        if (!host.querySelector("svg") && attempt < 3) {
+          attempt += 1;
+          retryTimer = setTimeout(() => {
+            void initMap();
+          }, 120);
+        }
+      } catch {
+        if (attempt < 3) {
+          attempt += 1;
+          raf = requestAnimationFrame(() => {
+            void initMap();
+          });
+        }
+      }
+    };
+    void initMap();
 
     return () => {
       disposed = true;
+      cancelAnimationFrame(raf);
+      if (retryTimer) clearTimeout(retryTimer);
       host.innerHTML = "";
     };
-  }, [guessedCountries, target.lat, target.lon, won]);
+  }, [guessedCountries, target.code, won, isMounted]);
 
   return (
     <div className="mb-5 rounded-2xl border border-(--color-border) bg-white p-2">
       <div
-        id={mapHostIdRef.current}
+        ref={hostRef}
         className="h-[260px] sm:h-[320px] w-full rounded-xl overflow-hidden bg-white"
-      />
+      >
+        {!isMounted ? (
+          <div className="h-full w-full bg-[radial-gradient(circle_at_35%_30%,#f7f9ff_0%,#f0f2f8_55%,#e8ebf4_100%)]" />
+        ) : null}
+      </div>
       <p className="mt-2 text-[11px] text-(--color-muted) text-center uppercase tracking-widest">
         Pan and zoom
       </p>
