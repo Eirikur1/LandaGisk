@@ -267,6 +267,14 @@ export default function WorldGuesser() {
         .filter((c): c is WorldCountry => Boolean(c)),
     [guesses]
   );
+  const suggestions = useMemo(() => {
+    const q = value.trim().toLowerCase();
+    if (!q) return [];
+    return WORLD_COUNTRIES.filter((c) => c.name.toLowerCase().includes(q)).slice(
+      0,
+      8
+    );
+  }, [value]);
 
   const won = rows.some((r) => r.exact);
 
@@ -315,9 +323,9 @@ export default function WorldGuesser() {
         won={won}
       />
 
-      <div className="flex gap-2 mb-3">
+      <div className="mb-3">
+      <div className="flex gap-2">
         <input
-          list="country-options"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
@@ -327,11 +335,6 @@ export default function WorldGuesser() {
           className="flex-1 rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue)"
           disabled={won}
         />
-        <datalist id="country-options">
-          {WORLD_COUNTRIES.map((c) => (
-            <option key={c.code} value={c.name} />
-          ))}
-        </datalist>
         <button
           type="button"
           onClick={onGuess}
@@ -340,6 +343,24 @@ export default function WorldGuesser() {
         >
           {t.guess}
         </button>
+      </div>
+      {!won && suggestions.length > 0 ? (
+        <div className="mt-2 rounded-xl border border-(--color-border) bg-white p-1">
+          {suggestions.map((s) => (
+            <button
+              key={s.code}
+              type="button"
+              onClick={() => {
+                setValue(s.name);
+                setError("");
+              }}
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-(--color-blue-light)"
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
       </div>
 
       {error ? <p className="text-xs text-red-600 mb-4">{error}</p> : null}

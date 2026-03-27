@@ -4,7 +4,7 @@
     "games": "Leikir"
   },
   "home": {
-    "title": "Dagspil",
+    "title": "Dagrun",
     "subtitle": "Daglegir leikir með íslenskt hjarta",
     "todaysGames": "Leikir dagsins",
     "playNow": "Spila",
@@ -12,15 +12,15 @@
   },
   "games": {
     "waterfall": {
-      "title": "Foss",
+      "title": "Fossar",
       "description": "Giskaðu á íslenska fossinn á myndinni"
     },
     "flags": {
-      "title": "Fáni",
+      "title": "Fáni dagsins",
       "description": "Þekktu fánann — með íslenskum blæ"
     },
     "world": {
-      "title": "Heimur",
+      "title": "Landa gisk",
       "description": "Giskaðu á landið út frá lögun þess"
     }
   },

@@ -1,19 +1,30 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import GameCard from "@/components/ui/GameCard";
 import AsciiArt from "@/components/ui/AsciiArt";
 
 const GAMES = [
-  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true  },
-  { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true  },
-  { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true  },
+  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy" as const, available: true },
+  { slug: "flags", titleKey: "games.flags.title", descriptionKey: "games.flags.description", color: "forest" as const, available: true },
+  { slug: "world", titleKey: "games.world.title", descriptionKey: "games.world.description", color: "amber" as const, available: true },
 ] as const;
 
-function getTodayString() {
-  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+function getTodayStringByLocale(locale: "en" | "is") {
+  const dateLocale = locale === "is" ? "is-IS" : "en-US";
+  return new Intl.DateTimeFormat(dateLocale, {
+    weekday: "short",
+    month: "long",
+    day: "numeric",
+  }).format(new Date());
 }
 
-export default function HomePage() {
-  const t = useTranslations("home");
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const currentLocale = locale === "is" ? "is" : "en";
+  const t = await getTranslations("home");
 
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
@@ -23,7 +34,7 @@ export default function HomePage() {
       {/* Left content column */}
       <div className="relative z-10 max-w-xl px-8 py-10">
 
-        {/* Title block — Dagspil: big serif wordmark + quiet subtitle */}
+        {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
         <div className="mb-12">
           <h1
             className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
@@ -38,10 +49,10 @@ export default function HomePage() {
             {t("subtitle")}
           </p>
           <p
-            className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) mt-6 opacity-80"
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-6 opacity-80"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            {getTodayString()}
+            {getTodayStringByLocale(currentLocale)}
           </p>
         </div>
 

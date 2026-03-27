@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 
 const FLAG = {
@@ -11,13 +11,14 @@ const FLAG = {
 };
 
 const GAMES = [
-  { href: "waterfall", label: "Foss"   },
-  { href: "flags",     label: "Fáni"   },
-  { href: "world",     label: "Heimur" },
+  { href: "waterfall", titleKey: "games.waterfall.title" },
+  { href: "flags", titleKey: "games.flags.title" },
+  { href: "world", titleKey: "games.world.title" },
 ];
 
 export default function Header() {
   const locale = useLocale() as "en" | "is";
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -48,12 +49,12 @@ export default function Header() {
           className="text-[11px] font-bold tracking-[0.18em] uppercase text-(--color-blue) hover:opacity-60 transition-opacity whitespace-nowrap"
           style={{ fontFamily: "var(--font-sans)" }}
         >
-          DAGSPIL
+          Dagrun
         </Link>
 
         {/* Center nav */}
         <nav className="flex items-center gap-7">
-          {GAMES.map(({ href, label }) => {
+          {GAMES.map(({ href, titleKey }) => {
             const full = `/${locale}/${href}`;
             const active = pathname === full || pathname.startsWith(full + "/");
             return (
@@ -70,7 +71,7 @@ export default function Header() {
                   paddingBottom: "1px",
                 }}
               >
-                {label}
+                {t(titleKey as Parameters<typeof t>[0])}
               </Link>
             );
           })}

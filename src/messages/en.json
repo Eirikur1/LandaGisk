@@ -4,7 +4,7 @@
     "games": "Games"
   },
   "home": {
-    "title": "Dagspil",
+    "title": "Dagrun",
     "subtitle": "Daily games with an Icelandic heart",
     "todaysGames": "Today's games",
     "playNow": "Play",
@@ -12,15 +12,15 @@
   },
   "games": {
     "waterfall": {
-      "title": "Foss",
+      "title": "Waterfalls",
       "description": "Guess the Icelandic waterfall from a photo"
     },
     "flags": {
-      "title": "Fáni",
+      "title": "Flag of the day",
       "description": "Identify the world flag — with an Icelandic twist"
     },
     "world": {
-      "title": "Heimur",
+      "title": "Country guess",
       "description": "Guess the country from its silhouette"
     }
   },

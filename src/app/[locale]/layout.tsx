@@ -21,7 +21,7 @@ const interSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dagspil — Daily Icelandic Games",
+  title: "Dagrun — Daily Icelandic Games",
   description: "Daily games with an Icelandic heart",
 };
 
@@ -42,7 +42,10 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={`${playfair.variable} ${interSans.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-(--color-background)">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-(--color-background)"
+      >
         <NextIntlClientProvider messages={messages}>
           <Header />
           <main className="flex-1 pt-20">{children}</main>
