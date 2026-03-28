@@ -1,0 +1,75 @@
+{
+  "version": 8,
+  "name": "Dagrun — textured land (hillshade) + prompt colors",
+  "metadata": {
+    "dagrun:paired_with": "docs/globe-hero-prompt.json",
+    "dagrun:why_previous_looked_the_same": "Mapbox vector land is always solid fills unless you add fill-pattern, hillshade, or raster. Earlier JSON only swapped hex colors, so Studio still looked like a normal map.",
+    "dagrun:ascii_in_mapbox": "Not supported. Map styles cannot render text/ASCII as land. Use HTML/Canvas on top of the map, or export images elsewhere.",
+    "dagrun:dots_in_mapbox": "Possible but not from colors alone: (1) Mapbox Studio → upload a tiny repeating dot PNG into the style sprite, then on the land layer set paint.fill-pattern to that icon id. (2) Or use a raster tileset that is already halftone/stipple. (3) Or many circle layers from point data (heavy).",
+    "dagrun:this_file_adds": "Hillshade from Mapbox Terrain DEM so land reads grainy/relief-like (closer to prompt faint hillshade) — visibly different from flat vector.",
+    "mapbox:description": "Cream background, solid ocean, semi-transparent land over hillshade."
+  },
+  "center": [-18, 64],
+  "zoom": 1.15,
+  "bearing": 0,
+  "pitch": 0,
+  "projection": {
+    "name": "globe"
+  },
+  "sources": {
+    "mapbox-streets": {
+      "type": "vector",
+      "url": "mapbox://mapbox.mapbox-streets-v8"
+    },
+    "mapbox-dem": {
+      "type": "raster-dem",
+      "url": "mapbox://mapbox.mapbox-terrain-dem-v1",
+      "tileSize": 512
+    }
+  },
+  "sprite": "mapbox://sprites/mapbox/light-v11",
+  "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f2f0e6"
+      }
+    },
+    {
+      "id": "hillshade",
+      "type": "hillshade",
+      "source": "mapbox-dem",
+      "paint": {
+        "hillshade-illumination-direction": 315,
+        "hillshade-illumination-anchor": "viewport",
+        "hillshade-exaggeration": 0.22,
+        "hillshade-shadow-color": "#4a433c",
+        "hillshade-highlight-color": "#faf6ef",
+        "hillshade-accent-color": "#2b5ceb"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "mapbox-streets",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#1f3a5f",
+        "fill-opacity": 0.94
+      }
+    },
+    {
+      "id": "land",
+      "type": "fill",
+      "source": "mapbox-streets",
+      "source-layer": "land",
+      "paint": {
+        "fill-color": "#c4b8a8",
+        "fill-opacity": 0.38,
+        "fill-outline-color": "rgba(20,18,15,0.1)"
+      }
+    }
+  ]
+}

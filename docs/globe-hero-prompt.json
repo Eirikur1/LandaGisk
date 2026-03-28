@@ -1,0 +1,38 @@
+{
+  "subject": "3D globe hero for a daily geography games web app",
+  "style_reference": "Mapbox GL / Mapbox Standard — clean cartographic, not gamey",
+  "composition": {
+    "framing": "large sphere lower-right, cropped by viewport edge",
+    "camera": "slight tilt (~25–35°), soft perspective, no extreme fisheye",
+    "background": "flat warm off-white or very subtle paper texture (#f2f0e6 family)"
+  },
+  "globe": {
+    "lighting": "soft studio key from upper-left, gentle rim light on terminator",
+    "atmosphere": "very subtle atmospheric glow (thin haze), no heavy neon halo",
+    "ocean": "deep muted blue-teal, low saturation",
+    "land": "low-contrast continents; optional very faint hillshade, not busy",
+    "graticule": "optional faint meridians/parallels like vector map overlays",
+    "labels": "none or extremely minimal; no country name clutter",
+    "poles": "soft white/ice, not stark",
+    "antialiasing": "smooth edges, vector-clean"
+  },
+  "color_palette": {
+    "ocean": "#1f3a5f",
+    "land_tint": "#c4b8a8",
+    "accent": "#2b5ceb",
+    "background": "#f2f0e6",
+    "grid_lines": "rgba(20,18,15,0.08)"
+  },
+  "mood": "calm, editorial, Nordic-minimal, trustworthy",
+  "avoid": [
+    "satellite photo realism",
+    "bright cyan oceans",
+    "thick white atmosphere ring",
+    "game UI chrome on the globe",
+    "busy political borders and labels"
+  ],
+  "output": {
+    "format": "wide hero asset or CSS-ready description",
+    "aspect": "16:9 or 3:2, transparent PNG if globe isolated optional"
+  }
+}

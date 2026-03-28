@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, useParams } from "next/navigation";
 import AuthGlobe from "@/components/ui/AuthGlobe";
 
 export default function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) ?? "en";
@@ -25,6 +26,19 @@ export default function AuthPage() {
   const [signUpError, setSignUpError] = useState("");
   const [signUpBusy, setSignUpBusy] = useState(false);
   const [signUpDone, setSignUpDone] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+
+  async function handleGoogle() {
+    setSignInError("");
+    setSignUpError("");
+    setGoogleBusy(true);
+    const err = await signInWithGoogle(locale);
+    setGoogleBusy(false);
+    if (err) {
+      if (tab === "signin") setSignInError(err);
+      else setSignUpError(err);
+    }
+  }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -116,28 +130,50 @@ export default function AuthPage() {
 
           {/* Forms */}
           {tab === "signin" ? (
-            <form onSubmit={handleSignIn} className="flex flex-col gap-3">
-              <Field
-                id="si-identifier"
-                label="Email or username"
-                type="text"
-                placeholder="you@example.com or nickname"
-                value={signInIdentifier}
-                onChange={setSignInIdentifier}
-                autoComplete="username"
-              />
-              <Field
-                id="si-pw"
-                label="Password"
-                type="password"
-                placeholder="••••••••"
-                value={signInPassword}
-                onChange={setSignInPassword}
-                autoComplete="current-password"
-              />
-              {signInError && <p className="text-xs text-red-400">{signInError}</p>}
-              <SubmitButton busy={signInBusy} label="Sign in" busyLabel="Signing in…" />
-            </form>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                disabled={googleBusy || signInBusy}
+                onClick={() => void handleGoogle()}
+                className="w-full rounded-2xl py-3.5 font-bold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2.5"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                <FcGoogle size={22} />
+                {googleBusy ? "Redirecting…" : "Continue with Google"}
+              </button>
+              <p
+                className="text-center text-[10px] uppercase tracking-[0.2em]"
+                style={{ color: "rgba(255,255,255,0.28)" }}
+              >
+                or
+              </p>
+              <form onSubmit={handleSignIn} className="flex flex-col gap-3">
+                <Field
+                  id="si-identifier"
+                  label="Email or username"
+                  type="text"
+                  placeholder="you@example.com or nickname"
+                  value={signInIdentifier}
+                  onChange={setSignInIdentifier}
+                  autoComplete="username"
+                />
+                <Field
+                  id="si-pw"
+                  label="Password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={signInPassword}
+                  onChange={setSignInPassword}
+                  autoComplete="current-password"
+                />
+                {signInError && <p className="text-xs text-red-400">{signInError}</p>}
+                <SubmitButton busy={signInBusy} label="Sign in" busyLabel="Signing in…" />
+              </form>
+            </div>
           ) : signUpDone ? (
             <div className="text-center flex flex-col gap-6">
               <div>
@@ -156,39 +192,61 @@ export default function AuthPage() {
               <SubmitButton busy={false} label="Back to sign in" busyLabel="" onClick={() => { setSignUpDone(false); setTab("signin"); }} />
             </div>
           ) : (
-            <form onSubmit={handleSignUp} className="flex flex-col gap-3">
-              <Field
-                id="su-username"
-                label="Username"
-                type="text"
-                placeholder="Public display name (3–24 characters)"
-                value={signUpUsername}
-                onChange={setSignUpUsername}
-                autoComplete="username"
-                hint="Letters, numbers, _ and -. Shown on the leaderboard."
-              />
-              <Field
-                id="su-email"
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                value={signUpEmail}
-                onChange={setSignUpEmail}
-                autoComplete="email"
-              />
-              <Field
-                id="su-pw"
-                label="Password"
-                type="password"
-                placeholder="Min. 6 characters"
-                value={signUpPassword}
-                onChange={setSignUpPassword}
-                minLength={6}
-                autoComplete="new-password"
-              />
-              {signUpError && <p className="text-xs text-red-400">{signUpError}</p>}
-              <SubmitButton busy={signUpBusy} label="Create account" busyLabel="Creating…" />
-            </form>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                disabled={googleBusy || signUpBusy}
+                onClick={() => void handleGoogle()}
+                className="w-full rounded-2xl py-3.5 font-bold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2.5"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                <FcGoogle size={22} />
+                {googleBusy ? "Redirecting…" : "Sign up with Google"}
+              </button>
+              <p
+                className="text-center text-[10px] uppercase tracking-[0.2em]"
+                style={{ color: "rgba(255,255,255,0.28)" }}
+              >
+                or
+              </p>
+              <form onSubmit={handleSignUp} className="flex flex-col gap-3">
+                <Field
+                  id="su-username"
+                  label="Username"
+                  type="text"
+                  placeholder="Public display name (3–24 characters)"
+                  value={signUpUsername}
+                  onChange={setSignUpUsername}
+                  autoComplete="username"
+                  hint="Letters, numbers, _ and -. Shown on the leaderboard."
+                />
+                <Field
+                  id="su-email"
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={signUpEmail}
+                  onChange={setSignUpEmail}
+                  autoComplete="email"
+                />
+                <Field
+                  id="su-pw"
+                  label="Password"
+                  type="password"
+                  placeholder="Min. 6 characters"
+                  value={signUpPassword}
+                  onChange={setSignUpPassword}
+                  minLength={6}
+                  autoComplete="new-password"
+                />
+                {signUpError && <p className="text-xs text-red-400">{signUpError}</p>}
+                <SubmitButton busy={signUpBusy} label="Create account" busyLabel="Creating…" />
+              </form>
+            </div>
           )}
 
           {/* Back link */}

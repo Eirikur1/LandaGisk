@@ -18,6 +18,8 @@ type AuthCtx = {
   /** `identifier` is an email address or your public username */
   signIn: (identifier: string, password: string) => Promise<string | null>;
   signUp: (email: string, password: string, username: string) => Promise<string | null>;
+  /** Opens Google OAuth; browser navigates away on success. `locale` = route prefix, e.g. "en". */
+  signInWithGoogle: (locale: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -128,12 +130,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return e instanceof Error ? e.message : hint;
   }
 
+  async function signInWithGoogle(locale: string): Promise<string | null> {
+    if (typeof window === "undefined") return "Google sign-in runs in the browser only.";
+    try {
+      const redirectTo = `${window.location.origin}/${locale}/auth/callback`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+      return error?.message ?? null;
+    } catch (e) {
+      return networkErrorMessage(e);
+    }
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
   }
 
   return (
-    <AuthContext.Provider value={{ user, username, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ user, username, loading, signIn, signUp, signInWithGoogle, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -35,11 +35,11 @@ export default function AsciiArt() {
       dark: 1,
       diffuse: 1.2,
       mapSamples: 6000,
-      mapBrightness: 8,
-      mapBaseBrightness: 0.15,
-      baseColor: [0.17, 0.36, 0.92],   // #2c5ceb — ocean
-      markerColor: [1, 1, 1],
-      glowColor: [0.17, 0.36, 0.92],
+      mapBrightness: 20,
+      mapBaseBrightness: 0.0,
+      baseColor: [1, 1, 1],
+      markerColor: [0.17, 0.36, 0.92],
+      glowColor: [0.949, 0.941, 0.902],
       markers: [],
     });
 
@@ -97,7 +97,8 @@ export default function AsciiArt() {
           width: "min(120vmin, min(118dvh, 1160px))",
           height: "min(120vmin, min(118dvh, 1160px))",
           right: "max(-17vw, -9.5rem)",
-          bottom: "max(-26dvh, -11rem)",
+          top: "50%",
+          transform: "translateY(-38%)",
         }}
       >
         <div

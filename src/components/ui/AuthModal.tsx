@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
+import { FcGoogle } from "react-icons/fc";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function AuthModal({ onClose }: { onClose: () => void }) {
-  const { signIn, signUp } = useAuth();
+  const locale = useLocale();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
 
   const [signInIdentifier, setSignInIdentifier] = useState("");
@@ -21,6 +24,19 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
   const [signUpError, setSignUpError] = useState("");
   const [signUpBusy, setSignUpBusy] = useState(false);
   const [signUpDone, setSignUpDone] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+
+  async function handleGoogle() {
+    setSignInError("");
+    setSignUpError("");
+    setGoogleBusy(true);
+    const err = await signInWithGoogle(locale);
+    setGoogleBusy(false);
+    if (err) {
+      if (tab === "signin") setSignInError(err);
+      else setSignUpError(err);
+    }
+  }
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -102,6 +118,19 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
                   Sign in to save scores and climb the leaderboard.
                 </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={googleBusy || signInBusy}
+                onClick={() => void handleGoogle()}
+              >
+                <FcGoogle size={20} />
+                {googleBusy ? "Redirecting…" : "Continue with Google"}
+              </Button>
+              <p className="text-center text-[10px] uppercase tracking-[0.18em] text-(--color-muted)">
+                or
+              </p>
               <form onSubmit={handleSignIn} className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="signin-identifier">Email or username</Label>
@@ -168,6 +197,19 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
                   Join and appear on the leaderboard.
                 </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                disabled={googleBusy || signUpBusy}
+                onClick={() => void handleGoogle()}
+              >
+                <FcGoogle size={20} />
+                {googleBusy ? "Redirecting…" : "Sign up with Google"}
+              </Button>
+              <p className="text-center text-[10px] uppercase tracking-[0.18em] text-(--color-muted)">
+                or
+              </p>
               <form onSubmit={handleSignUp} className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="signup-username">Username</Label>
