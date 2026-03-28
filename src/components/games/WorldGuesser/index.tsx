@@ -8,6 +8,7 @@ import GlobeMap from "./GlobeMap";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { guessesToXp, xpLabel } from "@/lib/xp";
+import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 
 type GuessRow = {
   name: string;
@@ -462,6 +463,16 @@ export default function WorldGuesser() {
               })}
             </div>
           )}
+        </motion.div>
+
+        {/* Leaderboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-8"
+        >
+          <MiniLeaderboard />
         </motion.div>
       </div>
     </>

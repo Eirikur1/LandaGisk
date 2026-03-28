@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -14,6 +15,7 @@ import { normalizeUsername, validateUsername } from "@/lib/usernameValidation";
 type AuthCtx = {
   user: User | null;
   username: string | null;
+  avatarUrl: string | null;
   loading: boolean;
   /** `identifier` is an email address or your public username */
   signIn: (identifier: string, password: string) => Promise<string | null>;
@@ -21,6 +23,8 @@ type AuthCtx = {
   /** Opens Google OAuth; browser navigates away on success. `locale` = route prefix, e.g. "en". */
   signInWithGoogle: (locale: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+  /** Reload username / avatar_url from `profiles` (e.g. after photo upload). */
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthCtx | null>(null);
@@ -28,16 +32,24 @@ const AuthContext = createContext<AuthCtx | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function fetchUsername(uid: string) {
+  const fetchProfile = useCallback(async (uid: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("username")
+      .select("username, avatar_url")
       .eq("id", uid)
       .single();
     setUsername(data?.username ?? null);
-  }
+    setAvatarUrl((data?.avatar_url as string | null) ?? null);
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    const uid = user?.id;
+    if (!uid) return;
+    await fetchProfile(uid);
+  }, [user?.id, fetchProfile]);
 
   useEffect(() => {
     supabase.auth
@@ -45,7 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ data: { session } }) => {
         const u = session?.user ?? null;
         setUser(u);
-        if (u) void fetchUsername(u.id);
+        if (u) void fetchProfile(u.id);
+        else {
+          setUsername(null);
+          setAvatarUrl(null);
+        }
       })
       .catch(() => {
         /* invalid placeholder URL / offline — stay logged out */
@@ -59,12 +75,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null;
       setUser(u);
-      if (u) void fetchUsername(u.id);
-      else setUsername(null);
+      if (u) void fetchProfile(u.id);
+      else {
+        setUsername(null);
+        setAvatarUrl(null);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile]);
 
   async function signIn(identifier: string, password: string): Promise<string | null> {
     const id = identifier.trim();
@@ -150,7 +169,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, username, loading, signIn, signUp, signInWithGoogle, signOut }}
+      value={{
+        user,
+        username,
+        avatarUrl,
+        loading,
+        signIn,
+        signUp,
+        signInWithGoogle,
+        signOut,
+        refreshProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

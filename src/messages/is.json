@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Heim",
-    "games": "Leikir"
+    "games": "Leikir",
+    "profile": "Prófíll"
   },
   "home": {
     "title": "Dagrun",
@@ -13,32 +14,36 @@
     "statTotalXp": "Heildar XP",
     "statRankOverall": "Heildarsæti",
     "playNow": "Spila",
-    "comingSoon": "Kemur bráðlega"
+    "comingSoon": "Kemur bráðlega",
+    "leaderboardTitle": "Stigatafla",
+    "leaderboardAllTime": "Besti í heiminum",
+    "leaderboardToday": "Í dag",
+    "leaderboardEmpty": "Engin stig"
   },
   "games": {
     "waterfall": {
-      "title": "Fossar",
-      "description": "Giskaðu á íslenska fossinn á myndinni"
+      "title": "Gettu á fossinn",
+      "description": "Gettu á íslenska fossinn á myndinni"
     },
     "flags": {
       "title": "Fáni dagsins",
-      "description": "Giskaðu á landið út frá fánanum"
+      "description": "Gettu á landið út frá fánanum"
     },
     "world": {
       "title": "Landa gisk",
-      "description": "Giskaðu á landið út frá lögun þess"
+      "description": "Gettu á landið út frá lögun þess"
     },
     "birds": {
-      "title": "Fuglaþraut",
+      "title": "Fugla gisk",
       "description": "Þekktu fuglinn dagsins á myndinni"
     },
     "plants": {
-      "title": "Plöntuþraut",
+      "title": "Plöntu gisk",
       "description": "Nefndu plöntuna sem leynist á nármyndinni"
     },
     "mountains": {
       "title": "Fjallsfinnari",
-      "description": "Giskaðu á fjallið á einni ljósmynd"
+      "description": "Giskaðu á fjallið frá ljósmynd"
     }
   },
   "game": {
@@ -55,5 +60,22 @@
   },
   "footer": {
     "madeIn": "Gert á Íslandi"
+  },
+  "account": {
+    "title": "Prófíllinn þinn",
+    "subtitle": "Hladdu upp mynd fyrir aðganginn og stigatöflurnar.",
+    "backHome": "Til baka á forsíðu",
+    "choosePhoto": "Velja mynd",
+    "removePhoto": "Fjarlægja mynd",
+    "uploading": "Hleð upp…",
+    "hint": "JPEG, PNG, WebP eða GIF · hámark 2 MB",
+    "loading": "Hleð…"
+  },
+  "consent": {
+    "title": "Geymsla og vafrakökur",
+    "body": "Við notum vafra­geymslu svo þú getir skráð þig inn og vistað framvindu í leikjum. Hýsing kann að nota nauðsynlegar kökur. Við notum ekki auglýsingakökur frá þriðja aðila. Valkvæð tölfræði hjálpar okkur að bæta síðuna ef þú leyfir það.",
+    "essentialCheckbox": "Ég samþykki nauðsynlega geymslu fyrir innskráningu og daglega leiki (krafist til að halda áfram).",
+    "analyticsCheckbox": "Leyfa valkvæða nafnlausa tölfræði (hægt er að haka ekki í þetta).",
+    "accept": "Vista val"
   }
 }

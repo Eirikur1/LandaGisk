@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "games": "Games"
+    "games": "Games",
+    "profile": "Profile"
   },
   "home": {
     "title": "Dagrun",
@@ -13,7 +14,11 @@
     "statTotalXp": "Total XP",
     "statRankOverall": "Overall rank",
     "playNow": "Play",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "leaderboardTitle": "Leaderboard",
+    "leaderboardAllTime": "All time",
+    "leaderboardToday": "Today",
+    "leaderboardEmpty": "No scores yet"
   },
   "games": {
     "waterfall": {
@@ -55,5 +60,22 @@
   },
   "footer": {
     "madeIn": "Made in Iceland"
+  },
+  "account": {
+    "title": "Your profile",
+    "subtitle": "Upload a picture for your account and the leaderboards.",
+    "backHome": "Back to home",
+    "choosePhoto": "Choose photo",
+    "removePhoto": "Remove photo",
+    "uploading": "Uploading…",
+    "hint": "JPEG, PNG, WebP, or GIF · max 2 MB",
+    "loading": "Loading…"
+  },
+  "consent": {
+    "title": "Storage & cookies",
+    "body": "We use browser storage so you can sign in and save game progress. Hosting may set necessary cookies. We do not use third‑party advertising cookies. Optional analytics helps us improve the site if you allow it.",
+    "essentialCheckbox": "I agree to necessary storage for sign-in and daily games (required to continue).",
+    "analyticsCheckbox": "Allow optional anonymous analytics (you can leave this off).",
+    "accept": "Save choices"
   }
 }

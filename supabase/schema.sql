@@ -5,9 +5,10 @@
 
 -- 1. Profiles (username from sign-up metadata; display name on leaderboard)
 create table public.profiles (
-  id         uuid primary key references auth.users on delete cascade,
-  username   text not null,
-  created_at timestamptz default now(),
+  id          uuid primary key references auth.users on delete cascade,
+  username    text not null,
+  avatar_url  text,
+  created_at  timestamptz default now(),
   constraint username_length check (char_length(trim(username)) between 3 and 24)
 );
 
@@ -82,10 +83,11 @@ create or replace view public.leaderboard as
 select
   p.id as user_id,
   p.username,
+  p.avatar_url,
   coalesce(sum(case when gs.game_type = 'world'     then gs.xp else 0 end), 0) as world_xp,
   coalesce(sum(case when gs.game_type = 'waterfall' then gs.xp else 0 end), 0) as waterfall_xp,
   coalesce(sum(case when gs.game_type = 'flags'     then gs.xp else 0 end), 0) as flags_xp,
   coalesce(sum(gs.xp), 0) as total_xp
 from public.profiles p
 left join public.game_scores gs on p.id = gs.user_id
-group by p.id, p.username;
+group by p.id, p.username, p.avatar_url;

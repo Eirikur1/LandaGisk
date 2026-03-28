@@ -35,8 +35,9 @@ function GlobeLogo() {
 export default function Header() {
   const locale = useLocale() as "en" | "is";
   const t = useTranslations();
+  const tNav = useTranslations("nav");
   const pathname = usePathname();
-  const { user, username, signOut } = useAuth();
+  const { user, username, avatarUrl, signOut } = useAuth();
 
   const [accountOpen, setAccountOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -120,6 +121,21 @@ export default function Header() {
               color: accountOpen ? "var(--color-blue)" : "var(--color-muted)",
             }}
           >
+            {user && avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt=""
+                className="size-6 rounded-full object-cover shrink-0 ring-1 ring-black/10"
+              />
+            ) : user ? (
+              <span
+                className="size-6 rounded-full flex items-center justify-center shrink-0 font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+              </span>
+            ) : null}
             {user ? (username ?? user.email?.split("@")[0]) : "Account"}
             <svg width="8" height="5" viewBox="0 0 8 5" fill="none" style={{ opacity: 0.5, marginTop: 1 }}>
               <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,6 +196,16 @@ export default function Header() {
                       >
                         {username ?? user.email}
                       </p>
+                    </div>
+                    <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
+                      <Link
+                        href={`/${locale}/account`}
+                        onClick={() => setAccountOpen(false)}
+                        className="block px-4 py-3 text-[11px] tracking-[0.18em] uppercase font-semibold hover:opacity-60 transition-opacity"
+                        style={{ color: "var(--color-blue)", fontFamily: "var(--font-sans)" }}
+                      >
+                        {tNav("profile")}
+                      </Link>
                     </div>
                     <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
                       <button

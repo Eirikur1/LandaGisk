@@ -23,8 +23,8 @@ function resolveSupabaseEnv(): { url: string; anonKey: string } {
 
   if (isValidHttpUrl(url) && anonKey.length > 0) {
     if (url.includes("supabase.com/dashboard")) {
-      console.error(
-        "[supabase] NEXT_PUBLIC_SUPABASE_URL looks like a dashboard link. Use Project URL from Settings → API, e.g. https://YOUR_REF.supabase.co"
+      throw new Error(
+        "NEXT_PUBLIC_SUPABASE_URL must be your Project URL (https://YOUR_REF.supabase.co from Supabase → Settings → API), not a supabase.com/dashboard link. Fix this in Vercel → Environment Variables and redeploy."
       );
     }
     return { url, anonKey };
