@@ -41,7 +41,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       .clipAngle(90)
 
     const allDots: { lng: number; lat: number }[] = []
-    const rotation = [0, 0]
+    const rotation: [number, number] = [0, 0]
     let autoRotate = true
 
     const render = () => {

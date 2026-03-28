@@ -55,7 +55,7 @@ export default function HeroGlobe() {
         .clipAngle(90);
 
       const allDots: { lng: number; lat: number }[] = [];
-      const rotation = [0, 0];
+      const rotation: [number, number] = [0, 0];
       const startTime = performance.now();
 
       const render = () => {
