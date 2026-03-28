@@ -202,6 +202,12 @@ export default function WorldGuesser() {
             guessedProximity={guessedProximity}
             targetCcn3={target.ccn3}
             won={won}
+            panTo={(() => {
+              const last = guesses[0];
+              if (!last) return null;
+              const c = WORLD_COUNTRIES.find((c) => c.name === last);
+              return c ? { lat: c.lat, lon: c.lon } : null;
+            })()}
           />
         </div>
       </div>

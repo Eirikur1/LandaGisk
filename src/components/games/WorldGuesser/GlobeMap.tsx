@@ -10,6 +10,7 @@ interface Props {
   guessedProximity: Map<string, number>;
   targetCcn3: string;
   won: boolean;
+  panTo?: { lat: number; lon: number } | null;
 }
 
 // proximity 0–100 → light blue → app blue → green at 100
@@ -34,11 +35,16 @@ function getStroke(id: string, guessedProximity: Map<string, number>, targetCcn3
   return "#7a9db8";
 }
 
-export default function GlobeMap({ guessedProximity, targetCcn3, won }: Props) {
+export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const rotateRef = useRef<[number, number, number]>([-10, -40, 0]);
   const dragging = useRef(false);
   const lastPos = useRef<[number, number]>([0, 0]);
+  const panningRef = useRef(false);
+  const panStartRef = useRef<[number, number, number]>([-10, -40, 0]);
+  const panTargetRef = useRef<[number, number, number]>([-10, -40, 0]);
+  const panProgressRef = useRef(0);
+  const lastPanToRef = useRef<{ lat: number; lon: number } | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [features, setFeatures] = useState<any[]>([]);
   const [size, setSize] = useState(600);
@@ -68,12 +74,35 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won }: Props) {
     return () => ro.disconnect();
   }, []);
 
-  // Auto-rotate
+  // Trigger pan when panTo changes
+  useEffect(() => {
+    if (!panTo) return;
+    if (lastPanToRef.current?.lat === panTo.lat && lastPanToRef.current?.lon === panTo.lon) return;
+    lastPanToRef.current = panTo;
+    panStartRef.current = [...rotateRef.current] as [number, number, number];
+    panTargetRef.current = [-panTo.lon, -panTo.lat, 0];
+    panProgressRef.current = 0;
+    panningRef.current = true;
+  }, [panTo]);
+
+  // Auto-rotate / pan
   useEffect(() => {
     let running = true;
     const tick = () => {
       if (!running) return;
-      if (!dragging.current) draw();
+      if (!dragging.current) {
+        if (panningRef.current) {
+          panProgressRef.current = Math.min(panProgressRef.current + 0.025, 1);
+          const t = 1 - Math.pow(1 - panProgressRef.current, 3); // ease out cubic
+          rotateRef.current = [
+            panStartRef.current[0] + (panTargetRef.current[0] - panStartRef.current[0]) * t,
+            panStartRef.current[1] + (panTargetRef.current[1] - panStartRef.current[1]) * t,
+            0,
+          ];
+          if (panProgressRef.current >= 1) panningRef.current = false;
+        }
+        draw();
+      }
       animFrameRef.current = requestAnimationFrame(tick);
     };
     animFrameRef.current = requestAnimationFrame(tick);
