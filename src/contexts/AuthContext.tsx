@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseConnectionHint } from "@/lib/supabase";
 import { normalizeUsername, validateUsername } from "@/lib/usernameValidation";
 
 type AuthCtx = {
@@ -68,16 +68,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const id = identifier.trim();
     if (!id) return "Enter your email or username.";
 
-    let email = id;
-    if (!id.includes("@")) {
-      const { data, error } = await supabase.rpc("get_email_for_username", { uname: id });
-      if (error) return error.message;
-      if (!data || typeof data !== "string") return "Unknown email or username.";
-      email = data;
-    }
+    try {
+      let email = id;
+      if (!id.includes("@")) {
+        const { data, error } = await supabase.rpc("get_email_for_username", { uname: id });
+        if (error) return error.message;
+        if (!data || typeof data !== "string") return "Unknown email or username.";
+        email = data;
+      }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return error?.message ?? null;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return error?.message ?? null;
+    } catch (e) {
+      return networkErrorMessage(e);
+    }
   }
 
   async function signUp(
@@ -89,24 +93,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const invalid = validateUsername(normalized);
     if (invalid) return invalid;
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username: normalized } },
-    });
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username: normalized } },
+      });
 
-    if (error) {
-      const msg = error.message.toLowerCase();
-      if (
-        msg.includes("unique") ||
-        msg.includes("duplicate") ||
-        msg.includes("profiles_username")
-      ) {
-        return "That username is already taken.";
+      if (error) {
+        const msg = error.message.toLowerCase();
+        if (
+          msg.includes("unique") ||
+          msg.includes("duplicate") ||
+          msg.includes("profiles_username")
+        ) {
+          return "That username is already taken.";
+        }
+        return error.message;
       }
-      return error.message;
+      return null;
+    } catch (e) {
+      return networkErrorMessage(e);
     }
-    return null;
+  }
+
+  function networkErrorMessage(e: unknown): string {
+    const hint = supabaseConnectionHint();
+    if (e instanceof TypeError && String(e.message).toLowerCase().includes("fetch")) {
+      return hint;
+    }
+    if (e instanceof Error && /failed to fetch|networkerror|load failed/i.test(e.message)) {
+      return hint;
+    }
+    return e instanceof Error ? e.message : hint;
   }
 
   async function signOut() {

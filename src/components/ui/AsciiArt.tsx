@@ -82,12 +82,12 @@ export default function AsciiArt() {
   return (
     <div
       id="globe-root"
-      className="pointer-events-none absolute inset-y-0 right-0 select-none overflow-visible"
-      style={{ width: "min(96vw, 1680px)" }}
+      className="pointer-events-none absolute top-0 right-0 select-none overflow-visible"
+      style={{ width: "min(96vw, 1680px)", height: "100dvh" }}
       aria-hidden="true"
     >
       <div
-        className="absolute inset-y-0 left-0 z-10"
+        className="absolute top-0 bottom-0 left-0 z-10"
         style={{ width: "min(56vw, 24rem)", background: LEFT_FADE }}
       />
 

@@ -40,3 +40,16 @@ function resolveSupabaseEnv(): { url: string; anonKey: string } {
 const { url: supabaseUrl, anonKey: supabaseAnonKey } = resolveSupabaseEnv();
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/** True when real project URL/key are not set (local dev fallback). Auth will not work. */
+export function isSupabasePlaceholder(): boolean {
+  return supabaseUrl === DEV_PLACEHOLDER_URL;
+}
+
+/** User-facing hint when fetch fails or placeholder is in use */
+export function supabaseConnectionHint(): string {
+  if (isSupabasePlaceholder()) {
+    return "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local (Dashboard → Project Settings → API).";
+  }
+  return "Can't reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY (and on Vercel: Environment Variables), your network, and that the project is not paused.";
+}

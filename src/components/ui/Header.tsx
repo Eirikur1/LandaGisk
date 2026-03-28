@@ -144,15 +144,9 @@ export default function Header() {
               >
                 {/* Language toggle */}
                 <div
-                  className="px-4 py-3 flex items-center justify-between gap-3"
+                  className="px-4 py-3 flex items-center justify-start"
                   style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}
                 >
-                  <span
-                    className="text-[10px] tracking-[0.18em] uppercase"
-                    style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-                  >
-                    Language
-                  </span>
                   <Link
                     href={otherLocalePath}
                     onClick={() => setAccountOpen(false)}
