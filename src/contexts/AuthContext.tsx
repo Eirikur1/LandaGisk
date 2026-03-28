@@ -9,13 +9,15 @@ import {
 } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { normalizeUsername, validateUsername } from "@/lib/usernameValidation";
 
 type AuthCtx = {
   user: User | null;
   username: string | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<string | null>;
-  signUp: (email: string, password: string) => Promise<string | null>;
+  /** `identifier` is an email address or your public username */
+  signIn: (identifier: string, password: string) => Promise<string | null>;
+  signUp: (email: string, password: string, username: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -62,14 +64,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function signIn(email: string, password: string): Promise<string | null> {
+  async function signIn(identifier: string, password: string): Promise<string | null> {
+    const id = identifier.trim();
+    if (!id) return "Enter your email or username.";
+
+    let email = id;
+    if (!id.includes("@")) {
+      const { data, error } = await supabase.rpc("get_email_for_username", { uname: id });
+      if (error) return error.message;
+      if (!data || typeof data !== "string") return "Unknown email or username.";
+      email = data;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return error?.message ?? null;
   }
 
-  async function signUp(email: string, password: string): Promise<string | null> {
-    const { error } = await supabase.auth.signUp({ email, password });
-    return error?.message ?? null;
+  async function signUp(
+    email: string,
+    password: string,
+    username: string
+  ): Promise<string | null> {
+    const normalized = normalizeUsername(username);
+    const invalid = validateUsername(normalized);
+    if (invalid) return invalid;
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { username: normalized } },
+    });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+      if (
+        msg.includes("unique") ||
+        msg.includes("duplicate") ||
+        msg.includes("profiles_username")
+      ) {
+        return "That username is already taken.";
+      }
+      return error.message;
+    }
+    return null;
   }
 
   async function signOut() {

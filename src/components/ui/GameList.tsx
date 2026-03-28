@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import GameCard from "@/components/ui/GameCard";
-
-const PREVIEW_COUNT = 3;
 
 type Game = {
   slug: string;
@@ -17,8 +15,7 @@ type Game = {
 
 export default function GameList({ games }: { games: readonly Game[] }) {
   const locale = useLocale();
-  const preview = games.slice(0, PREVIEW_COUNT);
-  const hasMore = games.length > PREVIEW_COUNT;
+  const t = useTranslations("home");
 
   return (
     <div className="border-t border-(--color-border)">
@@ -33,11 +30,11 @@ export default function GameList({ games }: { games: readonly Game[] }) {
           className="text-base font-bold tracking-tight"
           style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
         >
-          Top games this week
+          {t("topGamesThisWeek")}
         </h2>
       </motion.div>
 
-      {preview.map((game, i) => (
+      {games.map((game, i) => (
         <GameCard key={game.slug} {...game} index={i} />
       ))}
 
@@ -53,7 +50,7 @@ export default function GameList({ games }: { games: readonly Game[] }) {
             className="text-[11px] tracking-[0.18em] uppercase font-semibold"
             style={{ color: "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
           >
-            See all games →
+            {t("seeAllGames")}
           </Link>
         </motion.div>
       </motion.div>

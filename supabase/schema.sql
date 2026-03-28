@@ -1,24 +1,40 @@
 -- ============================================================
 -- Run this SQL in your Supabase project's SQL editor.
+-- Already set up? Apply migrations in supabase/migrations/ instead.
 -- ============================================================
 
--- 1. Profiles (one row per user, username derived from email on sign-up)
+-- 1. Profiles (username from sign-up metadata; display name on leaderboard)
 create table public.profiles (
-  id       uuid primary key references auth.users on delete cascade,
-  username text unique not null,
-  created_at timestamptz default now()
+  id         uuid primary key references auth.users on delete cascade,
+  username   text not null,
+  created_at timestamptz default now(),
+  constraint username_length check (char_length(trim(username)) between 3 and 24)
 );
+
+-- Case-insensitive uniqueness
+create unique index profiles_username_lower_idx on public.profiles (lower(trim(username)));
 
 alter table public.profiles enable row level security;
 create policy "Profiles viewable by everyone" on public.profiles for select using (true);
 create policy "Users can update own profile"  on public.profiles for update using (auth.uid() = id);
 
--- Auto-create a profile row when a new user signs up
 create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer set search_path = public as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uname text;
 begin
-  insert into public.profiles (id, username)
-  values (new.id, split_part(new.email, '@', 1));
+  uname := trim(coalesce(new.raw_user_meta_data->>'username', ''));
+  if uname = '' then
+    uname := trim(split_part(new.email, '@', 1));
+  end if;
+  if length(uname) < 3 or length(uname) > 24 then
+    raise exception 'Invalid username';
+  end if;
+  insert into public.profiles (id, username) values (new.id, uname);
   return new;
 end;
 $$;
@@ -26,6 +42,23 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Login with username: map to auth email (client then calls signInWithPassword)
+create or replace function public.get_email_for_username(uname text)
+returns text
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select au.email::text
+  from auth.users au
+  inner join public.profiles p on p.id = au.id
+  where lower(trim(p.username)) = lower(trim(uname))
+  limit 1;
+$$;
+
+grant execute on function public.get_email_for_username(text) to anon, authenticated;
 
 -- 2. Game scores (one row per user per game per day — unique constraint prevents cheating)
 create table public.game_scores (

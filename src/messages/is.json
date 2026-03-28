@@ -7,6 +7,11 @@
     "title": "Dagrun",
     "subtitle": "Ferskur leikur um heiminn á hverjum degi",
     "todaysGames": "Leikir dagsins",
+    "topGamesThisWeek": "Vinsælustu leikir vikunar",
+    "seeAllGames": "Allir leikir →",
+    "statDailyStreak": "Dagleg röð",
+    "statTotalXp": "Heildar XP",
+    "statRankOverall": "Heildarsæti",
     "playNow": "Spila",
     "comingSoon": "Kemur bráðlega"
   },
@@ -22,6 +27,18 @@
     "world": {
       "title": "Landa gisk",
       "description": "Giskaðu á landið út frá lögun þess"
+    },
+    "birds": {
+      "title": "Fuglaþraut",
+      "description": "Þekktu fuglinn dagsins á myndinni"
+    },
+    "plants": {
+      "title": "Plöntuþraut",
+      "description": "Nefndu plöntuna sem leynist á nármyndinni"
+    },
+    "mountains": {
+      "title": "Fjallsfinnari",
+      "description": "Giskaðu á fjallið á einni ljósmynd"
     }
   },
   "game": {

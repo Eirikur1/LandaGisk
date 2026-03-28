@@ -86,6 +86,8 @@ export default function WorldGuesser() {
   const [error, setError] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
+  const [gaveUp, setGaveUp] = useState(false);
+  const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
 
@@ -97,14 +99,16 @@ export default function WorldGuesser() {
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (!raw) return;
-      const parsed = JSON.parse(raw) as string[];
-      if (Array.isArray(parsed)) setGuesses(parsed);
+      const parsed = JSON.parse(raw) as { guesses?: string[]; gaveUp?: boolean };
+      if (Array.isArray(parsed)) { setGuesses(parsed); return; }
+      if (parsed.guesses) setGuesses(parsed.guesses);
+      if (parsed.gaveUp) setGaveUp(true);
     } catch {}
   }, [storageKey]);
 
   useEffect(() => {
-    try { window.localStorage.setItem(storageKey, JSON.stringify(guesses)); } catch {}
-  }, [guesses, storageKey]);
+    try { window.localStorage.setItem(storageKey, JSON.stringify({ guesses, gaveUp })); } catch {}
+  }, [guesses, gaveUp, storageKey]);
 
   const won = guesses.map((n) => WORLD_COUNTRIES.find((c) => c.name === n)).some((c) => c?.code === target.code);
 
@@ -171,9 +175,14 @@ export default function WorldGuesser() {
   }
 
   function clearDay() {
-    setGuesses([]); setError("");
+    setGuesses([]); setError(""); setGaveUp(false); setConfirmGiveUp(false);
     try { window.localStorage.removeItem(storageKey); } catch {}
-    scoreSavedRef.current = false;
+    scoreSavedRef.current = false; confettiFiredRef.current = false;
+  }
+
+  function doGiveUp() {
+    setGaveUp(true);
+    setConfirmGiveUp(false);
   }
 
   return (
@@ -201,9 +210,9 @@ export default function WorldGuesser() {
       <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
 
         {/* Title */}
-        <div className="mb-8">
+        <div className="mb-12">
           <motion.h1
-            className="text-[clamp(2.8rem,8vw,4.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-3"
+            className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -220,7 +229,39 @@ export default function WorldGuesser() {
           >
             {t.subtitle}
           </motion.p>
+          <motion.p
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-6 opacity-80"
+            style={{ fontFamily: "var(--font-sans)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
+          </motion.p>
         </div>
+
+        {/* Gave up banner */}
+        {gaveUp && !won && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-5 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-4"
+          >
+            <div>
+              <p className="font-bold text-(--color-muted)">The answer was <span className="text-(--color-foreground)">{target.name}</span></p>
+              <p className="text-xs text-(--color-muted) mt-0.5">No XP awarded</p>
+            </div>
+            <button
+              type="button"
+              onClick={clearDay}
+              className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity shrink-0"
+              style={{ color: "var(--color-blue)", fontFamily: "var(--font-sans)" }}
+            >
+              Try again
+            </button>
+          </motion.div>
+        )}
 
         {/* Win banner */}
         {won && (
@@ -257,10 +298,10 @@ export default function WorldGuesser() {
                 onChange={(e) => { setValue(e.target.value); setError(""); }}
                 onKeyDown={(e) => { if (e.key === "Enter") onGuess(); }}
                 placeholder={t.input}
-                disabled={won}
+                disabled={won || gaveUp}
                 className="w-full rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue) transition-colors"
               />
-              {!won && suggestions.length > 0 && (
+              {!won && !gaveUp && suggestions.length > 0 && (
                 <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-hidden z-20">
                   {suggestions.map((s) => (
                     <button
@@ -278,7 +319,7 @@ export default function WorldGuesser() {
             <button
               type="button"
               onClick={onGuess}
-              disabled={won}
+              disabled={won || gaveUp}
               className="rounded-xl px-5 py-2.5 text-sm font-bold text-white bg-(--color-blue) disabled:opacity-40 transition-opacity"
             >
               {t.guess}
@@ -294,36 +335,112 @@ export default function WorldGuesser() {
           transition={{ duration: 0.5, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
           className="border-t border-(--color-border)"
         >
-          <div className="flex items-center justify-between pt-4 pb-2">
-            <span
-              className="text-[10px] tracking-[0.22em] uppercase font-semibold"
-              style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+          <div className="flex items-center justify-between pt-5 pb-1">
+            <h2
+              className="text-base font-bold tracking-tight"
+              style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
             >
-              {t.heading} ({rows.length})
-            </span>
-            <button
-              type="button"
-              onClick={clearDay}
-              className="text-[10px] tracking-[0.14em] uppercase hover:opacity-50 transition-opacity"
-              style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-            >
-              {t.reset}
-            </button>
+              {t.heading}
+              {rows.length > 0 && (
+                <span
+                  className="ml-2 text-[10px] tracking-[0.18em] uppercase px-2 py-0.5 rounded-full font-semibold"
+                  style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+                >
+                  {rows.length}
+                </span>
+              )}
+            </h2>
+            {won || gaveUp ? (
+              <button
+                type="button"
+                onClick={clearDay}
+                className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
+                style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+              >
+                {t.reset}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmGiveUp(true)}
+                className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
+                style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+              >
+                Give up
+              </button>
+            )}
+
+            {/* Give up modal */}
+            {confirmGiveUp && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+                  onClick={() => setConfirmGiveUp(false)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.94, y: 12 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.94 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h2
+                      className="text-xl font-black mb-2 text-(--color-foreground)"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      Give up?
+                    </h2>
+                    <p className="text-sm text-(--color-muted) leading-relaxed mb-6">
+                      You won&apos;t earn any XP for today&apos;s game, and the answer will be revealed. You can still play again but won&apos;t appear on the leaderboard.
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={doGiveUp}
+                        className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white hover:opacity-90 transition-opacity"
+                        style={{ background: "#ef4444" }}
+                      >
+                        Yes, give up
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmGiveUp(false)}
+                        className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
+                      >
+                        Keep going
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+            )}
           </div>
 
           {rows.length === 0 ? (
-            <div className="py-8 text-center text-sm text-(--color-muted) opacity-60">
+            <div className="py-8 text-sm text-(--color-muted) opacity-60">
               No guesses yet
             </div>
           ) : (
-            <div className="space-y-1.5">
-              {rows.map((r) => (
+            <div>
+              {rows.map((r) => {
+                const country = WORLD_COUNTRIES.find((c) => c.name === r.name);
+                return (
                 <div
                   key={r.name}
-                  className="grid items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-2.5"
-                  style={{ gridTemplateColumns: "1fr auto auto auto" }}
+                  className="grid items-center gap-3 py-4 border-b border-(--color-border)"
+                  style={{ gridTemplateColumns: "auto 1fr auto auto auto" }}
                 >
-                  <span className="font-semibold text-sm">{r.name}</span>
+                  {country && (
+                    <span
+                      className={`fi fi-${country.code} rounded-sm shrink-0`}
+                      style={{ width: 20, height: 15, display: "inline-block" }}
+                    />
+                  )}
+                  <span
+                    className="font-bold text-base text-(--color-foreground)"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {r.name}
+                  </span>
                   <span className="text-xs text-(--color-muted) whitespace-nowrap tabular-nums">
                     {r.distanceKm.toLocaleString()} km
                   </span>
@@ -335,7 +452,8 @@ export default function WorldGuesser() {
                     {r.proximity}%
                   </span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </motion.div>

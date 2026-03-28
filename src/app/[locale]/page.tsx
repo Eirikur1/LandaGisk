@@ -2,11 +2,12 @@ import { getTranslations } from "next-intl/server";
 import AsciiArt from "@/components/ui/AsciiArt";
 import HeroSplitText from "@/components/ui/HeroSplitText";
 import GameList from "@/components/ui/GameList";
+import HomeLeaderboard from "@/components/ui/HomeLeaderboard";
 
 const GAMES = [
-  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy" as const, available: true },
-  { slug: "flags", titleKey: "games.flags.title", descriptionKey: "games.flags.description", color: "forest" as const, available: true },
-  { slug: "world", titleKey: "games.world.title", descriptionKey: "games.world.description", color: "amber" as const, available: true },
+  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true },
+  { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true },
+  { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true },
 ] as const;
 
 function getTodayStringByLocale(locale: "en" | "is") {
@@ -62,12 +63,14 @@ export default async function HomePage({
 
         {/* Stats — wide tracking labels like reference */}
         <div className="mt-12 pt-8 border-t border-(--color-border) grid grid-cols-3 gap-6">
-          {[
-            { label: "Day streak",  value: "0" },
-            { label: "Total XP",    value: "0" },
-            { label: "Best streak", value: "—" },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex flex-col gap-1.5">
+          {(
+            [
+              { id: "daily", msgKey: "statDailyStreak" as const, value: "0" },
+              { id: "xp", msgKey: "statTotalXp" as const, value: "0" },
+              { id: "rank", msgKey: "statRankOverall" as const, value: "—" },
+            ] as const
+          ).map(({ id, msgKey, value }) => (
+            <div key={id} className="flex flex-col gap-1.5">
               <span
                 className="text-3xl font-black tabular-nums text-(--color-blue) leading-none"
                 style={{ fontFamily: "var(--font-display)" }}
@@ -78,11 +81,13 @@ export default async function HomePage({
                 className="text-[10px] tracking-[0.2em] uppercase text-(--color-muted)"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
-                {label}
+                {t(msgKey)}
               </span>
             </div>
           ))}
         </div>
+
+        <HomeLeaderboard />
       </div>
     </div>
   );

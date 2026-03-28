@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { TbDroplet, TbFlag3, TbWorld, TbArrowRight } from "react-icons/tb";
+import { TbDroplet, TbFlag3, TbWorld, TbArrowRight, TbFeather, TbLeaf, TbMountain } from "react-icons/tb";
 import type { IconType } from "react-icons";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
@@ -12,12 +12,18 @@ const gameIcons: Record<string, IconType> = {
   waterfall: TbDroplet,
   flags:     TbFlag3,
   world:     TbWorld,
+  birds:     TbFeather,
+  plants:    TbLeaf,
+  mountains: TbMountain,
 };
 
 const gameTags: Record<string, string[]> = {
-  waterfall: ["Iceland", "Nature", "Daily"],
-  flags:     ["World",   "Flags",  "Daily"],
+  waterfall: ["Iceland", "Nature",    "Daily"],
+  flags:     ["World",   "Flags",     "Daily"],
   world:     ["World",   "Geography", "Daily"],
+  birds:     ["Nature",  "Wildlife",  "Daily"],
+  plants:    ["Nature",  "Botany",    "Daily"],
+  mountains: ["Nature",  "Geography", "Daily"],
 };
 
 // ── Variants ───────────────────────────────────────────────────────────────

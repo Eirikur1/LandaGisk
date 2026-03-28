@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
+import "flag-icons/css/flag-icons.min.css";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],

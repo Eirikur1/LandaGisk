@@ -7,6 +7,11 @@
     "title": "Dagrun",
     "subtitle": "A fresh world puzzle, every day",
     "todaysGames": "Today's games",
+    "topGamesThisWeek": "Top games this week",
+    "seeAllGames": "See all games →",
+    "statDailyStreak": "Daily streak",
+    "statTotalXp": "Total XP",
+    "statRankOverall": "Overall rank",
     "playNow": "Play",
     "comingSoon": "Coming soon"
   },
@@ -22,6 +27,18 @@
     "world": {
       "title": "Country guess",
       "description": "Guess the country from its silhouette"
+    },
+    "birds": {
+      "title": "Bird spotter",
+      "description": "Identify today's mystery bird from a photo"
+    },
+    "plants": {
+      "title": "Plant ID",
+      "description": "Name the plant hiding in today's close-up"
+    },
+    "mountains": {
+      "title": "Peak finder",
+      "description": "Guess the mountain from a single photograph"
     }
   },
   "game": {

@@ -14,11 +14,12 @@ export default function AuthPage() {
 
   const [tab, setTab] = useState<"signin" | "signup">("signin");
 
-  const [signInEmail, setSignInEmail] = useState("");
+  const [signInIdentifier, setSignInIdentifier] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signInError, setSignInError] = useState("");
   const [signInBusy, setSignInBusy] = useState(false);
 
+  const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpError, setSignUpError] = useState("");
@@ -29,7 +30,7 @@ export default function AuthPage() {
     e.preventDefault();
     setSignInBusy(true);
     setSignInError("");
-    const err = await signIn(signInEmail, signInPassword);
+    const err = await signIn(signInIdentifier, signInPassword);
     setSignInBusy(false);
     if (err) setSignInError(err);
     else router.push(`/${locale}`);
@@ -39,7 +40,7 @@ export default function AuthPage() {
     e.preventDefault();
     setSignUpBusy(true);
     setSignUpError("");
-    const err = await signUp(signUpEmail, signUpPassword);
+    const err = await signUp(signUpEmail, signUpPassword, signUpUsername);
     setSignUpBusy(false);
     if (err) setSignUpError(err);
     else setSignUpDone(true);
@@ -117,12 +118,13 @@ export default function AuthPage() {
           {tab === "signin" ? (
             <form onSubmit={handleSignIn} className="flex flex-col gap-3">
               <Field
-                id="si-email"
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                value={signInEmail}
-                onChange={setSignInEmail}
+                id="si-identifier"
+                label="Email or username"
+                type="text"
+                placeholder="you@example.com or nickname"
+                value={signInIdentifier}
+                onChange={setSignInIdentifier}
+                autoComplete="username"
               />
               <Field
                 id="si-pw"
@@ -131,6 +133,7 @@ export default function AuthPage() {
                 placeholder="••••••••"
                 value={signInPassword}
                 onChange={setSignInPassword}
+                autoComplete="current-password"
               />
               {signInError && <p className="text-xs text-red-400">{signInError}</p>}
               <SubmitButton busy={signInBusy} label="Sign in" busyLabel="Signing in…" />
@@ -155,12 +158,23 @@ export default function AuthPage() {
           ) : (
             <form onSubmit={handleSignUp} className="flex flex-col gap-3">
               <Field
+                id="su-username"
+                label="Username"
+                type="text"
+                placeholder="Public display name (3–24 characters)"
+                value={signUpUsername}
+                onChange={setSignUpUsername}
+                autoComplete="username"
+                hint="Letters, numbers, _ and -. Shown on the leaderboard."
+              />
+              <Field
                 id="su-email"
                 label="Email"
                 type="email"
                 placeholder="you@example.com"
                 value={signUpEmail}
                 onChange={setSignUpEmail}
+                autoComplete="email"
               />
               <Field
                 id="su-pw"
@@ -170,6 +184,7 @@ export default function AuthPage() {
                 value={signUpPassword}
                 onChange={setSignUpPassword}
                 minLength={6}
+                autoComplete="new-password"
               />
               {signUpError && <p className="text-xs text-red-400">{signUpError}</p>}
               <SubmitButton busy={signUpBusy} label="Create account" busyLabel="Creating…" />
@@ -195,7 +210,15 @@ export default function AuthPage() {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function Field({
-  id, label, type, placeholder, value, onChange, minLength,
+  id,
+  label,
+  type,
+  placeholder,
+  value,
+  onChange,
+  minLength,
+  autoComplete,
+  hint,
 }: {
   id: string;
   label: string;
@@ -204,6 +227,8 @@ function Field({
   value: string;
   onChange: (v: string) => void;
   minLength?: number;
+  autoComplete?: string;
+  hint?: string;
 }) {
   return (
     <div
@@ -221,9 +246,13 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         required
         minLength={minLength}
+        autoComplete={autoComplete}
         className="bg-transparent outline-none w-full"
         style={{ color: "rgba(255,255,255,0.85)", fontSize: "14px" }}
       />
+      {hint ? (
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginTop: "-2px" }}>{hint}</p>
+      ) : null}
     </div>
   );
 }

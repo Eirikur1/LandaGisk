@@ -10,11 +10,12 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
   const { signIn, signUp } = useAuth();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
 
-  const [signInEmail, setSignInEmail] = useState("");
+  const [signInIdentifier, setSignInIdentifier] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signInError, setSignInError] = useState("");
   const [signInBusy, setSignInBusy] = useState(false);
 
+  const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpError, setSignUpError] = useState("");
@@ -25,7 +26,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setSignInBusy(true);
     setSignInError("");
-    const err = await signIn(signInEmail, signInPassword);
+    const err = await signIn(signInIdentifier, signInPassword);
     setSignInBusy(false);
     if (err) setSignInError(err);
     else onClose();
@@ -35,7 +36,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setSignUpBusy(true);
     setSignUpError("");
-    const err = await signUp(signUpEmail, signUpPassword);
+    const err = await signUp(signUpEmail, signUpPassword, signUpUsername);
     setSignUpBusy(false);
     if (err) setSignUpError(err);
     else setSignUpDone(true);
@@ -103,13 +104,14 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
               </div>
               <form onSubmit={handleSignIn} className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-identifier">Email or username</Label>
                   <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={signInEmail}
-                    onChange={(e) => setSignInEmail(e.target.value)}
+                    id="signin-identifier"
+                    type="text"
+                    placeholder="you@example.com or nickname"
+                    value={signInIdentifier}
+                    onChange={(e) => setSignInIdentifier(e.target.value)}
+                    autoComplete="username"
                     required
                   />
                 </div>
@@ -121,6 +123,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
                     placeholder="••••••••"
                     value={signInPassword}
                     onChange={(e) => setSignInPassword(e.target.value)}
+                    autoComplete="current-password"
                     required
                   />
                 </div>
@@ -167,6 +170,21 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
               </div>
               <form onSubmit={handleSignUp} className="grid gap-4">
                 <div className="grid gap-2">
+                  <Label htmlFor="signup-username">Username</Label>
+                  <Input
+                    id="signup-username"
+                    type="text"
+                    placeholder="Public name (3–24 characters)"
+                    value={signUpUsername}
+                    onChange={(e) => setSignUpUsername(e.target.value)}
+                    autoComplete="username"
+                    required
+                  />
+                  <p className="text-[11px] text-(--color-muted)">
+                    Letters, numbers, _ and -. Shown on the leaderboard. Offensive names are blocked.
+                  </p>
+                </div>
+                <div className="grid gap-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input
                     id="signup-email"
@@ -174,6 +192,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
                     placeholder="you@example.com"
                     value={signUpEmail}
                     onChange={(e) => setSignUpEmail(e.target.value)}
+                    autoComplete="email"
                     required
                   />
                 </div>
@@ -185,6 +204,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
                     placeholder="Min. 6 characters"
                     value={signUpPassword}
                     onChange={(e) => setSignUpPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                     minLength={6}
                   />
