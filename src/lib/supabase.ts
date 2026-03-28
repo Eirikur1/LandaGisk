@@ -22,6 +22,11 @@ function resolveSupabaseEnv(): { url: string; anonKey: string } {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? "";
 
   if (isValidHttpUrl(url) && anonKey.length > 0) {
+    if (url.includes("supabase.com/dashboard")) {
+      console.error(
+        "[supabase] NEXT_PUBLIC_SUPABASE_URL looks like a dashboard link. Use Project URL from Settings → API, e.g. https://YOUR_REF.supabase.co"
+      );
+    }
     return { url, anonKey };
   }
 

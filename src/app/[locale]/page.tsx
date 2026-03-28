@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import AsciiArt from "@/components/ui/AsciiArt";
+import HeroGlobe from "@/components/ui/HeroGlobe";
 import HeroSplitText from "@/components/ui/HeroSplitText";
 import GameList from "@/components/ui/GameList";
 import HomeLeaderboard from "@/components/ui/HomeLeaderboard";
@@ -31,7 +31,7 @@ export default async function HomePage({
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* ASCII art — right half, absolute */}
-      <AsciiArt />
+      <HeroGlobe />
 
       {/* Left content column */}
       <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
@@ -62,7 +62,7 @@ export default async function HomePage({
 
 
         {/* Stats — wide tracking labels like reference */}
-        <div className="mt-12 pt-8 border-t border-(--color-border) grid grid-cols-3 gap-6">
+        <div className="mt-6 pt-4 grid grid-cols-3 gap-6">
           {(
             [
               { id: "daily", msgKey: "statDailyStreak" as const, value: "0" },

@@ -42,7 +42,7 @@ export default function GameList({ games }: { games: readonly Game[] }) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="pt-4 pb-2"
+        className="pt-3 pb-1"
       >
         <motion.div whileHover={{ x: 6 }} transition={{ type: "spring", stiffness: 400, damping: 20 }} className="inline-block">
           <Link

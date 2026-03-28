@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, useParams } from "next/navigation";
-import AuthGlobe from "@/components/ui/AuthGlobe";
+import RotatingEarth from "@/components/ui/wireframe-dotted-globe";
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
@@ -67,7 +67,7 @@ export default function AuthPage() {
     >
       {/* ── Left: Globe ─────────────────────────────────────────── */}
       <div className="hidden lg:flex flex-1 items-center justify-center relative overflow-hidden">
-        <AuthGlobe />
+        <RotatingEarth width={600} height={600} />
         {/* Dagrun wordmark top-left */}
         <motion.span
           className="absolute top-8 left-10 text-[11px] font-bold tracking-[0.22em] uppercase"

@@ -158,7 +158,7 @@ export default function HomeLeaderboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="mt-10 pt-8 border-t border-(--color-border)"
+      className="mt-6 pt-5 border-t border-(--color-border)"
     >
       <motion.p
         initial={{ opacity: 0, y: 6 }}
