@@ -67,17 +67,18 @@ export default function AuthPage() {
     >
       {/* ── Left: Globe ─────────────────────────────────────────── */}
       <div className="hidden lg:flex flex-1 items-center justify-center relative overflow-hidden">
-        <RotatingEarth width={600} height={600} />
+        <RotatingEarth width={600} height={600} noControls />
         {/* Dagrun wordmark top-left */}
-        <motion.span
-          className="absolute top-8 left-10 text-[11px] font-bold tracking-[0.22em] uppercase"
+        <motion.a
+          href={`/${locale}`}
+          className="absolute top-8 left-10 text-[11px] font-bold tracking-[0.22em] uppercase hover:opacity-60 transition-opacity"
           style={{ color: "rgba(255,255,255,0.35)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
           Dagrun
-        </motion.span>
+        </motion.a>
       </div>
 
       {/* Divider */}

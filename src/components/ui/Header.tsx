@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import {
@@ -45,11 +45,13 @@ export default function Header() {
   const t = useTranslations();
   const tNav = useTranslations("nav");
   const pathname = usePathname();
-  const router = useRouter();
   const { user, username, avatarUrl, signOut } = useAuth();
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
+
+  // Hide on auth pages
+  if (pathname.includes("/auth")) return null;
 
   return (
     <motion.div

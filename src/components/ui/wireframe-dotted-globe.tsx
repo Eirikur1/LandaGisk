@@ -10,9 +10,10 @@ interface RotatingEarthProps {
   width?: number
   height?: number
   className?: string
+  noControls?: boolean
 }
 
-export default function RotatingEarth({ width = 800, height = 600, className = "" }: RotatingEarthProps) {
+export default function RotatingEarth({ width = 800, height = 600, className = "", noControls = false }: RotatingEarthProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -53,9 +54,11 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       context.arc(containerWidth / 2, containerHeight / 2, currentScale, 0, 2 * Math.PI)
       context.fillStyle = "#0d0d0d"
       context.fill()
-      context.strokeStyle = "rgba(255,255,255,0.12)"
-      context.lineWidth = 1.5 * scaleFactor
-      context.stroke()
+      if (!noControls) {
+        context.strokeStyle = "rgba(255,255,255,0.12)"
+        context.lineWidth = 1.5 * scaleFactor
+        context.stroke()
+      }
 
       if (!allDots.length) return
 
@@ -140,15 +143,17 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       render()
     }
 
-    canvas.addEventListener("mousedown", handleMouseDown)
-    canvas.addEventListener("wheel", handleWheel)
+    if (!noControls) {
+      canvas.addEventListener("mousedown", handleMouseDown)
+      canvas.addEventListener("wheel", handleWheel)
+    }
 
     return () => {
       rotationTimer.stop()
       canvas.removeEventListener("mousedown", handleMouseDown)
       canvas.removeEventListener("wheel", handleWheel)
     }
-  }, [width, height])
+  }, [width, height, noControls])
 
   if (error) {
     return (
@@ -168,9 +173,6 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         className="w-full h-auto rounded-2xl"
         style={{ maxWidth: "100%", height: "auto", background: "#0d0d0d" }}
       />
-      <div className="absolute bottom-4 left-4 text-xs text-muted-foreground px-2 py-1 rounded-md dark bg-neutral-900">
-        Drag to rotate • Scroll to zoom
-      </div>
     </div>
   )
 }
