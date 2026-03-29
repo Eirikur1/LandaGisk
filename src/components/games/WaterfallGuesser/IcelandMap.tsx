@@ -274,14 +274,14 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
       className="absolute"
       style={{
         right: "max(2vw, 1rem)",
-        top: "40%",
-        translateY: "-50%",
+        top: "8rem",
         width: "min(68vw, calc(100vw - 440px))",
         height: "min(70vh, 620px)",
       }}
       initial={{ opacity: 0, x: "8vw" }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 1.1, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
+      suppressHydrationWarning
     >
       <div
         ref={containerRef}
