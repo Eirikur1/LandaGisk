@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 
 type Leader = {
   user_id: string;
@@ -17,12 +18,12 @@ function Avatar({ leader }: { leader: Leader }) {
   const initials = (leader.username ?? "?").slice(0, 2).toUpperCase();
   if (leader.avatar_url) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <OptimizedAvatar
         src={leader.avatar_url}
         alt=""
+        width={28}
+        height={28}
         className="rounded-full object-cover shrink-0"
-        style={{ width: 28, height: 28 }}
       />
     );
   }
@@ -115,16 +116,23 @@ export default function HomeLeaderboard() {
 
   useEffect(() => { void load(false); }, [load]);
 
+  // Avoid Supabase Realtime WebSocket here: it logs browser console errors when the socket
+  // cannot connect (e.g. Lighthouse, offline, DNS issues) and isn’t required for this widget.
   useEffect(() => {
-    const channel = supabase
-      .channel("home-lb")
-      .on("postgres_changes", { event: "*", schema: "public", table: "game_scores" }, () => void load(true))
-      .subscribe();
-    const onFocus = () => void load(true);
+    const refresh = () => void load(true);
+    const onFocus = () => refresh();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
     window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 60_000);
     return () => {
       window.removeEventListener("focus", onFocus);
-      void supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.clearInterval(interval);
     };
   }, [load]);
 

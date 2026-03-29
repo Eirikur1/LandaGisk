@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -304,8 +305,13 @@ export default function Header() {
                 >
                   <span className="flex size-6 items-center justify-center">
                     {user && avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={avatarUrl} alt="" className="size-6 rounded-full object-cover ring-1 ring-black/10" />
+                      <OptimizedAvatar
+                        src={avatarUrl}
+                        alt=""
+                        width={24}
+                        height={24}
+                        className="size-6 rounded-full object-cover ring-1 ring-black/10"
+                      />
                     ) : user ? (
                       <span
                         className="size-6 rounded-full flex items-center justify-center font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"

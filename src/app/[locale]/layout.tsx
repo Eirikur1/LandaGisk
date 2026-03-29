@@ -10,6 +10,16 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
 import "flag-icons/css/flag-icons.min.css";
 
+function supabaseOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
@@ -42,9 +52,15 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const preconnectSupabase = supabaseOrigin();
 
   return (
     <html lang={locale} className={`${playfair.variable} ${interSans.variable} h-full`}>
+      <head>
+        {preconnectSupabase ? (
+          <link rel="preconnect" href={preconnectSupabase} crossOrigin="anonymous" />
+        ) : null}
+      </head>
       <body
         suppressHydrationWarning
         className="min-h-full flex flex-col bg-(--color-background)"

@@ -11,6 +11,7 @@ import {
   removeAvatarObject,
   setProfileAvatarUrl,
 } from "@/lib/avatarStorage";
+import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 
 export default function AccountPage() {
   const locale = useLocale();
@@ -149,8 +150,7 @@ export default function AccountPage() {
           style={{ width: 112, height: 112, fontSize: 36 }}
         >
           {displaySrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={displaySrc} alt="" className="w-full h-full object-cover" />
+            <OptimizedAvatar src={displaySrc} alt="" width={112} height={112} className="w-full h-full object-cover" />
           ) : (
             initials
           )}
