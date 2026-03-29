@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -7,22 +8,123 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut, Trophy, ChevronDown } from "lucide-react";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPopup,
+  NavigationMenuPositioner,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu-1";
+import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, ArrowRight, MinusCircle } from "lucide-react";
+
+const menuItemVariants = {
+  rest: {},
+  hover: {},
+};
+
+const menuIcon = {
+  rest: { rotate: 0, scale: 1, y: 0 },
+  hover: {
+    rotate: -14,
+    scale: 1.3,
+    y: -2,
+    transition: { type: "spring" as const, stiffness: 380, damping: 10 },
+  },
+};
+
+const menuArrow = {
+  rest: { x: -4, opacity: 0 },
+  hover: {
+    x: 0,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 350, damping: 22 },
+  },
+};
+
+type DropdownItemProps =
+  | { variant: "game" | "plain"; href: string; icon: React.ElementType; label: React.ReactNode; active?: boolean; fontFamily?: string; fontWeight?: number; onClick?: never }
+  | { variant: "destructive"; href?: never; icon: React.ElementType; label: React.ReactNode; onClick: () => void; active?: never; fontFamily?: string; fontWeight?: never };
+
+function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeight, ...rest }: DropdownItemProps) {
+  if (variant === "destructive") {
+    const { onClick } = rest as { onClick: () => void };
+    return (
+      <motion.div variants={menuItemVariants} initial="rest" whileHover="hover" className="w-full group">
+        <button
+          type="button"
+          onClick={onClick}
+          className="w-full flex flex-row items-center justify-between gap-2.5 rounded-sm p-2 text-sm hover:bg-red-50 transition-colors cursor-pointer"
+          style={{ fontFamily }}
+        >
+          <span className="flex items-center gap-2.5 text-red-600 group-hover:text-red-700 transition-colors duration-200">
+            <motion.span variants={menuIcon} className="inline-flex">
+              <Icon size={14} />
+            </motion.span>
+            {label}
+          </span>
+          <motion.span variants={menuArrow} className="inline-flex">
+            <ArrowRight size={12} className="text-red-500" />
+          </motion.span>
+        </button>
+      </motion.div>
+    );
+  }
+
+  const { href } = rest as { href: string };
+
+  if (variant === "game") {
+    return (
+      <motion.div variants={menuItemVariants} initial="rest" whileHover="hover" className="w-full group">
+        <NavigationMenuLink
+          className="flex-row! items-center"
+          render={
+            <Link
+              href={href}
+              className="flex flex-row items-center justify-between gap-2.5 w-full rounded-sm p-2 text-sm hover:bg-accent transition-colors"
+              style={{ fontFamily, fontWeight: active ? 700 : (fontWeight ?? 500) }}
+            />
+          }
+        >
+          <span className="flex items-center gap-2.5 group-hover:text-(--color-blue) transition-colors duration-200">
+            <motion.span variants={menuIcon} className="inline-flex">
+              <Icon size={14} />
+            </motion.span>
+            {label}
+          </span>
+          <motion.span variants={menuArrow} className="inline-flex">
+            <ArrowRight size={12} className="text-(--color-blue)" />
+          </motion.span>
+        </NavigationMenuLink>
+      </motion.div>
+    );
+  }
+
+  return (
+    <NavigationMenuLink
+      className="flex-row! items-center gap-2.5"
+      render={
+        <Link
+          href={href}
+          className="flex flex-row items-center gap-2.5 w-full rounded-sm p-2 text-sm hover:bg-accent transition-colors"
+          style={{ fontFamily, fontWeight }}
+        />
+      }
+    >
+      <Icon size={14} className="opacity-70" />
+      {label}
+    </NavigationMenuLink>
+  );
+}
 
 const GAMES = [
-  { href: "waterfall", titleKey: "games.waterfall.title", available: true },
-  { href: "flags", titleKey: "games.flags.title", available: true },
-  { href: "world", titleKey: "games.world.title", available: true },
-  { href: "birds", titleKey: "games.birds.title", available: false },
-  { href: "plants", titleKey: "games.plants.title", available: false },
-  { href: "mountains", titleKey: "games.mountains.title", available: false },
+  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: Waves },
+  { href: "flags", titleKey: "games.flags.title", available: true, icon: Flag },
+  { href: "world", titleKey: "games.world.title", available: true, icon: Globe2 },
+  { href: "birds", titleKey: "games.birds.title", available: false, icon: Bird },
+  { href: "plants", titleKey: "games.plants.title", available: false, icon: Leaf },
+  { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
 function GlobeLogo() {
@@ -60,6 +162,12 @@ export default function Header() {
   const leaderboardActive = pathname === leaderboardPath || pathname.startsWith(`${leaderboardPath}/`);
   const archivePath = `${gamesBase}/archive`;
   const archiveActive = pathname === archivePath || pathname.startsWith(`${archivePath}/`);
+  const navBtnClass =
+    "inline-flex h-6 max-h-6 min-h-6 items-center justify-center whitespace-nowrap text-[11px] leading-none tracking-[0.18em] uppercase transition-opacity hover:opacity-60";
+  const navTriggerClass = `${navBtnClass} !h-6 !min-h-6 !max-h-6 !rounded-none !bg-transparent !px-0 !py-0 !shadow-none hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent`;
+  /** Icon-only account control: fill header row height so the glyph centers vertically (no text underline offsets). */
+  const accountIconTriggerClass =
+    "inline-flex h-11 min-h-11 max-h-11 w-auto items-center justify-center !rounded-none !bg-transparent !px-0 !py-0 !shadow-none hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent";
 
   // Hide on auth pages
   if (pathname.includes("/auth")) return null;
@@ -97,65 +205,65 @@ export default function Header() {
 
         {/* Center nav: Games ▾ · Leaderboard · Archive */}
         <nav className="flex items-center justify-center gap-5 sm:gap-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap flex items-center gap-1 outline-none"
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  color: gamesHubActive ? "var(--color-blue)" : "var(--color-muted)",
-                  borderBottom: gamesHubActive ? "1px solid var(--color-blue)" : "1px solid transparent",
-                  paddingBottom: "1px",
-                }}
-                aria-haspopup="menu"
-              >
-                {tNav("games")}
-                <ChevronDown size={12} strokeWidth={2.25} className="opacity-60 shrink-0" aria-hidden />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="center"
-              className="min-w-48"
-              style={{
-                background: "rgba(255,255,255,0.96)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-              }}
-            >
-              {GAMES.map(({ href, titleKey, available }) => {
-                const full = `/${locale}/${href}`;
-                const active = available && (pathname === full || pathname.startsWith(`${full}/`));
-                return (
-                  <DropdownMenuItem key={href} asChild={!available}>
-                    {available ? (
-                      <Link
-                        href={full}
-                        className="cursor-pointer"
-                        style={{ fontFamily: "var(--font-sans)", fontWeight: active ? 700 : 500 }}
-                      >
-                        {t(titleKey as Parameters<typeof t>[0])}
-                      </Link>
-                    ) : (
-                      <span
-                        className="flex w-full items-center justify-between text-(--color-muted) cursor-default"
-                        style={{ fontFamily: "var(--font-sans)" }}
-                      >
-                        {t(titleKey as Parameters<typeof t>[0])}
-                        <span className="text-[10px] uppercase tracking-[0.12em] opacity-70">
-                          {t("home.comingSoon" as Parameters<typeof t>[0])}
-                        </span>
-                      </span>
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NavigationMenu className="flex-none">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger
+                  className={navTriggerClass}
+                  style={{
+                    fontFamily: "var(--font-sans)",
+                    color: gamesHubActive ? "var(--color-blue)" : "var(--color-muted)",
+                    borderBottom: gamesHubActive ? "1px solid var(--color-blue)" : "1px solid transparent",
+                    paddingBottom: "1px",
+                  }}
+                >
+                  <span className="inline-flex h-full items-center">{tNav("games")}</span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="p-0 w-auto min-w-56">
+                  <ul className="grid gap-0.5 p-1.5">
+                    {GAMES.map(({ href, titleKey, available, icon: GameIcon }) => {
+                      const full = `/${locale}/${href}`;
+                      const active = available && (pathname === full || pathname.startsWith(`${full}/`));
+                      return (
+                        <li key={href}>
+                          {available ? (
+                            <DropdownItem
+                              href={full}
+                              icon={GameIcon}
+                              label={t(titleKey as Parameters<typeof t>[0])}
+                              variant="game"
+                              active={active}
+                              fontFamily="var(--font-sans)"
+                            />
+                          ) : (
+                            <div
+                              className="flex items-center justify-between rounded-sm p-2 text-sm text-(--color-muted)"
+                              style={{ fontFamily: "var(--font-sans)" }}
+                            >
+                              <span className="flex items-center gap-2.5">
+                                <GameIcon size={14} className="opacity-60" />
+                                <span>{t(titleKey as Parameters<typeof t>[0])}</span>
+                              </span>
+                              <MinusCircle size={13} className="opacity-40" />
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+            <NavigationMenuPositioner>
+              <NavigationMenuPopup
+                className="bg-white/96 backdrop-blur-xl shadow-lg outline outline-black/10"
+              />
+            </NavigationMenuPositioner>
+          </NavigationMenu>
 
           <Link
             href={leaderboardPath}
-            className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap"
+            className={navBtnClass}
             style={{
               fontFamily: "var(--font-sans)",
               color: leaderboardActive ? "var(--color-blue)" : "var(--color-muted)",
@@ -168,7 +276,7 @@ export default function Header() {
 
           <Link
             href={archivePath}
-            className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap"
+            className={navBtnClass}
             style={{
               fontFamily: "var(--font-sans)",
               color: archiveActive ? "var(--color-blue)" : "var(--color-muted)",
@@ -181,102 +289,97 @@ export default function Header() {
         </nav>
 
         {/* Right: Account dropdown */}
-        <div className="flex items-center justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap font-medium outline-none"
-                style={{ fontFamily: "var(--font-sans)", color: "var(--color-muted)" }}
-              >
-                {user && avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" className="size-6 rounded-full object-cover shrink-0 ring-1 ring-black/10" />
-                ) : user ? (
-                  <span
-                    className="size-6 rounded-full flex items-center justify-center shrink-0 font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+        <div className="flex h-full min-h-0 self-stretch items-center justify-end">
+          <NavigationMenu className="flex h-full flex-none items-center">
+            <NavigationMenuList className="h-full items-center">
+              <NavigationMenuItem className="flex h-full items-center">
+                <NavigationMenuTrigger
+                  hideChevron
+                  aria-label={tNav("accountMenu")}
+                  className={accountIconTriggerClass}
+                  style={{
+                    fontFamily: "var(--font-sans)",
+                    color: "var(--color-muted)",
+                  }}
+                >
+                  <span className="flex size-6 items-center justify-center">
+                    {user && avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt="" className="size-6 rounded-full object-cover ring-1 ring-black/10" />
+                    ) : user ? (
+                      <span
+                        className="size-6 rounded-full flex items-center justify-center font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
+                        style={{ fontFamily: "var(--font-sans)" }}
+                        aria-hidden
+                      >
+                        {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="size-[18px] text-(--color-muted)" strokeWidth={1.75} aria-hidden />
+                    )}
                   </span>
-                ) : (
-                  <User size={14} />
-                )}
-                {user ? (username ?? user.email?.split("@")[0]) : "Account"}
-                <svg width="8" height="5" viewBox="0 0 8 5" fill="none" style={{ opacity: 0.5, marginTop: 1 }}>
-                  <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              align="end"
-              className="w-56"
-              style={{
-                background: "rgba(255,255,255,0.96)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-              }}
-            >
-              {/* Language */}
-              <DropdownMenuItem asChild>
-                <Link href={otherLocalePath} className="flex items-center gap-2 cursor-pointer">
-                  <Image
-                    src={locale === "en" ? "/flags/is.svg" : "/flags/gb.svg"}
-                    alt=""
-                    width={14}
-                    height={14}
-                    className="rounded-sm"
-                  />
-                  <span>{otherLocale.toUpperCase()}</span>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              {user ? (
-                <>
-                  <DropdownMenuLabel className="font-normal">
-                    <p className="text-xs text-muted-foreground">Signed in as</p>
-                    <p className="font-semibold text-foreground truncate">{username ?? user.email}</p>
-                  </DropdownMenuLabel>
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem asChild>
-                    <Link href={`/${locale}/account`} className="flex items-center gap-2 cursor-pointer">
-                      <Settings size={14} />
-                      {tNav("profile")}
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link href={`/${locale}/leaderboard`} className="flex items-center gap-2 cursor-pointer">
-                      <Trophy size={14} />
-                      Leaderboard
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    onClick={() => void signOut()}
-                    className="flex items-center gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-                  >
-                    <LogOut size={14} />
-                    Sign out
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem asChild>
-                  <Link href={`/${locale}/auth`} className="flex items-center gap-2 cursor-pointer font-semibold" style={{ color: "var(--color-blue)" }}>
-                    <User size={14} />
-                    Sign in
-                  </Link>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="p-0 w-auto min-w-56">
+                  <ul className="grid gap-0.5 p-1.5">
+                    <li>
+                      <DropdownItem
+                        href={otherLocalePath}
+                        icon={() => (
+                          <Image
+                            src={locale === "en" ? "/flags/is.svg" : "/flags/gb.svg"}
+                            alt=""
+                            width={14}
+                            height={14}
+                            className="rounded-sm"
+                          />
+                        )}
+                        label={otherLocale.toUpperCase()}
+                        variant="plain"
+                        fontFamily="var(--font-sans)"
+                      />
+                    </li>
+                    {user ? (
+                      <>
+                        <li className="my-1 h-px bg-border" />
+                        <li className="px-2 py-1">
+                          <p className="text-xs text-muted-foreground">Signed in as</p>
+                          <p className="text-sm font-semibold text-foreground truncate">{username ?? user.email}</p>
+                        </li>
+                        <li className="my-1 h-px bg-border" />
+                        <li>
+                          <DropdownItem href={`/${locale}/account`} icon={Settings} label={tNav("profile")} variant="game" fontFamily="var(--font-sans)" />
+                        </li>
+                        <li>
+                          <DropdownItem href={`/${locale}/leaderboard`} icon={Trophy} label="Leaderboard" variant="game" fontFamily="var(--font-sans)" />
+                        </li>
+                        <li className="my-1 h-px bg-border" />
+                        <li>
+                          <DropdownItem icon={LogOut} label="Sign out" variant="destructive" onClick={() => void signOut()} fontFamily="var(--font-sans)" />
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="my-1 h-px bg-border" />
+                        <li>
+                          <DropdownItem
+                            href={`/${locale}/auth`}
+                            icon={User}
+                            label="Sign in"
+                            variant="game"
+                            fontFamily="var(--font-sans)"
+                            fontWeight={600}
+                          />
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+            <NavigationMenuPositioner sideOffset={6}>
+              <NavigationMenuPopup className="bg-white/96 backdrop-blur-xl shadow-lg outline outline-black/10" />
+            </NavigationMenuPositioner>
+          </NavigationMenu>
         </div>
       </header>
     </motion.div>

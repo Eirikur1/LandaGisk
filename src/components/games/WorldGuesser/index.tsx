@@ -588,7 +588,7 @@ export default function WorldGuesser() {
           style={{ fontFamily: "var(--font-sans)" }}
         >
           Loading…
-        </div>
+    </div>
       }
     >
       <WorldGuesserInner />
