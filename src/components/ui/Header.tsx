@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, Settings, LogOut, Trophy } from "lucide-react";
 
 const GAMES = [
   { href: "waterfall", titleKey: "games.waterfall.title" },
@@ -37,24 +45,11 @@ export default function Header() {
   const t = useTranslations();
   const tNav = useTranslations("nav");
   const pathname = usePathname();
+  const router = useRouter();
   const { user, username, avatarUrl, signOut } = useAuth();
-
-  const [accountOpen, setAccountOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function onPointerDown(e: PointerEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setAccountOpen(false);
-      }
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, []);
 
   return (
     <motion.div
@@ -111,126 +106,102 @@ export default function Header() {
         </nav>
 
         {/* Right: Account dropdown */}
-        <div className="relative flex items-center justify-end" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setAccountOpen((o) => !o)}
-            className="flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap font-medium"
-            style={{
-              fontFamily: "var(--font-sans)",
-              color: accountOpen ? "var(--color-blue)" : "var(--color-muted)",
-            }}
-          >
-            {user && avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt=""
-                className="size-6 rounded-full object-cover shrink-0 ring-1 ring-black/10"
-              />
-            ) : user ? (
-              <span
-                className="size-6 rounded-full flex items-center justify-center shrink-0 font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
-                style={{ fontFamily: "var(--font-sans)" }}
+        <div className="flex items-center justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap font-medium outline-none"
+                style={{ fontFamily: "var(--font-sans)", color: "var(--color-muted)" }}
               >
-                {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
-              </span>
-            ) : null}
-            {user ? (username ?? user.email?.split("@")[0]) : "Account"}
-            <svg width="8" height="5" viewBox="0 0 8 5" fill="none" style={{ opacity: 0.5, marginTop: 1 }}>
-              <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-
-          <AnimatePresence>
-            {accountOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="absolute top-full right-0 mt-2 min-w-[160px] rounded-2xl overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.96)",
-                  backdropFilter: "blur(16px)",
-                  WebkitBackdropFilter: "blur(16px)",
-                  border: "1px solid rgba(0,0,0,0.09)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-                }}
-              >
-                {/* Language toggle */}
-                <div
-                  className="px-4 py-3 flex items-center justify-start"
-                  style={{ borderBottom: "1px solid rgba(0,0,0,0.07)" }}
-                >
-                  <Link
-                    href={otherLocalePath}
-                    onClick={() => setAccountOpen(false)}
-                    className="flex items-center gap-1.5 text-[11px] tracking-[0.12em] uppercase font-semibold hover:opacity-60 transition-opacity"
-                    style={{ color: "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
+                {user && avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="" className="size-6 rounded-full object-cover shrink-0 ring-1 ring-black/10" />
+                ) : user ? (
+                  <span
+                    className="size-6 rounded-full flex items-center justify-center shrink-0 font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
+                    style={{ fontFamily: "var(--font-sans)" }}
                   >
-                    <Image
-                      src={locale === "en" ? "/flags/is.svg" : "/flags/gb.svg"}
-                      alt=""
-                      width={13}
-                      height={13}
-                      className="rounded-sm"
-                    />
-                    {otherLocale.toUpperCase()}
-                  </Link>
-                </div>
-
-                {/* Auth */}
-                {user ? (
-                  <>
-                    <div className="px-4 py-2.5">
-                      <p
-                        className="text-[10px] tracking-[0.14em] uppercase"
-                        style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-                      >
-                        Signed in as
-                      </p>
-                      <p
-                        className="text-[12px] font-semibold mt-0.5 truncate"
-                        style={{ color: "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
-                      >
-                        {username ?? user.email}
-                      </p>
-                    </div>
-                    <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-                      <Link
-                        href={`/${locale}/account`}
-                        onClick={() => setAccountOpen(false)}
-                        className="block px-4 py-3 text-[11px] tracking-[0.18em] uppercase font-semibold hover:opacity-60 transition-opacity"
-                        style={{ color: "var(--color-blue)", fontFamily: "var(--font-sans)" }}
-                      >
-                        {tNav("profile")}
-                      </Link>
-                    </div>
-                    <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-                      <button
-                        type="button"
-                        onClick={() => { void signOut(); setAccountOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-[11px] tracking-[0.18em] uppercase hover:opacity-60 transition-opacity"
-                        style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-                      >
-                        Sign out
-                      </button>
-                    </div>
-                  </>
+                    {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+                  </span>
                 ) : (
-                  <Link
-                    href={`/${locale}/auth`}
-                    onClick={() => setAccountOpen(false)}
-                    className="block px-4 py-3 text-[11px] tracking-[0.18em] uppercase font-bold hover:opacity-60 transition-opacity"
-                    style={{ color: "var(--color-blue)", fontFamily: "var(--font-sans)" }}
+                  <User size={14} />
+                )}
+                {user ? (username ?? user.email?.split("@")[0]) : "Account"}
+                <svg width="8" height="5" viewBox="0 0 8 5" fill="none" style={{ opacity: 0.5, marginTop: 1 }}>
+                  <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="end"
+              className="w-56"
+              style={{
+                background: "rgba(255,255,255,0.96)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+              }}
+            >
+              {/* Language */}
+              <DropdownMenuItem asChild>
+                <Link href={otherLocalePath} className="flex items-center gap-2 cursor-pointer">
+                  <Image
+                    src={locale === "en" ? "/flags/is.svg" : "/flags/gb.svg"}
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="rounded-sm"
+                  />
+                  <span>{otherLocale.toUpperCase()}</span>
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {user ? (
+                <>
+                  <DropdownMenuLabel className="font-normal">
+                    <p className="text-xs text-muted-foreground">Signed in as</p>
+                    <p className="font-semibold text-foreground truncate">{username ?? user.email}</p>
+                  </DropdownMenuLabel>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem asChild>
+                    <Link href={`/${locale}/account`} className="flex items-center gap-2 cursor-pointer">
+                      <Settings size={14} />
+                      {tNav("profile")}
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link href={`/${locale}/leaderboard`} className="flex items-center gap-2 cursor-pointer">
+                      <Trophy size={14} />
+                      Leaderboard
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => void signOut()}
+                    className="flex items-center gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
                   >
+                    <LogOut size={14} />
+                    Sign out
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link href={`/${locale}/auth`} className="flex items-center gap-2 cursor-pointer font-semibold" style={{ color: "var(--color-blue)" }}>
+                    <User size={14} />
                     Sign in
                   </Link>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
     </motion.div>

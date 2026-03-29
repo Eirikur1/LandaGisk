@@ -347,10 +347,6 @@ export default function FlagGuesser() {
                       onClick={() => { setValue(s.name); setError(""); }}
                       className="w-full text-left px-4 py-2 text-sm hover:bg-(--color-blue-light) transition-colors"
                     >
-                      <span
-                        className={`fi fi-${s.code} rounded-sm mr-2 inline-block align-middle`}
-                        style={{ width: 18, height: 13 }}
-                      />
                       {s.name}
                     </button>
                   ))}
