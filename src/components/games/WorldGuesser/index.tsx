@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, Suspense } from "react";
+import Link from "next/link";
 import { useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { WORLD_COUNTRIES, type WorldCountry } from "@/data/worldCountries";
 import GlobeMap from "./GlobeMap";
 import { useAuth } from "@/contexts/AuthContext";
@@ -70,16 +73,18 @@ function directionArrow(bearing: number) {
   return ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"][Math.round(bearing / 45) % 8]!;
 }
 
-function ymdNow() { return new Date().toISOString().slice(0, 10); }
-
 function seededIndex(seed: string, mod: number) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
   return Math.abs(h) % mod;
 }
 
-export default function WorldGuesser() {
+function WorldGuesserInner() {
   const locale = (useLocale() as "en" | "is") || "en";
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const day = useMemo(() => parseGameDateParam(dateParam) ?? ymdUtcNow(), [dateParam]);
+  const isArchive = useMemo(() => day !== ymdUtcNow(), [day]);
   const t = copy[locale];
   const { user } = useAuth();
 
@@ -89,14 +94,36 @@ export default function WorldGuesser() {
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
   const [gaveUp, setGaveUp] = useState(false);
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
+  const helpSeenKey = "help-seen:world";
+  const [showHelp, setShowHelp] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem(helpSeenKey)) setShowHelp(true);
+    } catch {}
+  }, []);
+
+  function dismissHelp(permanent: boolean) {
+    setShowHelp(false);
+    if (permanent) {
+      try { window.localStorage.setItem(helpSeenKey, "1"); } catch {}
+    }
+  }
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
 
-  const day = useMemo(() => ymdNow(), []);
   const storageKey = `world-guesser:${day}`;
   const target = useMemo(() => WORLD_COUNTRIES[seededIndex(day, WORLD_COUNTRIES.length)]!, [day]);
 
   useEffect(() => {
+    setGuesses([]);
+    setGaveUp(false);
+    setEarnedXp(null);
+    setError("");
+    setValue("");
+    setConfirmGiveUp(false);
+    scoreSavedRef.current = false;
+    confettiFiredRef.current = false;
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (!raw) return;
@@ -188,6 +215,15 @@ export default function WorldGuesser() {
 
   return (
     <>
+      <button
+        type="button"
+        onClick={() => setShowHelp(true)}
+        className="fixed top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
+        aria-label="How to play"
+      >
+        ?
+      </button>
+
       {/* ── Right: Globe (absolute, like the hero) ──────────────── */}
       <div
         className="pointer-events-none absolute inset-y-0 right-0 select-none overflow-visible"
@@ -215,6 +251,70 @@ export default function WorldGuesser() {
 
       {/* ── Left: Game UI (mirrors hero left column) ────────────── */}
       <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
+
+        {isArchive && (
+          <div
+            className="mb-4 rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-2 text-xs text-(--color-muted)"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            <span className="text-(--color-foreground) font-semibold">{day}</span>
+            {" · "}
+            <Link href={`/${locale}/world`} className="underline underline-offset-2 hover:opacity-70 transition-opacity">
+              Today&apos;s puzzle
+            </Link>
+          </div>
+        )}
+
+        {/* Help modal */}
+        {showHelp && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+            onClick={() => dismissHelp(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-black mb-4 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
+                How to play
+              </h2>
+              <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
+                <p>A mystery country is chosen each day. <strong className="text-(--color-foreground)">Type a country name</strong> and submit your guess.</p>
+                <p>Each guess shows you the <strong className="text-(--color-foreground)">distance, direction, and proximity</strong> to the target country, helping you zero in with each attempt.</p>
+                <p>The proximity score goes from 0% (opposite side of Earth) to 100% (correct). A new country every day.</p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-(--color-border)">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-muted) font-semibold mb-2">XP scoring</p>
+                <div className="flex flex-wrap gap-2">
+                  {[{ label: "1 guess", xp: 1000 }, { label: "2 guesses", xp: 800 }, { label: "3 guesses", xp: 600 }, { label: "4–5 guesses", xp: 400 }, { label: "6+ guesses", xp: 200 }].map((r) => (
+                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}>
+                      {r.label} → +{r.xp}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => dismissHelp(false)}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
+                >
+                  Got it
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismissHelp(true)}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
+                >
+                  Don&apos;t show again
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Title */}
         <div className="mb-12">
@@ -476,5 +576,22 @@ export default function WorldGuesser() {
         </motion.div>
       </div>
     </>
+  );
+}
+
+export default function WorldGuesser() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="relative min-h-[40vh] grid place-items-center text-(--color-muted) text-sm"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          Loading…
+        </div>
+      }
+    >
+      <WorldGuesserInner />
+    </Suspense>
   );
 }

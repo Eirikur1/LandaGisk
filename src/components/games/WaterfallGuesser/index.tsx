@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, Suspense } from "react";
+import Link from "next/link";
 import { useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { WATERFALLS } from "@/data/waterfalls";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -25,8 +28,6 @@ function distanceLabel(km: number): string {
   return `${Math.round(km)} km`;
 }
 
-function ymdNow() { return new Date().toISOString().slice(0, 10); }
-
 function seededIndex(seed: string, mod: number) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -44,18 +45,36 @@ interface SavedState {
   totalXp: number;
 }
 
-export default function WaterfallGuesser() {
+function WaterfallGuesserInner() {
   const locale = (useLocale() as "en" | "is") || "en";
-  void locale;
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const day = useMemo(() => parseGameDateParam(dateParam) ?? ymdUtcNow(), [dateParam]);
+  const isArchive = useMemo(() => day !== ymdUtcNow(), [day]);
   const { user } = useAuth();
+  const helpSeenKey = "help-seen:waterfall";
+  const [showHelp, setShowHelp] = useState(false);
 
-  const day = useMemo(() => ymdNow(), []);
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem(helpSeenKey)) setShowHelp(true);
+    } catch {}
+  }, []);
+
+  function dismissHelp(permanent: boolean) {
+    setShowHelp(false);
+    if (permanent) {
+      try { window.localStorage.setItem(helpSeenKey, "1"); } catch {}
+    }
+  }
+
   const storageKey = `waterfall-guesser:${day}`;
   const target = useMemo(() => WATERFALLS[seededIndex(day + "waterfall", WATERFALLS.length)]!, [day]);
 
   const [saved, setSaved] = useState<SavedState | null>(null);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageAspect, setImageAspect] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState(false);
   const [nameValue, setNameValue] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
@@ -64,6 +83,7 @@ export default function WaterfallGuesser() {
 
   useEffect(() => {
     setImageUrl(null);
+    setImageAspect(null);
     const title = encodeURIComponent(target.name.replace(/ /g, "_"));
     fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
       .then((r) => r.json())
@@ -75,6 +95,11 @@ export default function WaterfallGuesser() {
   }, [target.name]);
 
   useEffect(() => {
+    setSaved(null);
+    setEarnedXp(null);
+    setNameValue("");
+    scoreSavedRef.current = false;
+    confettiFiredRef.current = false;
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (!raw) return;
@@ -158,8 +183,80 @@ export default function WaterfallGuesser() {
         targetPin={targetPin}
         disabled={!!saved}
       />
+      <button
+        type="button"
+        onClick={() => setShowHelp(true)}
+        className="fixed top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
+        aria-label="How to play"
+      >
+        ?
+      </button>
 
       <div className="relative z-10 max-w-sm px-8 pt-2 pb-10">
+
+        {isArchive && (
+          <div
+            className="mb-4 rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-2 text-xs text-(--color-muted)"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            <span className="text-(--color-foreground) font-semibold">{day}</span>
+            {" · "}
+            <Link href={`/${locale}/waterfall`} className="underline underline-offset-2 hover:opacity-70 transition-opacity">
+              Today&apos;s puzzle
+            </Link>
+          </div>
+        )}
+
+        {/* Help modal */}
+        {showHelp && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+            onClick={() => dismissHelp(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-black mb-4 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
+                How to play
+              </h2>
+              <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
+                <p>A mystery waterfall photo is shown. <strong className="text-(--color-foreground)">Click on the Iceland map</strong> to place your guess where you think it is located.</p>
+                <p>After guessing the location, you get a chance to <strong className="text-(--color-foreground)">name the waterfall</strong> for a bonus XP reward.</p>
+                <p>A new waterfall is picked every day — come back tomorrow for a fresh challenge.</p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-(--color-border)">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-muted) font-semibold mb-2">XP scoring</p>
+                <div className="flex flex-wrap gap-2">
+                  {[{ label: "≤10 km", xp: 1000 }, { label: "≤25 km", xp: 800 }, { label: "≤50 km", xp: 600 }, { label: "≤100 km", xp: 400 }, { label: "≤200 km", xp: 200 }, { label: ">200 km", xp: 50 }, { label: "Correct name", xp: 300 }].map((r) => (
+                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}>
+                      {r.label} → +{r.xp}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => dismissHelp(false)}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
+                >
+                  Got it
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismissHelp(true)}
+                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
+                >
+                  Don&apos;t show again
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Title */}
         <div className="mb-5">
@@ -206,12 +303,20 @@ export default function WaterfallGuesser() {
         >
           <div
             className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22)] bg-(--color-surface)"
-            style={{ aspectRatio: "16/9", cursor: imageUrl ? "zoom-in" : "default" }}
+            style={{ aspectRatio: imageAspect ?? 16 / 9, cursor: imageUrl ? "zoom-in" : "default" }}
             onClick={() => { if (imageUrl) setLightbox(true); }}
           >
             {imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={imageUrl} alt="Mystery waterfall" className="w-full h-full object-cover" />
+              <img
+                src={imageUrl}
+                alt="Mystery waterfall"
+                className="w-full h-full object-cover"
+                onLoad={(e) => {
+                  const { naturalWidth, naturalHeight } = e.currentTarget;
+                  if (naturalWidth && naturalHeight) setImageAspect(naturalWidth / naturalHeight);
+                }}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="w-6 h-6 rounded-full border-2 border-(--color-blue) border-t-transparent animate-spin" />
@@ -424,5 +529,22 @@ export default function WaterfallGuesser() {
         </motion.div>
       </div>
     </>
+  );
+}
+
+export default function WaterfallGuesser() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="relative min-h-[40vh] grid place-items-center text-(--color-muted) text-sm"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          Loading…
+        </div>
+      }
+    >
+      <WaterfallGuesserInner />
+    </Suspense>
   );
 }

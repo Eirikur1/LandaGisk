@@ -2,7 +2,18 @@
   "nav": {
     "home": "Home",
     "games": "Games",
+    "leaderboard": "Leaderboard",
+    "archive": "Archive",
     "profile": "Profile"
+  },
+  "archive": {
+    "title": "Archive",
+    "description": "Pick a past day and play that day’s puzzles. Progress is saved per day; leaderboard scores use the puzzle date.",
+    "date": "Day",
+    "colWaterfall": "Waterfalls",
+    "colFlags": "Flags",
+    "colWorld": "Country",
+    "play": "Play"
   },
   "home": {
     "title": "Dagrun",

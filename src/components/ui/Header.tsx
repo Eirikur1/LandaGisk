@@ -14,12 +14,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut, Trophy } from "lucide-react";
+import { User, Settings, LogOut, Trophy, ChevronDown } from "lucide-react";
 
 const GAMES = [
-  { href: "waterfall", titleKey: "games.waterfall.title" },
-  { href: "flags",     titleKey: "games.flags.title" },
-  { href: "world",     titleKey: "games.world.title" },
+  { href: "waterfall", titleKey: "games.waterfall.title", available: true },
+  { href: "flags", titleKey: "games.flags.title", available: true },
+  { href: "world", titleKey: "games.world.title", available: true },
+  { href: "birds", titleKey: "games.birds.title", available: false },
+  { href: "plants", titleKey: "games.plants.title", available: false },
+  { href: "mountains", titleKey: "games.mountains.title", available: false },
 ];
 
 function GlobeLogo() {
@@ -49,6 +52,14 @@ export default function Header() {
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
+
+  const gamesBase = `/${locale}`;
+  const gamesRoutes = GAMES.filter((g) => g.available).map((g) => `${gamesBase}/${g.href}`);
+  const gamesHubActive = gamesRoutes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const leaderboardPath = `${gamesBase}/leaderboard`;
+  const leaderboardActive = pathname === leaderboardPath || pathname.startsWith(`${leaderboardPath}/`);
+  const archivePath = `${gamesBase}/archive`;
+  const archiveActive = pathname === archivePath || pathname.startsWith(`${archivePath}/`);
 
   // Hide on auth pages
   if (pathname.includes("/auth")) return null;
@@ -84,27 +95,89 @@ export default function Header() {
           <GlobeLogo />
         </Link>
 
-        {/* Center nav */}
-        <nav className="flex items-center justify-center gap-6">
-          {GAMES.map(({ href, titleKey }) => {
-            const full = `/${locale}/${href}`;
-            const active = pathname === full || pathname.startsWith(full + "/");
-            return (
-              <Link
-                key={href}
-                href={full}
-                className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap"
+        {/* Center nav: Games ▾ · Leaderboard · Archive */}
+        <nav className="flex items-center justify-center gap-5 sm:gap-6">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap flex items-center gap-1 outline-none"
                 style={{
                   fontFamily: "var(--font-sans)",
-                  color: active ? "var(--color-blue)" : "var(--color-muted)",
-                  borderBottom: active ? "1px solid var(--color-blue)" : "1px solid transparent",
+                  color: gamesHubActive ? "var(--color-blue)" : "var(--color-muted)",
+                  borderBottom: gamesHubActive ? "1px solid var(--color-blue)" : "1px solid transparent",
                   paddingBottom: "1px",
                 }}
+                aria-haspopup="menu"
               >
-                {t(titleKey as Parameters<typeof t>[0])}
-              </Link>
-            );
-          })}
+                {tNav("games")}
+                <ChevronDown size={12} strokeWidth={2.25} className="opacity-60 shrink-0" aria-hidden />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              className="min-w-48"
+              style={{
+                background: "rgba(255,255,255,0.96)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+              }}
+            >
+              {GAMES.map(({ href, titleKey, available }) => {
+                const full = `/${locale}/${href}`;
+                const active = available && (pathname === full || pathname.startsWith(`${full}/`));
+                return (
+                  <DropdownMenuItem key={href} asChild={!available}>
+                    {available ? (
+                      <Link
+                        href={full}
+                        className="cursor-pointer"
+                        style={{ fontFamily: "var(--font-sans)", fontWeight: active ? 700 : 500 }}
+                      >
+                        {t(titleKey as Parameters<typeof t>[0])}
+                      </Link>
+                    ) : (
+                      <span
+                        className="flex w-full items-center justify-between text-(--color-muted) cursor-default"
+                        style={{ fontFamily: "var(--font-sans)" }}
+                      >
+                        {t(titleKey as Parameters<typeof t>[0])}
+                        <span className="text-[10px] uppercase tracking-[0.12em] opacity-70">
+                          {t("home.comingSoon" as Parameters<typeof t>[0])}
+                        </span>
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Link
+            href={leaderboardPath}
+            className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap"
+            style={{
+              fontFamily: "var(--font-sans)",
+              color: leaderboardActive ? "var(--color-blue)" : "var(--color-muted)",
+              borderBottom: leaderboardActive ? "1px solid var(--color-blue)" : "1px solid transparent",
+              paddingBottom: "1px",
+            }}
+          >
+            {tNav("leaderboard")}
+          </Link>
+
+          <Link
+            href={archivePath}
+            className="text-[11px] tracking-[0.18em] uppercase transition-opacity hover:opacity-60 whitespace-nowrap"
+            style={{
+              fontFamily: "var(--font-sans)",
+              color: archiveActive ? "var(--color-blue)" : "var(--color-muted)",
+              borderBottom: archiveActive ? "1px solid var(--color-blue)" : "1px solid transparent",
+              paddingBottom: "1px",
+            }}
+          >
+            {tNav("archive")}
+          </Link>
         </nav>
 
         {/* Right: Account dropdown */}

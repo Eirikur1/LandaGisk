@@ -2,7 +2,18 @@
   "nav": {
     "home": "Heim",
     "games": "Leikir",
+    "leaderboard": "Stigatafla",
+    "archive": "Safn",
     "profile": "Prófíll"
+  },
+  "archive": {
+    "title": "Safn",
+    "description": "Veldu dag í fortíðinni og spilaðu þáttinn frá þeim degi. Framvinda er vistuð fyrir hvern dag; stig á stigatöflu tengjast degi þrautarinnar.",
+    "date": "Dagur",
+    "colWaterfall": "Fossar",
+    "colFlags": "Fánar",
+    "colWorld": "Land",
+    "play": "Spila"
   },
   "home": {
     "title": "Dagrun",
