@@ -207,7 +207,7 @@ export default function Header() {
         {/* Center nav: Games ▾ · Leaderboard · Archive */}
         <nav className="flex items-center justify-center gap-5 sm:gap-6">
           <NavigationMenu className="flex-none">
-            <NavigationMenuList>
+            <NavigationMenuList aria-orientation={undefined}>
               <NavigationMenuItem>
                 <NavigationMenuTrigger
                   className={navTriggerClass}
@@ -292,7 +292,7 @@ export default function Header() {
         {/* Right: Account dropdown */}
         <div className="flex h-full min-h-0 self-stretch items-center justify-end">
           <NavigationMenu className="flex h-full flex-none items-center">
-            <NavigationMenuList className="h-full items-center">
+            <NavigationMenuList className="h-full items-center" aria-orientation={undefined}>
               <NavigationMenuItem className="flex h-full items-center">
                 <NavigationMenuTrigger
                   hideChevron

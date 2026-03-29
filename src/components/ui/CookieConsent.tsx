@@ -60,7 +60,7 @@ export default function CookieConsent() {
         >
           {t("title")}
         </h2>
-        <p id="consent-desc" className="text-xs text-(--color-muted) leading-relaxed mb-4">
+        <p id="consent-desc" className="text-xs leading-relaxed mb-4" style={{ color: "var(--color-tag-text)" }}>
           {t("body")}
         </p>
 
@@ -81,7 +81,7 @@ export default function CookieConsent() {
             onChange={(e) => setAnalyticsOk(e.target.checked)}
             className="mt-0.5 size-3.5 shrink-0 rounded border-(--color-border) accent-(--color-blue)"
           />
-          <span className="text-xs text-(--color-muted) leading-snug">{t("analyticsCheckbox")}</span>
+          <span className="text-xs leading-snug" style={{ color: "var(--color-tag-text)" }}>{t("analyticsCheckbox")}</span>
         </label>
 
         <div className="flex justify-end">

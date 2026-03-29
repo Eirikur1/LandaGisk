@@ -108,7 +108,7 @@ export default function GameCard({
               <span
                 key={tag}
                 className="text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-full shrink-0"
-                style={{ background: "var(--color-tag)", color: "var(--color-muted)" }}
+                style={{ background: "var(--color-tag)", color: "var(--color-tag-text)" }}
               >
                 {tag}
               </span>

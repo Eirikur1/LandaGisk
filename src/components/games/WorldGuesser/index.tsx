@@ -290,7 +290,7 @@ function WorldGuesserInner() {
                 <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-muted) font-semibold mb-2">XP scoring</p>
                 <div className="flex flex-wrap gap-2">
                   {[{ label: "1 guess", xp: 1000 }, { label: "2 guesses", xp: 800 }, { label: "3 guesses", xp: 600 }, { label: "4–5 guesses", xp: 400 }, { label: "6+ guesses", xp: 200 }].map((r) => (
-                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}>
+                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}>
                       {r.label} → +{r.xp}
                     </span>
                   ))}
@@ -451,7 +451,7 @@ function WorldGuesserInner() {
               {rows.length > 0 && (
                 <span
                   className="ml-2 text-[10px] tracking-[0.18em] uppercase px-2 py-0.5 rounded-full font-semibold"
-                  style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+                  style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}
                 >
                   {rows.length}
                 </span>

@@ -232,7 +232,7 @@ function WaterfallGuesserInner() {
                 <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-muted) font-semibold mb-2">XP scoring</p>
                 <div className="flex flex-wrap gap-2">
                   {[{ label: "≤10 km", xp: 1000 }, { label: "≤25 km", xp: 800 }, { label: "≤50 km", xp: 600 }, { label: "≤100 km", xp: 400 }, { label: "≤200 km", xp: 200 }, { label: ">200 km", xp: 50 }, { label: "Correct name", xp: 300 }].map((r) => (
-                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}>
+                    <span key={r.label} className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}>
                       {r.label} → +{r.xp}
                     </span>
                   ))}
@@ -512,7 +512,7 @@ function WaterfallGuesserInner() {
               <span
                 key={row.label}
                 className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+                style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}
               >
                 {row.label} → +{row.xp} XP
               </span>

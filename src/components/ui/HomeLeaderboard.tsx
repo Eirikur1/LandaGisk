@@ -162,7 +162,7 @@ export default function HomeLeaderboard() {
               style={{
                 fontFamily: "var(--font-sans)",
                 background: tab === id ? "var(--color-blue)" : "var(--color-tag)",
-                color: tab === id ? "#fff" : "var(--color-muted)",
+                color: tab === id ? "#fff" : "var(--color-tag-text)",
               }}
             >
               {label}
