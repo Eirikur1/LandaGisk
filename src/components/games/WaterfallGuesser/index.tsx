@@ -2,35 +2,13 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { WATERFALLS } from "@/data/waterfalls";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 import IcelandMap, { distanceKm } from "./IcelandMap";
 
-const copy = {
-  en: {
-    title: "Waterfall",
-    subtitle: "A new Icelandic waterfall every day. Click the map to place your guess.",
-    solved: "Well done!",
-    reset: "Play again",
-    heading: "Your result",
-    km: "km off",
-    xpLabel: (xp: number) => `+${xp} XP`,
-  },
-  is: {
-    title: "Fossar",
-    subtitle: "Nýr íslenskur foss á hverjum degi. Smelltu á kortið til að giska.",
-    solved: "Vel gert!",
-    reset: "Spila aftur",
-    heading: "Niðurstaðan þín",
-    km: "km frá",
-    xpLabel: (xp: number) => `+${xp} XP`,
-  },
-} as const;
-
-/** XP based on distance: closer = more XP */
 function distanceToXp(km: number): number {
   if (km <= 10) return 1000;
   if (km <= 25) return 800;
@@ -39,6 +17,8 @@ function distanceToXp(km: number): number {
   if (km <= 200) return 200;
   return 50;
 }
+
+const NAME_BONUS_XP = 300;
 
 function distanceLabel(km: number): string {
   if (km < 1) return "< 1 km";
@@ -54,28 +34,34 @@ function seededIndex(seed: string, mod: number) {
 }
 
 interface SavedState {
-  guessLng?: number;
-  guessLat?: number;
-  distKm?: number;
-  xp?: number;
+  guessLng: number;
+  guessLat: number;
+  distKm: number;
+  locationXp: number;
+  nameGuess?: string;
+  nameCorrect?: boolean;
+  nameSkipped?: boolean;
+  totalXp: number;
 }
 
 export default function WaterfallGuesser() {
   const locale = (useLocale() as "en" | "is") || "en";
-  const t = copy[locale];
+  void locale;
   const { user } = useAuth();
 
   const day = useMemo(() => ymdNow(), []);
   const storageKey = `waterfall-guesser:${day}`;
   const target = useMemo(() => WATERFALLS[seededIndex(day + "waterfall", WATERFALLS.length)]!, [day]);
 
-  const [submitted, setSubmitted] = useState<SavedState | null>(null);
+  const [saved, setSaved] = useState<SavedState | null>(null);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
 
-  // Fetch image from Wikipedia summary API — always returns a working thumbnail
   useEffect(() => {
     setImageUrl(null);
     const title = encodeURIComponent(target.name.replace(/ /g, "_"));
@@ -88,81 +74,103 @@ export default function WaterfallGuesser() {
       .catch(() => {});
   }, [target.name]);
 
-  // Restore from localStorage
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (!raw) return;
       const parsed = JSON.parse(raw) as SavedState;
-      if (parsed.guessLng !== undefined) setSubmitted(parsed);
+      if (parsed.guessLng !== undefined) setSaved(parsed);
     } catch {}
   }, [storageKey]);
 
-  function handleSubmit(pin: { lng: number; lat: number }) {
-    const km = distanceKm(pin, { lng: target.lng, lat: target.lat });
-    const xp = distanceToXp(km);
-    const state: SavedState = { guessLng: pin.lng, guessLat: pin.lat, distKm: km, xp };
-    setSubmitted(state);
+  function persist(state: SavedState) {
     try { window.localStorage.setItem(storageKey, JSON.stringify(state)); } catch {}
   }
 
-  // Save score to Supabase once per day
-  useEffect(() => {
-    if (!submitted || scoreSavedRef.current || !user) return;
-    scoreSavedRef.current = true;
-    const xp = submitted.xp ?? 0;
-    supabase.from("game_scores")
-      .insert({ user_id: user.id, game_type: "waterfall", game_date: day, guesses: 1, xp, won: true })
-      .then(({ error: err }) => { if (!err) setEarnedXp(xp); });
-  }, [submitted, user, day]);
+  function handleMapSubmit(pin: { lng: number; lat: number }) {
+    const km = distanceKm(pin, { lng: target.lng, lat: target.lat });
+    const locationXp = distanceToXp(km);
+    const state: SavedState = { guessLng: pin.lng, guessLat: pin.lat, distKm: km, locationXp, totalXp: locationXp };
+    setSaved(state);
+    persist(state);
+  }
 
-  // Confetti on very good result (≤25km)
+  function handleNameGuess() {
+    if (!saved || saved.nameGuess !== undefined) return;
+    const correct = nameValue.trim().toLowerCase() === target.name.toLowerCase();
+    const updated: SavedState = {
+      ...saved,
+      nameGuess: nameValue.trim(),
+      nameCorrect: correct,
+      totalXp: saved.locationXp + (correct ? NAME_BONUS_XP : 0),
+    };
+    setSaved(updated);
+    persist(updated);
+  }
+
+  function handleNameSkip() {
+    if (!saved || saved.nameGuess !== undefined) return;
+    const updated: SavedState = { ...saved, nameSkipped: true };
+    setSaved(updated);
+    persist(updated);
+  }
+
+  const nameDone = saved && (saved.nameGuess !== undefined || saved.nameSkipped);
+
   useEffect(() => {
-    if (!submitted || confettiFiredRef.current) return;
-    if ((submitted.distKm ?? 999) > 25) return;
+    if (!nameDone || !saved || scoreSavedRef.current || !user) return;
+    scoreSavedRef.current = true;
+    supabase.from("game_scores")
+      .insert({ user_id: user.id, game_type: "waterfall", game_date: day, guesses: 1, xp: saved.totalXp, won: true })
+      .then(({ error: err }) => { if (!err) setEarnedXp(saved.totalXp); });
+  }, [nameDone, saved, user, day]);
+
+  useEffect(() => {
+    if (!nameDone || !saved || confettiFiredRef.current) return;
+    if (saved.distKm > 50 && !saved.nameCorrect) return;
     confettiFiredRef.current = true;
     import("canvas-confetti").then(({ default: confetti }) => {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ["#2b5ceb", "#22c55e", "#f59e0b", "#ffffff"] });
       setTimeout(() => confetti({ particleCount: 60, spread: 100, origin: { y: 0.55 }, colors: ["#2b5ceb", "#22c55e", "#f59e0b"] }), 300);
     });
-  }, [submitted]);
+  }, [nameDone, saved]);
+
+  useEffect(() => {
+    const q = nameValue.trim().toLowerCase();
+    if (!q) { setNameSuggestions([]); return; }
+    setNameSuggestions(WATERFALLS.map((w) => w.name).filter((n) => n.toLowerCase().includes(q)).slice(0, 6));
+  }, [nameValue]);
 
   function clearDay() {
-    setSubmitted(null);
-    setEarnedXp(null);
-    scoreSavedRef.current = false;
-    confettiFiredRef.current = false;
+    setSaved(null); setEarnedXp(null); setNameValue("");
+    scoreSavedRef.current = false; confettiFiredRef.current = false;
     try { window.localStorage.removeItem(storageKey); } catch {}
   }
 
-  const guessPin = submitted?.guessLng !== undefined
-    ? { lng: submitted.guessLng!, lat: submitted.guessLat! }
-    : null;
-  const targetPin = submitted ? { lng: target.lng, lat: target.lat } : null;
+  const guessPin = saved ? { lng: saved.guessLng, lat: saved.guessLat } : null;
+  const targetPin = saved ? { lng: target.lng, lat: target.lat } : null;
 
   return (
     <>
-      {/* ── Right: Iceland map (self-positioned absolutely) ──────── */}
       <IcelandMap
-        onSubmit={handleSubmit}
+        onSubmit={handleMapSubmit}
         resultPin={guessPin}
         targetPin={targetPin}
-        disabled={!!submitted}
+        disabled={!!saved}
       />
 
-      {/* ── Left: Game UI ────────────────────────────────────────── */}
       <div className="relative z-10 max-w-sm px-8 pt-2 pb-10">
 
         {/* Title */}
-        <div className="mb-6">
+        <div className="mb-5">
           <motion.h1
-            className="text-[clamp(2.5rem,8vw,4.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-3"
+            className="text-[clamp(2.5rem,8vw,4.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {t.title}
+            Waterfall
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) leading-relaxed"
@@ -171,13 +179,17 @@ export default function WaterfallGuesser() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            {t.subtitle}
+            {!saved
+              ? "Click the map to guess where this waterfall is."
+              : !nameDone
+              ? "Now guess its name for bonus XP."
+              : "Come back tomorrow for a new waterfall."}
           </motion.p>
           <motion.p
-            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-4 opacity-80"
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-3 opacity-70"
             style={{ fontFamily: "var(--font-sans)" }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
+            animate={{ opacity: 0.7 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
@@ -190,11 +202,12 @@ export default function WaterfallGuesser() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6"
+          className="mb-5"
         >
           <div
             className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22)] bg-(--color-surface)"
-            style={{ aspectRatio: "16/9" }}
+            style={{ aspectRatio: "16/9", cursor: imageUrl ? "zoom-in" : "default" }}
+            onClick={() => { if (imageUrl) setLightbox(true); }}
           >
             {imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -205,7 +218,7 @@ export default function WaterfallGuesser() {
               </div>
             )}
           </div>
-          {submitted && (
+          {nameDone && (
             <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -216,76 +229,192 @@ export default function WaterfallGuesser() {
                 {target.name}
               </p>
               <p className="text-xs text-(--color-muted)">
-                {target.region} · {target.height_m}m · {target.river}
+                {target.height_m}m · {target.region} · {target.river}
               </p>
             </motion.div>
           )}
         </motion.div>
 
-        {/* Result banner */}
-        {submitted && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mb-5 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-4"
+        {/* Lightbox */}
+        {lightbox && imageUrl && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            onClick={() => setLightbox(false)}
           >
-            <div>
-              <p className="font-bold" style={{ color: (submitted.distKm ?? 999) <= 25 ? "#22c55e" : "var(--color-foreground)" }}>
-                {(submitted.distKm ?? 999) <= 10
-                  ? "Spot on!"
-                  : (submitted.distKm ?? 999) <= 50
-                  ? t.solved
-                  : "Not bad"}
-                {" "}— {distanceLabel(submitted.distKm ?? 0)} {t.km}
-              </p>
-              <p className="text-xs text-(--color-muted) mt-0.5">{target.name}</p>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              {(earnedXp !== null || submitted.xp) && (
-                <div className="rounded-xl bg-(--color-blue) text-white px-3 py-1.5 text-center">
-                  <p className="text-[10px] font-semibold opacity-70 leading-none">XP</p>
-                  <p className="text-lg font-black leading-none">{t.xpLabel(earnedXp ?? submitted.xp ?? 0)}</p>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={clearDay}
-                className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
-                style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-              >
-                {t.reset}
-              </button>
-            </div>
-          </motion.div>
+            <motion.img
+              src={imageUrl}
+              alt="Waterfall"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-[90vw] max-h-[90vh] rounded-2xl shadow-2xl object-contain"
+              style={{ cursor: "zoom-out" }}
+            />
+          </div>
         )}
 
-        {/* XP scale hint */}
-        {!submitted && (
+        {/* Phase 1 result */}
+        <AnimatePresence>
+          {saved && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-3 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-3"
+            >
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.14em] text-(--color-muted) font-semibold mb-0.5" style={{ fontFamily: "var(--font-sans)" }}>Location</p>
+                <p className="font-bold text-(--color-foreground)">{distanceLabel(saved.distKm)} off</p>
+              </div>
+              <div className="rounded-xl bg-(--color-blue) text-white px-3 py-1.5 text-center shrink-0">
+                <p className="text-[10px] font-semibold opacity-70 leading-none">XP</p>
+                <p className="text-lg font-black leading-none">+{saved.locationXp}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Phase 2: name guess input */}
+        <AnimatePresence>
+          {saved && !nameDone && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="mb-3 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-4"
+            >
+              <p className="text-[10px] uppercase tracking-[0.14em] text-(--color-muted) font-semibold mb-3" style={{ fontFamily: "var(--font-sans)" }}>
+                Name it — +{NAME_BONUS_XP} XP bonus
+              </p>
+              <div className="flex gap-2 relative">
+                <div className="flex-1 relative">
+                  <input
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleNameGuess(); }}
+                    placeholder="Type a waterfall name…"
+                    className="w-full rounded-xl border border-(--color-border) bg-white px-3 py-2 text-sm outline-none focus:border-(--color-blue) transition-colors"
+                  />
+                  {nameSuggestions.length > 0 && (
+                    <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-hidden z-20">
+                      {nameSuggestions.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => { setNameValue(s); setNameSuggestions([]); }}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-(--color-blue-light) transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleNameGuess}
+                  disabled={!nameValue.trim()}
+                  className="rounded-xl px-4 py-2 text-sm font-bold text-white bg-(--color-blue) disabled:opacity-40 transition-opacity shrink-0"
+                >
+                  Guess
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleNameSkip}
+                className="mt-2 text-[11px] tracking-[0.14em] uppercase font-semibold text-(--color-muted) hover:opacity-60 transition-opacity"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                Skip
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Phase 2 result */}
+        <AnimatePresence>
+          {nameDone && !saved?.nameSkipped && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-3 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-3"
+            >
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.14em] text-(--color-muted) font-semibold mb-0.5" style={{ fontFamily: "var(--font-sans)" }}>Name</p>
+                <p className="font-bold" style={{ color: saved?.nameCorrect ? "#22c55e" : "var(--color-muted)" }}>
+                  {saved?.nameCorrect ? "Correct!" : `Wrong — ${target.name}`}
+                </p>
+              </div>
+              {saved?.nameCorrect && (
+                <div className="rounded-xl bg-green-500 text-white px-3 py-1.5 text-center shrink-0">
+                  <p className="text-[10px] font-semibold opacity-80 leading-none">BONUS</p>
+                  <p className="text-lg font-black leading-none">+{NAME_BONUS_XP}</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Total + reset */}
+        <AnimatePresence>
+          {nameDone && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="mb-5 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-4"
+            >
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.14em] text-(--color-muted) font-semibold mb-0.5" style={{ fontFamily: "var(--font-sans)" }}>Total</p>
+                <p className="font-bold text-(--color-foreground)">{saved!.totalXp} XP earned</p>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                {earnedXp !== null && (
+                  <div className="rounded-xl bg-(--color-blue) text-white px-3 py-1.5 text-center">
+                    <p className="text-[10px] font-semibold opacity-70 leading-none">XP</p>
+                    <p className="text-lg font-black leading-none">+{earnedXp}</p>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={clearDay}
+                  className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
+                  style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+                >
+                  Play again
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* XP hint */}
+        {!saved && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className="flex gap-2 flex-wrap mb-6"
+            className="flex gap-2 flex-wrap mb-5"
           >
             {[
               { label: "≤10 km", xp: 1000 },
               { label: "≤50 km", xp: 600 },
               { label: "≤100 km", xp: 400 },
-              { label: ">100 km", xp: 200 },
+              { label: "Name", xp: 300 },
             ].map((row) => (
               <span
                 key={row.label}
                 className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
                 style={{ background: "var(--color-tag)", color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
               >
-                {row.label} → {row.xp} XP
+                {row.label} → +{row.xp} XP
               </span>
             ))}
           </motion.div>
         )}
 
-        {/* Leaderboard */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
