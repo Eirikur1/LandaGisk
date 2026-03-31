@@ -102,18 +102,19 @@ function WaterfallGuesserInner() {
   useEffect(() => {
     setImageUrl(null);
     setImageAspect(null);
-    if (target.wikimedia_image_url) {
-      setImageUrl(target.wikimedia_image_url);
-      return;
-    }
     const title = encodeURIComponent(target.name.replace(/ /g, "_"));
     fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
       .then((r) => r.json())
       .then((data) => {
         if (data?.thumbnail?.source) setImageUrl(data.thumbnail.source);
         else if (data?.originalimage?.source) setImageUrl(data.originalimage.source);
+        else if (target.wikimedia_image_url) setImageUrl(target.wikimedia_image_url);
+        else setImageUrl("error");
       })
-      .catch(() => {});
+      .catch(() => {
+        if (target.wikimedia_image_url) setImageUrl(target.wikimedia_image_url);
+        else setImageUrl("error");
+      });
   }, [target.name, target.wikimedia_image_url]);
 
   useEffect(() => {
@@ -338,18 +339,7 @@ function WaterfallGuesserInner() {
                   const { naturalWidth, naturalHeight } = e.currentTarget;
                   if (naturalWidth && naturalHeight) setImageAspect(naturalWidth / naturalHeight);
                 }}
-                onError={() => {
-                  // Direct Wikimedia URL failed — fall back to Wikipedia API
-                  const title = encodeURIComponent(target.name.replace(/ /g, "_"));
-                  fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
-                    .then((r) => r.json())
-                    .then((data) => {
-                      if (data?.thumbnail?.source) setImageUrl(data.thumbnail.source);
-                      else if (data?.originalimage?.source) setImageUrl(data.originalimage.source);
-                      else setImageUrl("error");
-                    })
-                    .catch(() => setImageUrl("error"));
-                }}
+                onError={() => setImageUrl("error")}
               />
             ) : imageUrl === "error" ? (
               <div className="w-full h-full flex items-center justify-center text-(--color-muted) text-sm">
