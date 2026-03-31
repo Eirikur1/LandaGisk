@@ -278,7 +278,7 @@ export const WATERFALLS: Waterfall[] = [
     region: "South Iceland",
     river: "Tungufljót",
     wikipedia_url: "https://en.wikipedia.org/wiki/Faxifoss",
-    wikimedia_image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Faxifoss_Iceland.jpg/800px-Faxifoss_Iceland.jpg",
+    wikimedia_image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Faxifoss%2C_Iceland.jpg/800px-Faxifoss%2C_Iceland.jpg",
   },
   {
     name: "Brúarfoss",
