@@ -7,6 +7,11 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 
+// Module-level cache — survives re-renders and client-side navigation
+const CACHE_TTL = 60_000;
+type CachedLeaders = { allTime: Leader[]; today: Leader[]; ts: number };
+let leaderCache: CachedLeaders | null = null;
+
 type Leader = {
   user_id: string;
   username: string | null;
@@ -61,6 +66,12 @@ export default function HomeLeaderboard() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async (silent: boolean) => {
+    if (leaderCache && Date.now() - leaderCache.ts < CACHE_TTL) {
+      setAllTime(leaderCache.allTime);
+      setToday(leaderCache.today);
+      if (!silent) setLoading(false);
+      return;
+    }
     if (!silent) setLoading(true);
     const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -73,16 +84,14 @@ export default function HomeLeaderboard() {
         .order("total_xp", { ascending: false })
         .limit(5);
 
-      if (atData) {
-        setAllTime(
-          atData.map((r: any) => ({
+      const atRows: Leader[] = atData
+        ? atData.map((r: any) => ({
             user_id: r.user_id,
             username: r.username ?? null,
             avatar_url: r.avatar_url ?? null,
             xp: Number(r.total_xp) || 0,
           }))
-        );
-      }
+        : [];
 
       // Today top 5 — aggregate per user
       const { data: todayData } = await supabase
@@ -92,6 +101,7 @@ export default function HomeLeaderboard() {
         .eq("game_date", todayStr)
         .order("xp", { ascending: false });
 
+      let todayRows: Leader[] = [];
       if (todayData) {
         const map = new Map<string, { xp: number; username: string | null; avatar_url: string | null }>();
         for (const row of todayData as any[]) {
@@ -103,12 +113,15 @@ export default function HomeLeaderboard() {
             avatar_url: profile?.avatar_url ?? prev?.avatar_url ?? null,
           });
         }
-        const sorted = [...map.entries()]
+        todayRows = [...map.entries()]
           .sort((a, b) => b[1].xp - a[1].xp)
           .slice(0, 5)
           .map(([user_id, v]) => ({ user_id, ...v }));
-        setToday(sorted);
       }
+
+      leaderCache = { allTime: atRows, today: todayRows, ts: Date.now() };
+      setAllTime(atRows);
+      setToday(todayRows);
     } finally {
       if (!silent) setLoading(false);
     }
