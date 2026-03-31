@@ -9,8 +9,11 @@ import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { WATERFALLS } from "@/data/waterfalls";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import dynamic from "next/dynamic";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
-import IcelandMap, { distanceKm } from "./IcelandMap";
+import { distanceKm } from "./distanceKm";
+
+const IcelandMap = dynamic(() => import("./IcelandMap"), { ssr: false });
 
 function distanceToXp(km: number): number {
   if (km <= 10) return 1000;

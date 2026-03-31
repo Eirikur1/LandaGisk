@@ -7,7 +7,9 @@ import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { WORLD_COUNTRIES, type WorldCountry } from "@/data/worldCountries";
-import GlobeMap from "./GlobeMap";
+import dynamic from "next/dynamic";
+
+const GlobeMap = dynamic(() => import("./GlobeMap"), { ssr: false });
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { guessesToXp, xpLabel } from "@/lib/xp";
