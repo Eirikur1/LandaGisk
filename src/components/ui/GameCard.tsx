@@ -3,18 +3,21 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { TbDroplet, TbFlag3, TbWorld, TbArrowRight, TbFeather, TbLeaf, TbMountain } from "react-icons/tb";
-import type { IconType } from "react-icons";
+import { Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
 
-const gameIcons: Record<string, IconType> = {
-  waterfall: TbDroplet,
-  flags:     TbFlag3,
-  world:     TbWorld,
-  birds:     TbFeather,
-  plants:    TbLeaf,
-  mountains: TbMountain,
+const gameIcons: Record<string, LucideIcon> = {
+  waterfall: Waves,
+  flags: Flag,
+  world: Globe2,
+  birds: Bird,
+  plants: Leaf,
+  dogbreed: Dog,
+  car: Car,
+  mushroom: Sprout,
+  mountains: Mountain,
 };
 
 const gameTags: Record<string, string[]> = {
@@ -23,6 +26,9 @@ const gameTags: Record<string, string[]> = {
   world:     ["World",   "Geography", "Daily"],
   birds:     ["Nature",  "Wildlife",  "Daily"],
   plants:    ["Nature",  "Botany",    "Daily"],
+  dogbreed:  ["Animals", "Breeds",    "Daily"],
+  car:       ["Cars",    "Models",    "Daily"],
+  mushroom:  ["Nature",  "Fungi",     "Daily"],
   mountains: ["Nature",  "Geography", "Daily"],
 };
 
@@ -73,7 +79,7 @@ export default function GameCard({
 }: GameCardProps) {
   const locale = useLocale();
   const t = useTranslations();
-  const Icon = gameIcons[slug] ?? TbWorld;
+  const Icon = gameIcons[slug] ?? Globe2;
   const tags = gameTags[slug] ?? [];
 
   const inner = (
@@ -83,8 +89,8 @@ export default function GameCard({
       animate="animate"
       whileHover={available ? "hover" : undefined}
       transition={{ delay: index * 0.07, duration: 0.28, ease: "easeOut" }}
-      className="group flex items-start justify-between gap-4 py-6 border-b border-(--color-border)"
-      style={{ opacity: available ? 1 : 0.4, cursor: available ? "pointer" : "default" }}
+      className={`group flex items-start justify-between gap-4 py-6 border-b border-(--color-border)${available ? "" : " opacity-40"}`}
+      style={{ cursor: available ? "pointer" : "default" }}
     >
       {/* Left: icon + content */}
       <div className="flex items-start gap-4 min-w-0">
@@ -124,7 +130,7 @@ export default function GameCard({
       <div className="shrink-0 pt-1">
         {available ? (
           <motion.div variants={rightArrow}>
-            <TbArrowRight
+            <ArrowRight
               size={20}
               className="text-(--color-blue)"
               strokeWidth={2}

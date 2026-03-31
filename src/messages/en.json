@@ -53,6 +53,18 @@
       "title": "Plant ID",
       "description": "Name the plant hiding in today's close-up"
     },
+    "dogbreed": {
+      "title": "Dog breed guess",
+      "description": "Guess the dog breed from a mystery photo"
+    },
+    "car": {
+      "title": "Car guess",
+      "description": "Identify the car model from a close-up shot"
+    },
+    "mushroom": {
+      "title": "Mushroom ID",
+      "description": "Name the mushroom from a macro photo"
+    },
     "mountains": {
       "title": "Peak finder",
       "description": "Guess the mountain from a single photograph"

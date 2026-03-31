@@ -18,7 +18,7 @@ import {
   NavigationMenuPositioner,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
-import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, ArrowRight, MinusCircle } from "lucide-react";
+import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight, MinusCircle } from "lucide-react";
 
 const menuItemVariants = {
   rest: {},
@@ -125,6 +125,9 @@ const GAMES = [
   { href: "world", titleKey: "games.world.title", available: true, icon: Globe2 },
   { href: "birds", titleKey: "games.birds.title", available: false, icon: Bird },
   { href: "plants", titleKey: "games.plants.title", available: false, icon: Leaf },
+  { href: "dogbreed", titleKey: "games.dogbreed.title", available: false, icon: Dog },
+  { href: "car", titleKey: "games.car.title", available: false, icon: Car },
+  { href: "mushroom", titleKey: "games.mushroom.title", available: false, icon: Sprout },
   { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
@@ -206,7 +209,10 @@ export default function Header() {
 
         {/* Center nav: Games ▾ · Leaderboard · Archive */}
         <nav className="flex items-center justify-center gap-5 sm:gap-6">
-          <NavigationMenu className="flex-none">
+          <NavigationMenu
+            className="flex-none"
+            closeDelay={300}
+          >
             <NavigationMenuList aria-orientation={undefined}>
               <NavigationMenuItem>
                 <NavigationMenuTrigger

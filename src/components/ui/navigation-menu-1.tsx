@@ -91,11 +91,11 @@ function NavigationMenuPositioner({
     <NavigationMenuPortal>
       <NavigationMenuPrimitive.NavigationMenu.Positioner
         data-slot="navigation-menu-positioner"
-        sideOffset={16}
+        sideOffset={14}
         collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
         collisionAvoidance={{ side: "none" }}
         className={cn(
-          "z-50 box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:content-[''] data-[instant]:transition-none data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0 data-[side=bottom]:before:h-2.5 data-[side=left]:before:top-0 data-[side=left]:before:right-[-10px] data-[side=left]:before:bottom-0 data-[side=left]:before:w-2.5 data-[side=right]:before:top-0 data-[side=right]:before:bottom-0 data-[side=right]:before:left-[-10px] data-[side=right]:before:w-2.5 data-[side=top]:before:right-0 data-[side=top]:before:bottom-[-10px] data-[side=top]:before:left-0 data-[side=top]:before:h-2.5",
+          "z-50 box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:content-[''] data-[instant]:transition-none data-[side=bottom]:before:top-[-14px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0 data-[side=bottom]:before:h-[14px] data-[side=left]:before:top-0 data-[side=left]:before:right-[-14px] data-[side=left]:before:bottom-0 data-[side=left]:before:w-[14px] data-[side=right]:before:top-0 data-[side=right]:before:bottom-0 data-[side=right]:before:left-[-14px] data-[side=right]:before:w-[14px] data-[side=top]:before:right-0 data-[side=top]:before:bottom-[-14px] data-[side=top]:before:left-0 data-[side=top]:before:h-[14px]",
           className,
         )}
         style={

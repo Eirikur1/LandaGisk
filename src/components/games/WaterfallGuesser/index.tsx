@@ -48,6 +48,9 @@ interface SavedState {
   totalXp: number;
 }
 
+// Module-level cache so re-mounting / navigating back never re-fetches
+const imageUrlCache = new Map<string, string>();
+
 function WaterfallGuesserInner() {
   const locale = (useLocale() as "en" | "is") || "en";
   const t = useTranslations("games.waterfall");
@@ -103,10 +106,42 @@ function WaterfallGuesserInner() {
   }, [user, storageKey]);
 
   useEffect(() => {
-    setImageUrl(null);
     setImageAspect(null);
-    setImageUrl(target.wikimedia_image_url || "error");
-  }, [target.wikimedia_image_url]);
+
+    const cacheKey = target.wikipedia_url || target.wikimedia_image_url;
+    if (imageUrlCache.has(cacheKey)) {
+      setImageUrl(imageUrlCache.get(cacheKey)!);
+      return;
+    }
+
+    setImageUrl(null);
+    let cancelled = false;
+    const match = target.wikipedia_url?.match(/\/wiki\/([^#?]+)/);
+    if (match) {
+      const title = match[1];
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (cancelled) return;
+          const src = (data?.thumbnail?.source ?? data?.originalimage?.source ?? target.wikimedia_image_url) || "error";
+          imageUrlCache.set(cacheKey, src);
+          setImageUrl(src);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            const fallback = target.wikimedia_image_url || "error";
+            imageUrlCache.set(cacheKey, fallback);
+            setImageUrl(fallback);
+          }
+        });
+    } else {
+      const src = target.wikimedia_image_url || "error";
+      imageUrlCache.set(cacheKey, src);
+      setImageUrl(src);
+    }
+
+    return () => { cancelled = true; };
+  }, [target.wikipedia_url, target.wikimedia_image_url]);
 
   useEffect(() => {
     setSaved(null);

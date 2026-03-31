@@ -53,6 +53,18 @@
       "title": "Plöntu gisk",
       "description": "Nefndu plöntuna sem leynist á nármyndinni"
     },
+    "dogbreed": {
+      "title": "Hundakyn gisk",
+      "description": "Gettu hvaða hundakyn er á dularfullri mynd"
+    },
+    "car": {
+      "title": "Bíla gisk",
+      "description": "Þekktu bíltegundina af nærmynd"
+    },
+    "mushroom": {
+      "title": "Sveppa gisk",
+      "description": "Nefndu sveppinn út frá nánni mynd"
+    },
     "mountains": {
       "title": "Fjallsfinnari",
       "description": "Giskaðu á fjallið frá ljósmynd"

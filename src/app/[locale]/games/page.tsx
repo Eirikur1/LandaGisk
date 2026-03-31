@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import GameCard from "@/components/ui/GameCard";
+import HeroGlobeClient from "@/components/ui/HeroGlobeClient";
 
 const ALL_GAMES = [
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true  },
@@ -7,6 +8,9 @@ const ALL_GAMES = [
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true  },
   { slug: "birds",     titleKey: "games.birds.title",     descriptionKey: "games.birds.description",     color: "forest" as const, available: false },
   { slug: "plants",    titleKey: "games.plants.title",    descriptionKey: "games.plants.description",    color: "rust"   as const, available: false },
+  { slug: "dogbreed",  titleKey: "games.dogbreed.title",  descriptionKey: "games.dogbreed.description",  color: "amber"  as const, available: false },
+  { slug: "car",       titleKey: "games.car.title",       descriptionKey: "games.car.description",       color: "navy"   as const, available: false },
+  { slug: "mushroom",  titleKey: "games.mushroom.title",  descriptionKey: "games.mushroom.description",  color: "forest" as const, available: false },
   { slug: "mountains", titleKey: "games.mountains.title", descriptionKey: "games.mountains.description", color: "navy"   as const, available: false },
 ];
 
@@ -17,7 +21,9 @@ export default async function GamesPage() {
   const comingSoon = ALL_GAMES.filter((g) => !g.available);
 
   return (
-    <div className="max-w-xl px-8 pt-10 pb-16">
+    <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
+      <HeroGlobeClient />
+    <div className="relative z-10 max-w-xl px-8 pt-10 pb-16">
 
       <div className="mb-10">
         <h1
@@ -57,6 +63,7 @@ export default async function GamesPage() {
         ))}
       </div>
 
+    </div>
     </div>
   );
 }
