@@ -111,9 +111,28 @@ function WorldGuesserInner() {
   }
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
+  const prevUserRef = useRef<string | null | undefined>(undefined);
 
   const storageKey = `world-guesser:${day}`;
   const target = useMemo(() => WORLD_COUNTRIES[seededIndex(day, WORLD_COUNTRIES.length)]!, [day]);
+
+  // Reset game when user logs in (discard anonymous play)
+  useEffect(() => {
+    const prev = prevUserRef.current;
+    prevUserRef.current = user?.id ?? null;
+    if (prev === undefined) return;
+    if (!prev && user) {
+      try { window.localStorage.removeItem(storageKey); } catch {}
+      setGuesses([]);
+      setGaveUp(false);
+      setEarnedXp(null);
+      setError("");
+      setValue("");
+      setConfirmGiveUp(false);
+      scoreSavedRef.current = false;
+      confettiFiredRef.current = false;
+    }
+  }, [user, storageKey]);
 
   useEffect(() => {
     setGuesses([]);

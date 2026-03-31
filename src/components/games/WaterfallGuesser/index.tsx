@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
@@ -47,6 +47,7 @@ interface SavedState {
 
 function WaterfallGuesserInner() {
   const locale = (useLocale() as "en" | "is") || "en";
+  const t = useTranslations("games.waterfall");
   const searchParams = useSearchParams();
   const dateParam = searchParams.get("date");
   const day = useMemo(() => parseGameDateParam(dateParam) ?? ymdUtcNow(), [dateParam]);
@@ -80,6 +81,23 @@ function WaterfallGuesserInner() {
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
+  const prevUserRef = useRef<string | null | undefined>(undefined);
+
+  // Reset game when user logs in (discard anonymous play)
+  useEffect(() => {
+    const prev = prevUserRef.current;
+    prevUserRef.current = user?.id ?? null;
+    if (prev === undefined) return; // initial mount, skip
+    if (!prev && user) {
+      // Transitioned from logged-out to logged-in — clear saved state
+      try { window.localStorage.removeItem(storageKey); } catch {}
+      setSaved(null);
+      setEarnedXp(null);
+      setNameValue("");
+      scoreSavedRef.current = false;
+      confettiFiredRef.current = false;
+    }
+  }, [user, storageKey]);
 
   useEffect(() => {
     setImageUrl(null);
@@ -267,7 +285,7 @@ function WaterfallGuesserInner() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            Waterfall
+            {t("title")}
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) leading-relaxed"

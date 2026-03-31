@@ -60,20 +60,6 @@ interface Props {
   disabled?: boolean;
 }
 
-const TOWNS: Array<{ name: string; lng: number; lat: number }> = [
-  { name: "Reykjavik", lng: -21.9426, lat: 64.1466 },
-  { name: "Keflavik", lng: -22.5686, lat: 64.0049 },
-  { name: "Akranes", lng: -22.0749, lat: 64.3218 },
-  { name: "Borgarnes", lng: -21.9167, lat: 64.5383 },
-  { name: "Selfoss", lng: -21.0014, lat: 63.9331 },
-  { name: "Hella", lng: -20.3981, lat: 63.8356 },
-  { name: "Vik", lng: -19.0060, lat: 63.4186 },
-  { name: "Akureyri", lng: -18.0878, lat: 65.6885 },
-  { name: "Husavik", lng: -17.3386, lat: 66.0449 },
-  { name: "Egilsstadir", lng: -14.3948, lat: 65.2671 },
-  { name: "Hofn", lng: -15.2139, lat: 64.2539 },
-  { name: "Isafjordur", lng: -23.1240, lat: 66.0748 },
-];
 
 function distanceKm(a: Pin, b: Pin): number {
   const R = 6371;
@@ -119,45 +105,6 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
-      const towns: FeatureCollection<Point> = {
-        type: "FeatureCollection",
-        features: TOWNS.map((t) => ({
-          type: "Feature",
-          geometry: { type: "Point", coordinates: [t.lng, t.lat] },
-          properties: { name: t.name },
-        })),
-      };
-      map.addSource("towns", { type: "geojson", data: towns });
-      map.addLayer({
-        id: "town-points",
-        type: "circle",
-        source: "towns",
-        paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 2.2, 9, 5.5],
-          "circle-color": "#2b5ceb",
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 1.2,
-        },
-      });
-      map.addLayer({
-        id: "town-labels",
-        type: "symbol",
-        source: "towns",
-        layout: {
-          "text-field": ["get", "name"],
-          "text-font": ["Noto Sans Regular"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 3, 8.5, 10, 13],
-          "text-offset": [0.7, -0.8],
-          "text-anchor": "left",
-          "text-allow-overlap": false,
-        },
-        paint: {
-          "text-color": "#0f2d5c",
-          "text-halo-color": "rgba(255, 255, 255, 0.92)",
-          "text-halo-width": 1.2,
-          "text-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.45, 6.5, 0.95],
-        },
-      });
 
       const emptyGame: FeatureCollection<Point | LineString> = { type: "FeatureCollection", features: [] };
       map.addSource("game", { type: "geojson", data: emptyGame });

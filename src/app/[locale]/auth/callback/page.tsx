@@ -19,7 +19,12 @@ export default function AuthOAuthCallbackPage() {
   useEffect(() => {
     const run = async () => {
       const url = window.location.href;
-      const hasCode = new URL(url).searchParams.has("code");
+      const searchParams = new URL(url).searchParams;
+      const hasCode = searchParams.has("code");
+      // Implicit flow: Supabase puts tokens in the hash fragment
+      const hash = window.location.hash;
+      const hasToken = hash.includes("access_token=");
+
       if (hasCode) {
         const { error } = await supabase.auth.exchangeCodeForSession(url);
         if (error) {
@@ -27,6 +32,19 @@ export default function AuthOAuthCallbackPage() {
           setPhase("error");
           return;
         }
+      } else if (hasToken) {
+        // Let Supabase parse the hash — it does this automatically via onAuthStateChange,
+        // but we need to wait a tick for it to process.
+        await new Promise<void>((resolve) => {
+          const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+            if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+              subscription.unsubscribe();
+              resolve();
+            }
+          });
+          // Fallback timeout in case event never fires
+          setTimeout(() => { subscription.unsubscribe(); resolve(); }, 3000);
+        });
       }
 
       const { data: { user } } = await supabase.auth.getUser();

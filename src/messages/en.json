@@ -34,7 +34,7 @@
   },
   "games": {
     "waterfall": {
-      "title": "Waterfalls",
+      "title": "Waterfall of the day",
       "description": "Guess the Icelandic waterfall from a photo"
     },
     "flags": {
