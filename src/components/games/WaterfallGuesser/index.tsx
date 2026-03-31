@@ -74,7 +74,7 @@ function WaterfallGuesserInner() {
 
   const [saved, setSaved] = useState<SavedState | null>(null);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null | "error">(null);
   const [imageAspect, setImageAspect] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState(false);
   const [nameValue, setNameValue] = useState("");
@@ -325,10 +325,10 @@ function WaterfallGuesserInner() {
         >
           <div
             className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22)] bg-(--color-surface)"
-            style={{ aspectRatio: imageAspect ?? 16 / 9, cursor: imageUrl ? "zoom-in" : "default" }}
-            onClick={() => { if (imageUrl) setLightbox(true); }}
+            style={{ aspectRatio: imageAspect ?? 16 / 9, cursor: imageUrl && imageUrl !== "error" ? "zoom-in" : "default" }}
+            onClick={() => { if (imageUrl && imageUrl !== "error") setLightbox(true); }}
           >
-            {imageUrl ? (
+            {imageUrl && imageUrl !== "error" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageUrl}
@@ -338,7 +338,23 @@ function WaterfallGuesserInner() {
                   const { naturalWidth, naturalHeight } = e.currentTarget;
                   if (naturalWidth && naturalHeight) setImageAspect(naturalWidth / naturalHeight);
                 }}
+                onError={() => {
+                  // Direct Wikimedia URL failed — fall back to Wikipedia API
+                  const title = encodeURIComponent(target.name.replace(/ /g, "_"));
+                  fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+                    .then((r) => r.json())
+                    .then((data) => {
+                      if (data?.thumbnail?.source) setImageUrl(data.thumbnail.source);
+                      else if (data?.originalimage?.source) setImageUrl(data.originalimage.source);
+                      else setImageUrl("error");
+                    })
+                    .catch(() => setImageUrl("error"));
+                }}
               />
+            ) : imageUrl === "error" ? (
+              <div className="w-full h-full flex items-center justify-center text-(--color-muted) text-sm">
+                No image available
+              </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="w-6 h-6 rounded-full border-2 border-(--color-blue) border-t-transparent animate-spin" />
@@ -363,7 +379,7 @@ function WaterfallGuesserInner() {
         </motion.div>
 
         {/* Lightbox */}
-        {lightbox && imageUrl && (
+        {lightbox && imageUrl && imageUrl !== "error" && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
             onClick={() => setLightbox(false)}
