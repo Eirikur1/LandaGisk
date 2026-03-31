@@ -102,6 +102,10 @@ function WaterfallGuesserInner() {
   useEffect(() => {
     setImageUrl(null);
     setImageAspect(null);
+    if (target.wikimedia_image_url) {
+      setImageUrl(target.wikimedia_image_url);
+      return;
+    }
     const title = encodeURIComponent(target.name.replace(/ /g, "_"));
     fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
       .then((r) => r.json())
@@ -110,7 +114,7 @@ function WaterfallGuesserInner() {
         else if (data?.originalimage?.source) setImageUrl(data.originalimage.source);
       })
       .catch(() => {});
-  }, [target.name]);
+  }, [target.name, target.wikimedia_image_url]);
 
   useEffect(() => {
     setSaved(null);
