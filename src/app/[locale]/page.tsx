@@ -9,6 +9,7 @@ const GAMES = [
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true },
   { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true },
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true },
+  { slug: "mushroom",  titleKey: "games.mushroom.title",  descriptionKey: "games.mushroom.description",  color: "forest" as const, available: true },
 ] as const;
 
 function getTodayStringByLocale(locale: "en" | "is") {

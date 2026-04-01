@@ -127,7 +127,7 @@ const GAMES = [
   { href: "plants", titleKey: "games.plants.title", available: false, icon: Leaf },
   { href: "dogbreed", titleKey: "games.dogbreed.title", available: false, icon: Dog },
   { href: "car", titleKey: "games.car.title", available: false, icon: Car },
-  { href: "mushroom", titleKey: "games.mushroom.title", available: false, icon: Sprout },
+  { href: "mushroom", titleKey: "games.mushroom.title", available: true, icon: Sprout },
   { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
@@ -143,7 +143,9 @@ function GlobeLogo() {
         />
       </g>
       <defs>
-        <clipPath id="gc"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath>
+        <clipPath id="gc">
+          <path fill="#fff" d="M0 0h16v16H0z" />
+        </clipPath>
       </defs>
     </svg>
   );

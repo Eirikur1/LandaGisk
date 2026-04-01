@@ -1,0 +1,731 @@
+{
+  "summary": {
+    "sourceCategory": "https://is.wikipedia.org/wiki/Flokkur:Sveppir_%C3%A1_%C3%8Dslandi",
+    "fetchedAt": "2026-03-31T22:51:17.171Z",
+    "count": 80,
+    "withThumbnail": 62,
+    "withOriginal": 62
+  },
+  "species": [
+    {
+      "pageid": 154676,
+      "title": "Abrothallus parmeliarum",
+      "pageUrl": "https://is.wikipedia.org/wiki/Abrothallus_parmeliarum",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/2016-06-04_Abrothallus_parmeliarum_%28Sommerf.%29_Arnold_624105.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/2016-06-04_Abrothallus_parmeliarum_%28Sommerf.%29_Arnold_624105.jpg",
+      "thumbWidth": 557,
+      "thumbHeight": 557
+    },
+    {
+      "pageid": 150807,
+      "title": "Asparryðsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Asparry%C3%B0sveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Populus%2C_Melampsora_larici-populina_uredosori.jpg/960px-Populus%2C_Melampsora_larici-populina_uredosori.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/3/39/Populus%2C_Melampsora_larici-populina_uredosori.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 150605,
+      "title": "Asparvendill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Asparvendill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/2014-06-08_Taphrina_populina_425267.jpg/960px-2014-06-08_Taphrina_populina_425267.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/2014-06-08_Taphrina_populina_425267.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 151234,
+      "title": "Barrviðaráta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Barrvi%C3%B0ar%C3%A1ta",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31957,
+      "title": "Berserkjasveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Berserkjasveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Amanita_muscaria_tyndrum.jpg/960px-Amanita_muscaria_tyndrum.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Amanita_muscaria_tyndrum.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 966
+    },
+    {
+      "pageid": 150990,
+      "title": "Birkifrekna",
+      "pageUrl": "https://is.wikipedia.org/wiki/Birkifrekna",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 150713,
+      "title": "Birkiryðsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Birkiry%C3%B0sveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Melampsoridium_betulinum_and_Erysiphe_ornata_var._europaea_on_Birch_-_Betula_sp._%2844499770905%29.jpg/960px-Melampsoridium_betulinum_and_Erysiphe_ornata_var._europaea_on_Birch_-_Betula_sp._%2844499770905%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Melampsoridium_betulinum_and_Erysiphe_ornata_var._europaea_on_Birch_-_Betula_sp._%2844499770905%29.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 533
+    },
+    {
+      "pageid": 149912,
+      "title": "Birkiskjalda",
+      "pageUrl": "https://is.wikipedia.org/wiki/Birkiskjalda",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Tricholoma_fulvum_LC0373.jpg/960px-Tricholoma_fulvum_LC0373.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/Tricholoma_fulvum_LC0373.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 533
+    },
+    {
+      "pageid": 150600,
+      "title": "Birkivendill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Birkivendill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Taphrina.betulina.-.lindsey.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Taphrina.betulina.-.lindsey.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 428
+    },
+    {
+      "pageid": 166268,
+      "title": "Bláblína",
+      "pageUrl": "https://is.wikipedia.org/wiki/Bl%C3%A1bl%C3%ADna",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Stropharia_caerulea_a2_%282%29.JPG/960px-Stropharia_caerulea_a2_%282%29.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Stropharia_caerulea_a2_%282%29.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 150574,
+      "title": "Blásturvendill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Bl%C3%A1sturvendill",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 177362,
+      "title": "Dökklubbi",
+      "pageUrl": "https://is.wikipedia.org/wiki/D%C3%B6kklubbi",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Leccinum_variicolor_LC0365.jpg/960px-Leccinum_variicolor_LC0365.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Leccinum_variicolor_LC0365.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 800
+    },
+    {
+      "pageid": 150572,
+      "title": "Elriblaðvendill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Elribla%C3%B0vendill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Leaf_galls_on_alder_-_geograph.org.uk_-_992685.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Leaf_galls_on_alder_-_geograph.org.uk_-_992685.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 480
+    },
+    {
+      "pageid": 59004,
+      "title": "Fellingablekill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Fellingablekill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Coprinus_plicatilis_s._l._3.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Coprinus_plicatilis_s._l._3.jpg",
+      "thumbWidth": 533,
+      "thumbHeight": 800
+    },
+    {
+      "pageid": 159398,
+      "title": "Fjóluhnefla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Fj%C3%B3luhnefla",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/Russula_gracillima.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/Russula_gracillima.jpg",
+      "thumbWidth": 550,
+      "thumbHeight": 419
+    },
+    {
+      "pageid": 106407,
+      "title": "Fjörusverta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Fj%C3%B6rusverta",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Verrucaria_maura_Kergulan_2008-01-29_13.jpg/960px-Verrucaria_maura_Kergulan_2008-01-29_13.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Verrucaria_maura_Kergulan_2008-01-29_13.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 612
+    },
+    {
+      "pageid": 65755,
+      "title": "Fótgíma",
+      "pageUrl": "https://is.wikipedia.org/wiki/F%C3%B3tg%C3%ADma",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Calvatia_excipuliformis.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Calvatia_excipuliformis.jpg",
+      "thumbWidth": 714,
+      "thumbHeight": 664
+    },
+    {
+      "pageid": 148987,
+      "title": "Fræhyrnublaðmygla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Fr%C3%A6hyrnubla%C3%B0mygla",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 165255,
+      "title": "Furufleiður",
+      "pageUrl": "https://is.wikipedia.org/wiki/Furuflei%C3%B0ur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Recent_research_on_conifer_needle_diseases_-_conference_proceedings%2C_October_14-18%2C_1984%2C_Gulfport%2C_Mississippi_%281986%29_%2820573047465%29.jpg/960px-Recent_research_on_conifer_needle_diseases_-_conference_proceedings%2C_October_14-18%2C_1984%2C_Gulfport%2C_Mississippi_%281986%29_%2820573047465%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/3/36/Recent_research_on_conifer_needle_diseases_-_conference_proceedings%2C_October_14-18%2C_1984%2C_Gulfport%2C_Mississippi_%281986%29_%2820573047465%29.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 1294
+    },
+    {
+      "pageid": 188527,
+      "title": "Fýlubellingur",
+      "pageUrl": "https://is.wikipedia.org/wiki/F%C3%BDlubellingur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/2010-09-26_Phallus_impudicus_crop.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/2010-09-26_Phallus_impudicus_crop.jpg",
+      "thumbWidth": 600,
+      "thumbHeight": 780
+    },
+    {
+      "pageid": 150661,
+      "title": "Gaffalsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gaffalsveppur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 150884,
+      "title": "Gljávíðiryðsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Glj%C3%A1v%C3%AD%C3%B0iry%C3%B0sveppur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31832,
+      "title": "Gorkúla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gork%C3%BAla",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Bovista_nigrescens_BS17.jpg/960px-Bovista_nigrescens_BS17.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Bovista_nigrescens_BS17.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 59008,
+      "title": "Grasblekill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Grasblekill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Coprinopsis_friesii_130518081.jpg/960px-Coprinopsis_friesii_130518081.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Coprinopsis_friesii_130518081.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 31970,
+      "title": "Gráknipplingur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gr%C3%A1knipplingur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Lyophyllum_connatum_1.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Lyophyllum_connatum_1.jpg",
+      "thumbWidth": 450,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 54540,
+      "title": "Gráserkur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gr%C3%A1serkur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/AmanitaVaginata.jpg/960px-AmanitaVaginata.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/57/AmanitaVaginata.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 1071
+    },
+    {
+      "pageid": 165148,
+      "title": "Grenibarrfellisveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Grenibarrfellisveppur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 157118,
+      "title": "Grenisilfri",
+      "pageUrl": "https://is.wikipedia.org/wiki/Grenisilfri",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Cortinarius.caninus3.-.lindsey.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Cortinarius.caninus3.-.lindsey.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 426
+    },
+    {
+      "pageid": 165195,
+      "title": "Guláta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gul%C3%A1ta",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 151172,
+      "title": "Gullhnoðri",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gullhno%C3%B0ri",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Lachnum_bicolor_39775.jpg/960px-Lachnum_bicolor_39775.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Lachnum_bicolor_39775.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 149934,
+      "title": "Gullskjálfandi",
+      "pageUrl": "https://is.wikipedia.org/wiki/Gullskj%C3%A1lfandi",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Tremella_mesenterica_JPL2.jpg/960px-Tremella_mesenterica_JPL2.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Tremella_mesenterica_JPL2.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 607
+    },
+    {
+      "pageid": 150608,
+      "title": "Heggvendill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Heggvendill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Taphrina_padi_galls_on_Bird_Cherry.JPG/960px-Taphrina_padi_galls_on_Bird_Cherry.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Taphrina_padi_galls_on_Bird_Cherry.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 599
+    },
+    {
+      "pageid": 98574,
+      "title": "Himnuskóf",
+      "pageUrl": "https://is.wikipedia.org/wiki/Himnusk%C3%B3f",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Peltigera_membranacea_78681.jpg/960px-Peltigera_membranacea_78681.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/91/Peltigera_membranacea_78681.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 64723,
+      "title": "Hverfisveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Hverfisveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stockschwaemmchen.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stockschwaemmchen.jpg",
+      "thumbWidth": 300,
+      "thumbHeight": 400
+    },
+    {
+      "pageid": 149245,
+      "title": "Hyalopsora aspidiotus",
+      "pageUrl": "https://is.wikipedia.org/wiki/Hyalopsora_aspidiotus",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 29078,
+      "title": "Jötungíma",
+      "pageUrl": "https://is.wikipedia.org/wiki/J%C3%B6tung%C3%ADma",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/Riesenbovist.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/Riesenbovist.jpg",
+      "thumbWidth": 450,
+      "thumbHeight": 387
+    },
+    {
+      "pageid": 31945,
+      "title": "Kantarella",
+      "pageUrl": "https://is.wikipedia.org/wiki/Kantarella",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/Pfifferling.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/Pfifferling.jpg",
+      "thumbWidth": 600,
+      "thumbHeight": 466
+    },
+    {
+      "pageid": 159461,
+      "title": "Klukkublómsryðsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Klukkubl%C3%B3msry%C3%B0sveppur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31827,
+      "title": "Kóngssveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/K%C3%B3ngssveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Boletus_edulis_EtgHollande_041031_091.jpg/960px-Boletus_edulis_EtgHollande_041031_091.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Boletus_edulis_EtgHollande_041031_091.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 163181,
+      "title": "Kragastrympa",
+      "pageUrl": "https://is.wikipedia.org/wiki/Kragastrympa",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31828,
+      "title": "Kúalubbi",
+      "pageUrl": "https://is.wikipedia.org/wiki/K%C3%BAalubbi",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Birkenpilz01.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Birkenpilz01.jpg",
+      "thumbWidth": 400,
+      "thumbHeight": 593
+    },
+    {
+      "pageid": 165128,
+      "title": "Lerkiáta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Lerki%C3%A1ta",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2015-05-20_Lachnellula_willkommii_%28Hartig%29_Dennis_521751.jpg/960px-2015-05-20_Lachnellula_willkommii_%28Hartig%29_Dennis_521751.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/2015-05-20_Lachnellula_willkommii_%28Hartig%29_Dennis_521751.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 158928,
+      "title": "Lerkibarrfellisveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Lerkibarrfellisveppur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31829,
+      "title": "Lerkisveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Lerkisveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Goldr%C3%B6hrling-1.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Goldr%C3%B6hrling-1.jpg",
+      "thumbWidth": 704,
+      "thumbHeight": 704
+    },
+    {
+      "pageid": 31963,
+      "title": "Loðglætingur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Lo%C3%B0gl%C3%A6tingur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Lactarius_torminosus_041031w.jpg/960px-Lactarius_torminosus_041031w.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Lactarius_torminosus_041031w.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 570
+    },
+    {
+      "pageid": 150020,
+      "title": "Moldskjalda",
+      "pageUrl": "https://is.wikipedia.org/wiki/Moldskjalda",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Tricholoma_terreum_111130w.JPG/960px-Tricholoma_terreum_111130w.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Tricholoma_terreum_111130w.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 533
+    },
+    {
+      "pageid": 31982,
+      "title": "Mókempa",
+      "pageUrl": "https://is.wikipedia.org/wiki/M%C3%B3kempa",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/2008-08-Agaricus-Stuttgartx7.JPG/960px-2008-08-Agaricus-Stuttgartx7.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/58/2008-08-Agaricus-Stuttgartx7.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 59006,
+      "title": "Mýrablekill",
+      "pageUrl": "https://is.wikipedia.org/wiki/M%C3%BDrablekill",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 65757,
+      "title": "Mýrasúlungur",
+      "pageUrl": "https://is.wikipedia.org/wiki/M%C3%BDras%C3%BAlungur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 166155,
+      "title": "Ostruvængur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Ostruv%C3%A6ngur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/Oyster_mushoom_fells.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/Oyster_mushoom_fells.jpg",
+      "thumbWidth": 778,
+      "thumbHeight": 532
+    },
+    {
+      "pageid": 159772,
+      "title": "Peronospora farinosa",
+      "pageUrl": "https://is.wikipedia.org/wiki/Peronospora_farinosa",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Peronospora_farinosa_f.sp._betae.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Peronospora_farinosa_f.sp._betae.JPG",
+      "thumbWidth": 768,
+      "thumbHeight": 576
+    },
+    {
+      "pageid": 149000,
+      "title": "Peronospora paula",
+      "pageUrl": "https://is.wikipedia.org/wiki/Peronospora_paula",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 149209,
+      "title": "Peronospora potentillae",
+      "pageUrl": "https://is.wikipedia.org/wiki/Peronospora_potentillae",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Peronospora_potentillae.JPG/960px-Peronospora_potentillae.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/92/Peronospora_potentillae.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 726
+    },
+    {
+      "pageid": 166273,
+      "title": "Protostropharia islandica",
+      "pageUrl": "https://is.wikipedia.org/wiki/Protostropharia_islandica",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 31985,
+      "title": "Rauðhetta (sveppur)",
+      "pageUrl": "https://is.wikipedia.org/wiki/Rau%C3%B0hetta_(sveppur)",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Leccinum_versipelle.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Leccinum_versipelle.jpg",
+      "thumbWidth": 448,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 111357,
+      "title": "Rauðhæringur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Rau%C3%B0h%C3%A6ringur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/2012-06-08_Inocybe_dulcamara_%28Alb._%26_Schwein.%29_P._Kumm_225812.jpg/960px-2012-06-08_Inocybe_dulcamara_%28Alb._%26_Schwein.%29_P._Kumm_225812.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bc/2012-06-08_Inocybe_dulcamara_%28Alb._%26_Schwein.%29_P._Kumm_225812.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 159366,
+      "title": "Reyðihnefla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Rey%C3%B0ihnefla",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Russula_nana_218407_crop.jpg/960px-Russula_nana_218407_crop.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Russula_nana_218407_crop.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 659
+    },
+    {
+      "pageid": 158924,
+      "title": "Reyniáta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Reyni%C3%A1ta",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/2008-03-15_Valsaria_insitiva_%28Tode%29_Ces._%26_De_Not_224921.jpg/960px-2008-03-15_Valsaria_insitiva_%28Tode%29_Ces._%26_De_Not_224921.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/2008-03-15_Valsaria_insitiva_%28Tode%29_Ces._%26_De_Not_224921.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 64721,
+      "title": "Ribsblóðvarta",
+      "pageUrl": "https://is.wikipedia.org/wiki/Ribsbl%C3%B3%C3%B0varta",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Nectria_cinnabarina.jpg/960px-Nectria_cinnabarina.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Nectria_cinnabarina.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 149009,
+      "title": "Rósamygla",
+      "pageUrl": "https://is.wikipedia.org/wiki/R%C3%B3samygla",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Peronospora_sparsa_G44_%284%29.jpg/960px-Peronospora_sparsa_G44_%284%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/8/86/Peronospora_sparsa_G44_%284%29.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 77001,
+      "title": "Sandsúlungur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Sands%C3%BAlungur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Suillus_variegatus.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Suillus_variegatus.jpg",
+      "thumbWidth": 411,
+      "thumbHeight": 346
+    },
+    {
+      "pageid": 150027,
+      "title": "Silkiroðla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Silkiro%C3%B0la",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/2008-11-02_Entoloma_sericeum_cropped.jpg/960px-2008-11-02_Entoloma_sericeum_cropped.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/2008-11-02_Entoloma_sericeum_cropped.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 593
+    },
+    {
+      "pageid": 31980,
+      "title": "Skurðknipplingur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Skur%C3%B0knipplingur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Lyophyllum_fumosum.jpg/960px-Lyophyllum_fumosum.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/3/33/Lyophyllum_fumosum.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 59013,
+      "title": "Slöttblekill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Sl%C3%B6ttblekill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Coprinus_atramentarius.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Coprinus_atramentarius.jpg",
+      "thumbWidth": 907,
+      "thumbHeight": 1150
+    },
+    {
+      "pageid": 159363,
+      "title": "Snæhnefla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Sn%C3%A6hnefla",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Distribution_of_Russula_laccata.svg/960px-Distribution_of_Russula_laccata.svg.png",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Distribution_of_Russula_laccata.svg",
+      "thumbWidth": 800,
+      "thumbHeight": 673
+    },
+    {
+      "pageid": 31942,
+      "title": "Sortuhnuðla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Sortuhnu%C3%B0la",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Helvella_lacunosa_0600912.jpg/960px-Helvella_lacunosa_0600912.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Helvella_lacunosa_0600912.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 752
+    },
+    {
+      "pageid": 138153,
+      "title": "Steinkrympill",
+      "pageUrl": "https://is.wikipedia.org/wiki/Steinkrympill",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Fr%C3%BChjahrslorchel.JPG/960px-Fr%C3%BChjahrslorchel.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/97/Fr%C3%BChjahrslorchel.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 1069
+    },
+    {
+      "pageid": 159873,
+      "title": "Sæmúrgróungur",
+      "pageUrl": "https://is.wikipedia.org/wiki/S%C3%A6m%C3%BArgr%C3%B3ungur",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    },
+    {
+      "pageid": 156140,
+      "title": "Tófugrasryð",
+      "pageUrl": "https://is.wikipedia.org/wiki/T%C3%B3fugrasry%C3%B0",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Hyalopsora_polypodii_on_Cystopteris_fragilis.jpg/960px-Hyalopsora_polypodii_on_Cystopteris_fragilis.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/2/24/Hyalopsora_polypodii_on_Cystopteris_fragilis.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 494
+    },
+    {
+      "pageid": 92755,
+      "title": "Trjónupeðla",
+      "pageUrl": "https://is.wikipedia.org/wiki/Trj%C3%B3nupe%C3%B0la",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Psilocybe_semilanceata_250px.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Psilocybe_semilanceata_250px.jpg",
+      "thumbWidth": 250,
+      "thumbHeight": 333
+    },
+    {
+      "pageid": 166271,
+      "title": "Túnblína",
+      "pageUrl": "https://is.wikipedia.org/wiki/T%C3%BAnbl%C3%ADna",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Stropharia_pseudocyanea_111101w.JPG/960px-Stropharia_pseudocyanea_111101w.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/10/Stropharia_pseudocyanea_111101w.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 533
+    },
+    {
+      "pageid": 31973,
+      "title": "Túnkempa",
+      "pageUrl": "https://is.wikipedia.org/wiki/T%C3%BAnkempa",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Agaricus_campestris_garden_050830B.JPG/960px-Agaricus_campestris_garden_050830B.JPG",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/92/Agaricus_campestris_garden_050830B.JPG",
+      "thumbWidth": 800,
+      "thumbHeight": 533
+    },
+    {
+      "pageid": 31831,
+      "title": "Ullserkur",
+      "pageUrl": "https://is.wikipedia.org/wiki/Ullserkur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/Coprinus_comatus.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/Coprinus_comatus.jpg",
+      "thumbWidth": 900,
+      "thumbHeight": 746
+    },
+    {
+      "pageid": 31958,
+      "title": "Vallhnúfa",
+      "pageUrl": "https://is.wikipedia.org/wiki/Vallhn%C3%BAfa",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Entoloma_cf._-_Lindsey.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Entoloma_cf._-_Lindsey.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 426
+    },
+    {
+      "pageid": 121801,
+      "title": "Viðarkveif",
+      "pageUrl": "https://is.wikipedia.org/wiki/Vi%C3%B0arkveif",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Gifth%C3%A4ublinge.jpg/960px-Gifth%C3%A4ublinge.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Gifth%C3%A4ublinge.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 534
+    },
+    {
+      "pageid": 156370,
+      "title": "Víðiryðsveppur",
+      "pageUrl": "https://is.wikipedia.org/wiki/V%C3%AD%C3%B0iry%C3%B0sveppur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Melampsora_epitea_%282%29.jpg/960px-Melampsora_epitea_%282%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Melampsora_epitea_%282%29.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 165224,
+      "title": "Víðitjörvi",
+      "pageUrl": "https://is.wikipedia.org/wiki/V%C3%AD%C3%B0itj%C3%B6rvi",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Rhytisma.salicinum.-.lindsey.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Rhytisma.salicinum.-.lindsey.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 427
+    },
+    {
+      "pageid": 159588,
+      "title": "Víðivarta",
+      "pageUrl": "https://is.wikipedia.org/wiki/V%C3%AD%C3%B0ivarta",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Nectria_on_salix_%2825727040234%29.jpg/960px-Nectria_on_salix_%2825727040234%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Nectria_on_salix_%2825727040234%29.jpg",
+      "thumbWidth": 800,
+      "thumbHeight": 600
+    },
+    {
+      "pageid": 121800,
+      "title": "Vænglingur",
+      "pageUrl": "https://is.wikipedia.org/wiki/V%C3%A6nglingur",
+      "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Panellus_mitis_2_-_Lindsey.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Panellus_mitis_2_-_Lindsey.jpg",
+      "thumbWidth": 640,
+      "thumbHeight": 427
+    },
+    {
+      "pageid": 165125,
+      "title": "Þináta",
+      "pageUrl": "https://is.wikipedia.org/wiki/%C3%9Ein%C3%A1ta",
+      "thumbnailUrl": null,
+      "originalUrl": null,
+      "thumbWidth": null,
+      "thumbHeight": null
+    }
+  ]
+}

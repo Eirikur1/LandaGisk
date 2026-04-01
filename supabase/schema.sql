@@ -65,7 +65,7 @@ grant execute on function public.get_email_for_username(text) to anon, authentic
 create table public.game_scores (
   id         uuid default gen_random_uuid() primary key,
   user_id    uuid not null references public.profiles(id) on delete cascade,
-  game_type  text not null check (game_type in ('world', 'waterfall', 'flags')),
+  game_type  text not null check (game_type in ('world', 'waterfall', 'flags', 'mushroom')),
   game_date  date not null,
   guesses    int  not null,
   xp         int  not null,
@@ -87,6 +87,7 @@ select
   coalesce(sum(case when gs.game_type = 'world'     then gs.xp else 0 end), 0) as world_xp,
   coalesce(sum(case when gs.game_type = 'waterfall' then gs.xp else 0 end), 0) as waterfall_xp,
   coalesce(sum(case when gs.game_type = 'flags'     then gs.xp else 0 end), 0) as flags_xp,
+  coalesce(sum(case when gs.game_type = 'mushroom'  then gs.xp else 0 end), 0) as mushroom_xp,
   coalesce(sum(gs.xp), 0) as total_xp
 from public.profiles p
 left join public.game_scores gs on p.id = gs.user_id

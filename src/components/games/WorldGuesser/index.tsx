@@ -245,9 +245,9 @@ function WorldGuesserInner() {
         ?
       </button>
 
-      {/* ── Right: Globe (absolute, like the hero) ──────────────── */}
+      {/* ── Right: Globe (fixed to viewport so it never moves) ──── */}
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 select-none overflow-visible"
+        className="pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible"
         style={{ width: "min(96vw, 1680px)" }}
       >
         {/* left-edge fade */}
@@ -430,7 +430,7 @@ function WorldGuesserInner() {
                 className="w-full rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue) transition-colors"
               />
               {!won && !gaveUp && suggestions.length > 0 && (
-                <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-hidden z-20">
+                <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-20 max-h-48">
                   {suggestions.map((s) => (
                     <button
                       key={s.code}

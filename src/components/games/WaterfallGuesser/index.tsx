@@ -456,7 +456,7 @@ function WaterfallGuesserInner() {
                     className="w-full rounded-xl border border-(--color-border) bg-white px-3 py-2 text-sm outline-none focus:border-(--color-blue) transition-colors"
                   />
                   {nameSuggestions.length > 0 && (
-                    <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-hidden z-20">
+                    <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-20 max-h-48">
                       {nameSuggestions.map((s) => (
                         <button
                           key={s}

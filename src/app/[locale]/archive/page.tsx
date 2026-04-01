@@ -40,6 +40,7 @@ export default async function ArchivePage({ params }: { params: Promise<{ locale
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colWaterfall")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colFlags")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colWorld")}</th>
+                <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colMushroom")}</th>
               </tr>
             </thead>
             <tbody>
@@ -65,6 +66,14 @@ export default async function ArchivePage({ params }: { params: Promise<{ locale
                   <td className="px-4 py-2.5">
                     <Link
                       href={`${base}/world?date=${day}`}
+                      className="font-semibold text-(--color-blue) hover:opacity-70 transition-opacity"
+                    >
+                      {t("play")}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <Link
+                      href={`${base}/mushroom?date=${day}`}
                       className="font-semibold text-(--color-blue) hover:opacity-70 transition-opacity"
                     >
                       {t("play")}

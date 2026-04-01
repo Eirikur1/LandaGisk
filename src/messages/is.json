@@ -14,6 +14,7 @@
     "colWaterfall": "Fossar",
     "colFlags": "Fánar",
     "colWorld": "Land",
+    "colMushroom": "Sveppir",
     "play": "Spila"
   },
   "home": {
@@ -63,7 +64,7 @@
     },
     "mushroom": {
       "title": "Sveppa gisk",
-      "description": "Nefndu sveppinn út frá nánni mynd"
+      "description": "Giskaðu á tegundina úr myndum úr Wikipediu-flokknum Sveppir á Íslandi"
     },
     "mountains": {
       "title": "Fjallsfinnari",

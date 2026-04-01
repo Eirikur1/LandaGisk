@@ -68,7 +68,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Header />
-            <main className="flex-1 pt-10">{children}</main>
+            <main className="flex-1 pt-16">{children}</main>
           <footer className="border-t border-(--color-border) py-10 text-center">
             <p
               className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"

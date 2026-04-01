@@ -13,9 +13,8 @@ interface Props {
   panTo?: { lat: number; lon: number } | null;
 }
 
-// proximity 0–100 → light blue → app blue → green at 100
+// proximity 0–100 → light blue → app blue (never green — green is only for the correct answer)
 function proximityColor(proximity: number): string {
-  if (proximity >= 90) return "#22c55e";
   if (proximity >= 60) return "#2b5ceb";
   if (proximity >= 30) return "#5b8af5";
   return "#93b4f8";
@@ -25,19 +24,20 @@ function getFill(id: string, guessedProximity: Map<string, number>, targetCcn3: 
   if (won && id === targetCcn3) return "#22c55e";
   const p = guessedProximity.get(id);
   if (p !== undefined) return proximityColor(p);
-  return "#c8d8ea";
+  return "#ffffff";
 }
 
 function getStroke(id: string, guessedProximity: Map<string, number>, targetCcn3: string, won: boolean) {
   if (won && id === targetCcn3) return "#16a34a";
   const p = guessedProximity.get(id);
-  if (p !== undefined) return proximityColor(p);
+  if (p !== undefined) return "#1e4fd4";
   return "#7a9db8";
 }
 
 export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const rotateRef = useRef<[number, number, number]>([-10, -40, 0]);
+  const scaleRef = useRef(1);
   const dragging = useRef(false);
   const lastPos = useRef<[number, number]>([0, 0]);
   const panningRef = useRef(false);
@@ -115,7 +115,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
     if (!svg || features.length === 0) return;
     const cx = size / 2;
     const projection = d3geo.geoOrthographic()
-      .scale(cx * 0.96)
+      .scale(cx * 0.96 * scaleRef.current)
       .translate([cx, cx])
       .clipAngle(90)
       .rotate(rotateRef.current);
@@ -157,6 +157,18 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
   }
   function onPointerUp() { dragging.current = false; }
 
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      scaleRef.current = Math.max(1, Math.min(4, scaleRef.current * (e.deltaY < 0 ? 1.1 : 0.9)));
+      draw();
+    };
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, [draw]);
+
   const cx = size / 2;
 
   return (
@@ -193,7 +205,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
         {/* Everything clipped to the circle */}
         <g clipPath="url(#globe-clip)">
           {/* Ocean fill */}
-          <circle cx={cx} cy={cx} r={cx * 0.96} fill="#1a3a6e" />
+          <circle cx={cx} cy={cx} r={cx * 0.96} fill="#c8dcea" />
           {/* Graticule */}
           <path className="globe-graticule" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
           {/* Countries */}
@@ -208,13 +220,6 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
           ))}
         </g>
 
-        {/* Sphere outline */}
-        <circle
-          cx={cx} cy={cx} r={cx * 0.96}
-          fill="none"
-          stroke="rgba(255,255,255,0.12)"
-          strokeWidth={1.5}
-        />
       </svg>
     </motion.div>
   );

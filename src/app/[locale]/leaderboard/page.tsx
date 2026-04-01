@@ -11,7 +11,14 @@ import { useRef } from "react";
 // ── Types ─────────────────────────────────────────────────────────────────
 
 type TodayRow = { username: string; game_type: string; guesses: number; xp: number };
-type AllTimeRow = { username: string; world_xp: number; flags_xp: number; waterfall_xp: number; total_xp: number };
+type AllTimeRow = {
+  username: string;
+  world_xp: number;
+  flags_xp: number;
+  waterfall_xp: number;
+  mushroom_xp: number;
+  total_xp: number;
+};
 type Tab = "today" | "alltime";
 
 function ymdNow() { return new Date().toISOString().slice(0, 10); }
@@ -90,7 +97,7 @@ export default function LeaderboardPage() {
           .limit(50),
         supabase
           .from("leaderboard")
-          .select("username, world_xp, flags_xp, waterfall_xp, total_xp")
+          .select("username, world_xp, flags_xp, waterfall_xp, mushroom_xp, total_xp")
           .gt("total_xp", 0)
           .order("total_xp", { ascending: false })
           .limit(50),
@@ -113,10 +120,15 @@ export default function LeaderboardPage() {
     void load();
   }, []);
 
-  const gameLabel: Record<string, string> = { world: "Country", flags: "Flag", waterfall: "Waterfall" };
+  const gameLabel: Record<string, string> = {
+    world: "Country",
+    flags: "Flag",
+    waterfall: "Waterfall",
+    mushroom: "Mushroom",
+  };
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-10">
+    <div className="max-w-3xl mx-auto px-6 py-10">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -223,14 +235,16 @@ export default function LeaderboardPage() {
         ) : allRows && allRows.length > 0 ? (
           <>
             <div
-              className="flex gap-4 pb-2 text-[9px] font-medium uppercase tracking-wide text-(--color-muted) border-b border-(--color-border)"
+              className="flex gap-2 sm:gap-4 pb-2 text-[9px] font-medium uppercase tracking-wide text-(--color-muted) border-b border-(--color-border)"
               style={{ fontFamily: "var(--font-sans)" }}
             >
               <span className="w-5 shrink-0">#</span>
-              <span className="flex-1">Player</span>
-              <span className="w-14 shrink-0 text-right">Country</span>
-              <span className="w-10 shrink-0 text-right">Flag</span>
-              <span className="w-14 shrink-0 text-right">Total</span>
+              <span className="min-w-0 flex-1">Player</span>
+              <span className="w-11 sm:w-12 shrink-0 text-right">Country</span>
+              <span className="w-9 sm:w-10 shrink-0 text-right">Flag</span>
+              <span className="w-11 sm:w-14 shrink-0 text-right hidden sm:block">Water.</span>
+              <span className="w-11 sm:w-14 shrink-0 text-right hidden sm:block">Mush.</span>
+              <span className="w-12 sm:w-14 shrink-0 text-right font-semibold text-(--color-foreground)">Total</span>
             </div>
             <ul className="divide-y divide-(--color-border)">
               {allRows.map((row, i) => {
@@ -241,25 +255,31 @@ export default function LeaderboardPage() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.03 }}
-                    className="flex items-center gap-4 py-3 text-sm"
+                    className="flex items-center gap-2 sm:gap-4 py-3 text-sm"
                   >
                     <span className="w-5 shrink-0 tabular-nums text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
                       {i + 1}
                     </span>
                     <span
-                      className="flex-1 truncate font-semibold"
+                      className="min-w-0 flex-1 truncate font-semibold"
                       style={{ color: isMe ? "var(--color-blue)" : "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
                     >
                       {row.username}
                       {isMe && <span className="ml-1.5 font-normal text-xs text-(--color-muted)">you</span>}
                     </span>
-                    <span className="w-14 shrink-0 text-right tabular-nums text-xs text-(--color-muted)">
+                    <span className="w-11 sm:w-12 shrink-0 text-right tabular-nums text-xs text-(--color-muted)">
                       {row.world_xp > 0 ? row.world_xp.toLocaleString() : "—"}
                     </span>
-                    <span className="w-10 shrink-0 text-right tabular-nums text-xs text-(--color-muted)">
+                    <span className="w-9 sm:w-10 shrink-0 text-right tabular-nums text-xs text-(--color-muted)">
                       {row.flags_xp > 0 ? row.flags_xp.toLocaleString() : "—"}
                     </span>
-                    <span className="w-14 shrink-0 text-right font-bold tabular-nums text-(--color-blue)">
+                    <span className="w-11 sm:w-14 shrink-0 text-right tabular-nums text-xs text-(--color-muted) hidden sm:block">
+                      {row.waterfall_xp > 0 ? row.waterfall_xp.toLocaleString() : "—"}
+                    </span>
+                    <span className="w-11 sm:w-14 shrink-0 text-right tabular-nums text-xs text-(--color-muted) hidden sm:block">
+                      {row.mushroom_xp > 0 ? row.mushroom_xp.toLocaleString() : "—"}
+                    </span>
+                    <span className="w-12 sm:w-14 shrink-0 text-right font-bold tabular-nums text-(--color-blue)">
                       {row.total_xp.toLocaleString()}
                     </span>
                   </motion.li>

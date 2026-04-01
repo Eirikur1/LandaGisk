@@ -7,7 +7,8 @@
     "dev:webpack": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "data:wiki-mushrooms": "node scripts/fetch-is-wikipedia-mushrooms.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
