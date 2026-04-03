@@ -7,6 +7,7 @@ const ALL_GAMES = [
   { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true  },
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true  },
   { slug: "mushroom",  titleKey: "games.mushroom.title",  descriptionKey: "games.mushroom.description",  color: "forest" as const, available: true  },
+  { slug: "color",    titleKey: "games.color.title",    descriptionKey: "games.color.description",    color: "rust"   as const, available: true  },
   { slug: "birds",     titleKey: "games.birds.title",     descriptionKey: "games.birds.description",     color: "forest" as const, available: false },
   { slug: "plants",    titleKey: "games.plants.title",    descriptionKey: "games.plants.description",    color: "rust"   as const, available: false },
   { slug: "dogbreed",  titleKey: "games.dogbreed.title",  descriptionKey: "games.dogbreed.description",  color: "amber"  as const, available: false },

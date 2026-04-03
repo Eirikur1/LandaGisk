@@ -61,12 +61,25 @@ interface Props {
 }
 
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const mapLoadedRef = useRef(false);
   const interactionRef = useRef({ disabled: false, hasResult: false });
   const [pin, setPin] = useState<Pin | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     interactionRef.current = { disabled: !!disabled, hasResult: resultPin != null };
@@ -203,15 +216,27 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
     if (src) src.setData({ type: "FeatureCollection", features });
   }, [pin, resultPin, targetPin]);
 
-  return (
-    <motion.div
-      className="absolute"
-      style={{
+  // Resize the map when layout switches between mobile/desktop
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map && mapLoadedRef.current) {
+      requestAnimationFrame(() => map.resize());
+    }
+  }, [isMobile]);
+
+  const wrapperStyle: React.CSSProperties = isMobile
+    ? { width: "100%", height: "clamp(220px, 55vw, 320px)" }
+    : {
+        position: "absolute",
         right: "max(2vw, 1rem)",
         top: "8rem",
         width: "min(68vw, calc(100vw - 440px))",
         height: "min(70vh, 620px)",
-      }}
+      };
+
+  return (
+    <motion.div
+      style={wrapperStyle}
       initial={{ opacity: 0, x: "8vw" }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 1.1, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}

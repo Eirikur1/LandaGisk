@@ -241,7 +241,7 @@ function WaterfallGuesserInner() {
         ?
       </button>
 
-      <div className="relative z-10 max-w-sm px-8 pt-2 pb-10">
+      <div className="relative z-10 w-full max-w-sm px-5 md:px-8 pt-4 md:pt-2 pb-10">
 
         {isArchive && (
           <div

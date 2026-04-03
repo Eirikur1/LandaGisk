@@ -64,7 +64,11 @@
     },
     "mushroom": {
       "title": "Mushroom ID",
-      "description": "Guess the species from Icelandic Wikipedia’s “Fungi in Iceland” photos"
+      "description": "Guess the species from Icelandic Wikipedia’s \u201cFungi in Iceland\u201d photos"
+    },
+    "color": {
+      "title": "Color guess",
+      "description": "Memorize a color and recreate it with RGB sliders"
     },
     "mountains": {
       "title": "Peak finder",

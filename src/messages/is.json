@@ -66,6 +66,10 @@
       "title": "Sveppa gisk",
       "description": "Giskaðu á tegundina úr myndum úr Wikipediu-flokknum Sveppir á Íslandi"
     },
+    "color": {
+      "title": "Lita gisk",
+      "description": "Mundu litinn og endurskapaðu hann með RGB-rennibrautum"
+    },
     "mountains": {
       "title": "Fjallsfinnari",
       "description": "Giskaðu á fjallið frá ljósmynd"
