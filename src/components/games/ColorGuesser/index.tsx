@@ -13,7 +13,10 @@ const FIGMA_CREAM = "#fdfdfb";
 
 // ─── Audio ─────────────────────────────────────────────────────────────────
 
+let audioMuted = false;
+
 function playTone(freq: number, duration: number, type: OscillatorType = "sine", gain = 0.18) {
+  if (audioMuted) return;
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -46,6 +49,7 @@ function ensureDialAudioContext(): AudioContext | null {
 
 /** Short mechanical tick; `up` / `down` matches scroll / drag direction along the track. */
 function playDialTick(direction: "up" | "down") {
+  if (audioMuted) return;
   const ctx = ensureDialAudioContext();
   if (!ctx) return;
   void ctx.resume();
@@ -200,6 +204,7 @@ function GameCard({ bg, children, motionKey, overflow = "hidden" }: {
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export default function ColorGuesser() {
+  const [muted, setMuted] = useState(false);
   const [phase, setPhase] = useState<Phase>("intro");
   const [round, setRound] = useState(0);
   const [countdownNum, setCountdownNum] = useState(3);
@@ -207,6 +212,8 @@ export default function ColorGuesser() {
   const [guess, setGuess] = useState<HSB>([180, 50, 50]);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => { audioMuted = muted; }, [muted]);
 
   const startRef = useRef<number>(0);
   const rafRef = useRef<number>(0);
@@ -300,23 +307,68 @@ export default function ColorGuesser() {
   const secondsLeft = ((1 - elapsed) * REVEAL_MS) / 1000;
 
   return (
-    <div className="relative z-10 px-8 pt-2 pb-10">
-      <motion.h1
-        className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight mb-4"
-        style={{ color: FIGMA_BLUE, fontFamily: "var(--font-display)" }}
-        initial={false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      >
-        Color guess
-      </motion.h1>
+    <div className="relative z-10 pt-2 pb-10">
+      {/* Header — left-aligned */}
+      <div className="px-8 mb-6 max-w-xl">
+        <motion.h1
+          className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
+          style={{ fontFamily: "var(--font-display)" }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Color guess
+        </motion.h1>
+        <motion.p
+          className="text-sm text-(--color-muted) max-w-sm leading-relaxed"
+          style={{ fontFamily: "var(--font-sans)" }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Remember a color, then recreate it from memory. 5 rounds, scored on accuracy.
+        </motion.p>
+        <motion.p
+          className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-2 opacity-80"
+          style={{ fontFamily: "var(--font-sans)" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
+        </motion.p>
+      </div>
 
-      <div className="flex flex-col items-center">
-        {phase !== "intro" && phase !== "countdown" && (
-          <div className="mb-3 w-full max-w-[740px]">
-            <RoundDots round={round} completedCount={results.length} />
+      {/* Game — centered */}
+      <div className="flex flex-col items-center px-8">
+        <div className="w-full max-w-[740px] flex items-center justify-between mb-3" style={{ minHeight: 28 }}>
+          <div>
+            {phase !== "intro" && phase !== "countdown" && (
+              <RoundDots round={round} completedCount={results.length} />
+            )}
           </div>
-        )}
+          <button
+            type="button"
+            onClick={() => setMuted((m) => !m)}
+            aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+            className="rounded-full p-2 transition-opacity hover:opacity-70"
+            style={{ color: FIGMA_BLUE }}
+          >
+            {muted ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+            )}
+          </button>
+        </div>
 
         <AnimatePresence mode="wait" initial={false}>
           {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
@@ -332,6 +384,18 @@ export default function ColorGuesser() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Leaderboard — left-aligned */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="px-8 mt-8 max-w-xl"
+      >
+        <Suspense fallback={null}>
+          <MiniLeaderboard />
+        </Suspense>
+      </motion.div>
     </div>
   );
 }
@@ -450,6 +514,12 @@ function RevealPhase({ target, elapsed, secondsLeft, round }: {
         </p>
         <p className="text-xs tracking-[0.2em] uppercase mt-1" style={{ ...F, color: "rgba(255,255,255,0.4)" }}>
           Seconds to remember
+        </p>
+        <p
+          className="text-[11px] leading-snug mt-3 max-w-[220px] ml-auto font-medium"
+          style={{ fontFamily: FONT, color: "rgba(255,255,255,0.38)" }}
+        >
+          When the timer hits zero, this color disappears. You'll recreate it from memory with the sliders next.
         </p>
       </div>
 
