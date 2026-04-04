@@ -45,10 +45,10 @@ const menuArrow = {
 };
 
 type DropdownItemProps =
-  | { variant: "game" | "plain"; href: string; icon: React.ElementType; label: React.ReactNode; active?: boolean; fontFamily?: string; fontWeight?: number; onClick?: never }
-  | { variant: "destructive"; href?: never; icon: React.ElementType; label: React.ReactNode; onClick: () => void; active?: never; fontFamily?: string; fontWeight?: never };
+  | { variant: "game" | "plain"; href: string; icon: React.ElementType; label: React.ReactNode; active?: boolean; fontFamily?: string; fontWeight?: number; onClick?: never; onClose?: () => void }
+  | { variant: "destructive"; href?: never; icon: React.ElementType; label: React.ReactNode; onClick: () => void; active?: never; fontFamily?: string; fontWeight?: never; onClose?: never };
 
-function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeight, ...rest }: DropdownItemProps) {
+function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeight, onClose, ...rest }: DropdownItemProps) {
   if (variant === "destructive") {
     const { onClick } = rest as { onClick: () => void };
     return (
@@ -83,6 +83,7 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
           render={
             <Link
               href={href}
+              onClick={onClose}
               className="flex flex-row items-center justify-between gap-2.5 w-full rounded-sm p-2 text-sm hover:bg-accent transition-colors"
               style={{ fontFamily, fontWeight: active ? 700 : (fontWeight ?? 500) }}
             />
@@ -158,6 +159,7 @@ export default function Header() {
   const tNav = useTranslations("nav");
   const pathname = usePathname();
   const { user, username, avatarUrl, signOut } = useAuth();
+  const [gamesMenuOpen, setGamesMenuOpen] = React.useState("");
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
@@ -215,6 +217,8 @@ export default function Header() {
           <NavigationMenu
             className="flex-none"
             closeDelay={300}
+            value={gamesMenuOpen}
+            onValueChange={setGamesMenuOpen}
           >
             <NavigationMenuList aria-orientation={undefined}>
               <NavigationMenuItem>
@@ -244,6 +248,7 @@ export default function Header() {
                               variant="game"
                               active={active}
                               fontFamily="var(--font-sans)"
+                              onClose={() => setGamesMenuOpen("")}
                             />
                           ) : (
                             <div

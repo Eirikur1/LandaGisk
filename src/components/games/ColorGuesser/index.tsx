@@ -627,16 +627,16 @@ function ResultPhase({ result, round, onNext }: {
       {/* Bottom layer: original (full card) */}
       <div className="absolute inset-0" style={{ background: targetBg }} />
 
-      {/* Top layer: your guess, clipped diagonally top-left to bottom-right */}
+      {/* Top layer: your guess, left half */}
       <div
         className="absolute inset-0"
         style={{
           background: guessBg,
-          clipPath: "polygon(0 0, 100% 0, 0 100%)",
+          clipPath: "polygon(0 0, 50% 0, 50% 100%, 0 100%)",
         }}
       />
 
-      {/* Score + quip — top-right, on the original (bottom-right triangle) */}
+      {/* Score + quip — top-right, on the original (right half) */}
       <div className="absolute top-4 right-6 text-right">
         <p
           className="text-[3.8rem] font-black leading-none tabular-nums text-white/90"
@@ -649,8 +649,7 @@ function ResultPhase({ result, round, onNext }: {
         </p>
       </div>
 
-
-      {/* Your selection — bottom-left on guess triangle */}
+      {/* Your selection — bottom-left on guess half */}
       <div className="absolute bottom-4 left-6">
         <p className="text-[10px] tracking-[0.2em] uppercase text-white/45 mb-0.5" style={F}>
           Your selection
@@ -660,7 +659,7 @@ function ResultPhase({ result, round, onNext }: {
         </p>
       </div>
 
-      {/* Original — bottom-right on original triangle */}
+      {/* Original — bottom-right on original half */}
       <div className="absolute bottom-4 right-20 text-right">
         <p className="text-[10px] tracking-[0.2em] uppercase text-white/45 mb-0.5" style={F}>
           Original
