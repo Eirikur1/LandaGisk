@@ -11,6 +11,7 @@ interface Props {
   targetCcn3: string;
   won: boolean;
   panTo?: { lat: number; lon: number } | null;
+  inline?: boolean;
 }
 
 // proximity 0–100 → light blue → app blue (never green — green is only for the correct answer)
@@ -34,7 +35,7 @@ function getStroke(id: string, guessedProximity: Map<string, number>, targetCcn3
   return "#7a9db8";
 }
 
-export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: Props) {
+export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inline }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const rotateRef = useRef<[number, number, number]>([-10, -40, 0]);
   const scaleRef = useRef(1);
@@ -121,6 +122,11 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
       .rotate(rotateRef.current);
     const path = d3geo.geoPath(projection);
 
+    // Update ocean and clip radius to match zoom
+    const r = cx * 0.96 * scaleRef.current;
+    svg.querySelector<SVGCircleElement>(".globe-ocean")?.setAttribute("r", String(r));
+    svg.querySelector<SVGCircleElement>(".globe-clip-circle")?.setAttribute("r", String(r));
+
     // Graticule
     const grat = svg.querySelector<SVGPathElement>(".globe-graticule");
     if (grat) grat.setAttribute("d", path(d3geo.geoGraticule()()) ?? "");
@@ -173,15 +179,20 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
 
   return (
     <motion.div
-      className="absolute cursor-grab active:cursor-grabbing"
-      style={{
+      className="cursor-grab active:cursor-grabbing"
+      style={inline ? {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      } : {
+        position: "absolute",
         width: "min(80vmin, min(75dvh, 720px))",
         height: "min(80vmin, min(75dvh, 720px))",
         right: "max(4vw, 2rem)",
         top: "50%",
         translateY: "-50%",
       }}
-      initial={{ opacity: 0, scale: 0.92, x: "18vw" }}
+      initial={{ opacity: 0, scale: 0.92, x: inline ? 0 : "18vw" }}
       animate={{ opacity: 1, scale: 1, x: 0 }}
       transition={{ duration: 1.2, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -198,14 +209,14 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo }: P
       >
         <defs>
           <clipPath id="globe-clip">
-            <circle cx={cx} cy={cx} r={cx * 0.96} />
+            <circle className="globe-clip-circle" cx={cx} cy={cx} r={cx * 0.96} />
           </clipPath>
         </defs>
 
         {/* Everything clipped to the circle */}
         <g clipPath="url(#globe-clip)">
           {/* Ocean fill */}
-          <circle cx={cx} cy={cx} r={cx * 0.96} fill="#c8dcea" />
+          <circle className="globe-ocean" cx={cx} cy={cx} r={cx * 0.96} fill="#c8dcea" />
           {/* Graticule */}
           <path className="globe-graticule" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
           {/* Countries */}

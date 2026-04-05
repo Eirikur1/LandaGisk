@@ -229,9 +229,9 @@ function FlagGuesserInner() {
         ?
       </button>
 
-      {/* ── Right: Flag display ──────────────────────────────────── */}
+      {/* ── Right: Flag display (desktop only) ──────────────────── */}
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 select-none overflow-visible"
+        className="hidden md:block pointer-events-none absolute inset-y-0 right-0 select-none overflow-visible"
         style={{ width: "min(96vw, 1680px)" }}
       >
         {/* left-edge fade */}
@@ -439,6 +439,55 @@ function FlagGuesserInner() {
             )}
           </motion.div>
         )}
+
+        {/* Mobile flag display — shown only on small screens */}
+        <motion.div
+          className="block md:hidden mb-6"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
+            style={{ aspectRatio: "3/2" }}
+          >
+            <img
+              src={`https://flagcdn.com/w640/${target.code}.png`}
+              alt="Mystery flag"
+              className="w-full h-full object-cover"
+            />
+            <div
+              className="absolute inset-0 grid"
+              style={{ gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(2, 1fr)" }}
+            >
+              {Array.from({ length: TILE_COUNT }, (_, i) => (
+                <motion.div
+                  key={i}
+                  initial={false}
+                  animate={{ opacity: revealedSet.has(i) ? 0 : 1 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="bg-(--color-surface) border border-border/40"
+                  style={{ backdropFilter: "blur(2px)" }}
+                />
+              ))}
+            </div>
+          </div>
+          {(won || gaveUp) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="mt-3 text-center"
+            >
+              <p
+                className="text-xl font-black tracking-tight"
+                style={{ fontFamily: "var(--font-sans)", color: won ? "#22c55e" : "var(--color-muted)" }}
+              >
+                {target.name}
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
 
         {/* Input */}
         <motion.div

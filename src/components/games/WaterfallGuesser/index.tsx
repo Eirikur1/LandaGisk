@@ -216,22 +216,29 @@ function WaterfallGuesserInner() {
   }, [nameValue]);
 
   function clearDay() {
-    setSaved(null); setEarnedXp(null); setNameValue("");
+    setSaved(null); setEarnedXp(null); setNameValue(""); setMobilePin(null);
     scoreSavedRef.current = false; confettiFiredRef.current = false;
     try { window.localStorage.removeItem(storageKey); } catch {}
   }
+
+  const [mobilePin, setMobilePin] = useState<{ lng: number; lat: number } | null>(null);
 
   const guessPin = saved ? { lng: saved.guessLng, lat: saved.guessLat } : null;
   const targetPin = saved ? { lng: target.lng, lat: target.lat } : null;
 
   return (
     <>
-      <IcelandMap
-        onSubmit={handleMapSubmit}
-        resultPin={guessPin}
-        targetPin={targetPin}
-        disabled={!!saved}
-      />
+      {/* Desktop map — hidden on mobile */}
+      <div className="hidden md:block">
+        <IcelandMap
+          onSubmit={handleMapSubmit}
+          resultPin={guessPin}
+          targetPin={targetPin}
+          disabled={!!saved}
+          onPinChange={setMobilePin}
+        />
+      </div>
+
       <button
         type="button"
         onClick={() => setShowHelp(true)}
@@ -241,7 +248,7 @@ function WaterfallGuesserInner() {
         ?
       </button>
 
-      <div className="relative z-10 w-full max-w-sm px-5 md:px-8 pt-4 md:pt-2 pb-10">
+      <div className="relative z-10 w-full max-w-sm pl-5 pr-0 md:px-8 pt-4 md:pt-2 pb-10">
 
         {isArchive && (
           <div
@@ -308,7 +315,8 @@ function WaterfallGuesserInner() {
         )}
 
         {/* Title */}
-        <div className="mb-5">
+        <div className="mb-5 pr-5 md:pr-0">
+
           <motion.h1
             className="text-[clamp(2.5rem,8vw,4.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
             style={{ fontFamily: "var(--font-display)" }}
@@ -342,13 +350,76 @@ function WaterfallGuesserInner() {
           </motion.p>
         </div>
 
-        {/* Waterfall photo */}
+        {/* Mobile: photo + map side by side — inside column, map breaks out right edge */}
+        <div className="flex md:hidden gap-3 mb-2" style={{ marginRight: "-1rem" }}>
+          {/* Waterfall photo */}
+          <motion.div
+            key={target.name + "-mobile"}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.18)] bg-(--color-surface) shrink-0"
+            style={{ flex: "0 0 35%", cursor: imageUrl && imageUrl !== "error" ? "zoom-in" : "default" }}
+            onClick={() => { if (imageUrl && imageUrl !== "error") setLightbox(true); }}
+          >
+            {imageUrl && imageUrl !== "error" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageUrl} alt="Mystery waterfall" className="w-full h-full object-cover"
+                onLoad={(e) => { const { naturalWidth, naturalHeight } = e.currentTarget; if (naturalWidth && naturalHeight) setImageAspect(naturalWidth / naturalHeight); }}
+                onError={() => setImageUrl("error")}
+              />
+            ) : imageUrl === "error" ? (
+              <div className="w-full h-full flex items-center justify-center text-(--color-muted) text-sm">No image</div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-(--color-blue) border-t-transparent animate-spin" />
+              </div>
+            )}
+          </motion.div>
+
+          {/* Map — fills remaining space, same height as photo */}
+          <div className="flex-1 min-w-0 self-stretch">
+            <IcelandMap
+              onSubmit={handleMapSubmit}
+              resultPin={guessPin}
+              targetPin={targetPin}
+              disabled={!!saved}
+              onPinChange={setMobilePin}
+              roundedRight={true}
+            />
+          </div>
+        </div>
+
+        {/* Everything below gets right padding back on mobile */}
+        <div className="pr-5 md:pr-0">
+
+        {/* Submit button below the row on mobile */}
+        <div className="block md:hidden mb-4">
+          <AnimatePresence>
+            {mobilePin && !saved && (
+              <motion.button
+                type="button"
+                onClick={() => handleMapSubmit(mobilePin)}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.2 }}
+                className="w-full rounded-xl py-2.5 text-sm font-bold text-white"
+                style={{ background: "#2b5ceb" }}
+              >
+                Submit guess
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Desktop: photo in left column (map is absolutely positioned by IcelandMap) */}
         <motion.div
           key={target.name}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-5"
+          className="hidden md:block mb-5"
         >
           <div
             className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22)] bg-(--color-surface)"
@@ -581,6 +652,8 @@ function WaterfallGuesserInner() {
         >
           <MiniLeaderboard />
         </motion.div>
+
+        </div>{/* end pr-5 wrapper */}
       </div>
     </>
   );

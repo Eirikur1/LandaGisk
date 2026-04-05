@@ -249,7 +249,7 @@ function MushroomGuesserInner() {
       </button>
 
       <div
-        className="pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible"
+        className="hidden md:block pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible"
         style={{ width: "min(96vw, 1680px)" }}
       >
         <div
@@ -382,7 +382,7 @@ function MushroomGuesserInner() {
           </div>
         )}
 
-        <div className="mb-12">
+        <div className="mb-4 md:mb-12">
           <motion.h1
             className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
@@ -411,6 +411,48 @@ function MushroomGuesserInner() {
             {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
           </motion.p>
         </div>
+
+        {/* Mobile image — shown only on small screens */}
+        <motion.div
+          className="block md:hidden mb-6"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] bg-(--color-surface)"
+            style={{ aspectRatio: "4/3" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageSrc} alt="" className="w-full h-full object-cover" />
+          </div>
+          <p className="mt-2 text-[10px] text-(--color-muted) leading-snug text-center px-2">
+            {t.attribution}
+          </p>
+          {(won || gaveUp) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="mt-3 text-center space-y-1"
+            >
+              <p
+                className="text-xl font-black tracking-tight"
+                style={{ fontFamily: "var(--font-sans)", color: won ? "#22c55e" : "var(--color-muted)" }}
+              >
+                {target.title}
+              </p>
+              <a
+                href={target.pageUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-(--color-blue) underline underline-offset-2 inline-block"
+              >
+                {t.wiki} (Wikipedia)
+              </a>
+            </motion.div>
+          )}
+        </motion.div>
 
         {(failed || gaveUp) && !won && (
           <motion.div

@@ -18,6 +18,7 @@ import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 type GuessRow = {
   name: string;
   distanceKm: number;
+  adjacent: boolean;
   direction: string;
   proximity: number;
   exact: boolean;
@@ -187,9 +188,11 @@ function WorldGuesserInner() {
       .map((g) => {
         const d = distanceKm(g, target);
         const exact = g.code === target.code;
+        const adjacent = !exact && (g.borders.includes(target.cca3) || target.borders.includes(g.cca3));
         return {
           name: g.name,
           distanceKm: Math.round(d),
+          adjacent,
           direction: exact ? "✓" : directionArrow(bearingDeg(g, target)),
           proximity: exact ? 100 : Math.max(0, Math.round((1 - d / 20015) * 100)),
           exact,
@@ -247,7 +250,7 @@ function WorldGuesserInner() {
 
       {/* ── Right: Globe (fixed to viewport so it never moves) ──── */}
       <div
-        className="pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible"
+        className="pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible max-md:hidden"
         style={{ width: "min(96vw, 1680px)" }}
       >
         {/* left-edge fade */}
@@ -338,7 +341,7 @@ function WorldGuesserInner() {
         )}
 
         {/* Title */}
-        <div className="mb-12">
+        <div className="mb-4 md:mb-12">
           <motion.h1
             className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
@@ -366,6 +369,22 @@ function WorldGuesserInner() {
           >
             {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
           </motion.p>
+        </div>
+
+        {/* Mobile globe — between title and search bar */}
+        <div className="md:hidden mb-4 rounded-2xl overflow-hidden border border-(--color-border)" style={{ height: 260, position: "relative" }}>
+          <GlobeMap
+            inline
+            guessedProximity={guessedProximity}
+            targetCcn3={target.ccn3}
+            won={won}
+            panTo={(() => {
+              const last = guesses[0];
+              if (!last) return null;
+              const c = WORLD_COUNTRIES.find((c) => c.name === last);
+              return c ? { lat: c.lat, lon: c.lon } : null;
+            })()}
+          />
         </div>
 
         {/* Gave up banner */}
@@ -570,7 +589,7 @@ function WorldGuesserInner() {
                     {r.name}
                   </span>
                   <span className="text-xs text-(--color-muted) whitespace-nowrap tabular-nums">
-                    {r.distanceKm.toLocaleString()} km
+                    {r.exact ? "" : r.adjacent ? "Adjacent" : `${r.distanceKm.toLocaleString()} km`}
                   </span>
                   <span className="text-base w-5 text-center">{r.direction}</span>
                   <span

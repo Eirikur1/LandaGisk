@@ -58,6 +58,8 @@ interface Props {
   resultPin?: Pin | null;
   targetPin?: Pin | null;
   disabled?: boolean;
+  onPinChange?: (pin: Pin | null) => void;
+  roundedRight?: boolean;
 }
 
 
@@ -73,7 +75,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }: Props) {
+export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, onPinChange, roundedRight = true }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const mapLoadedRef = useRef(false);
@@ -169,7 +171,9 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
     map.on("click", (e) => {
       const { disabled: d, hasResult } = interactionRef.current;
       if (d || hasResult) return;
-      setPin({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+      const newPin = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+      setPin(newPin);
+      onPinChange?.(newPin);
     });
 
     return () => {
@@ -225,18 +229,18 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
   }, [isMobile]);
 
   const wrapperStyle: React.CSSProperties = isMobile
-    ? { width: "100%", height: "clamp(220px, 55vw, 320px)" }
+    ? { width: "100%", height: "100%" }
     : {
         position: "absolute",
-        right: "max(2vw, 1rem)",
+        left: "calc(384px + 2rem)",
+        right: "1rem",
         top: "8rem",
-        width: "min(68vw, calc(100vw - 440px))",
         height: "min(70vh, 620px)",
       };
 
   return (
     <motion.div
-      style={wrapperStyle}
+      style={{ ...wrapperStyle, borderRadius: roundedRight ? "1rem" : "1rem 0 0 1rem", overflow: "hidden" }}
       initial={{ opacity: 0, x: "8vw" }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 1.1, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
@@ -244,8 +248,8 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
     >
       <div
         ref={containerRef}
-        className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200/90 shadow-[0_24px_80px_rgba(15,23,42,0.1)]"
-        style={{ minHeight: 0 }}
+        className="relative w-full h-full overflow-hidden border border-slate-200/90 shadow-[0_24px_80px_rgba(15,23,42,0.1)]"
+        style={{ minHeight: 0, borderRadius: roundedRight ? "1rem" : "1rem 0 0 1rem" }}
       >
         {/* Prompt overlay */}
         <AnimatePresence>
@@ -271,27 +275,29 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled }:
           )}
         </AnimatePresence>
 
-        {/* Submit button — bottom-right of the map */}
-        <AnimatePresence>
-          {pin && !resultPin && !disabled && (
-            <motion.div
-              className="absolute bottom-4 right-4 z-10"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <button
-                type="button"
-                onClick={() => { if (pin) onSubmit(pin); }}
-                className="rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-opacity hover:opacity-90"
-                style={{ background: "#2b5ceb" }}
+        {/* Submit button — inside map on desktop only */}
+        {!isMobile && (
+          <AnimatePresence>
+            {pin && !resultPin && !disabled && (
+              <motion.div
+                className="absolute bottom-4 right-4 z-10"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.2 }}
               >
-                Submit guess
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <button
+                  type="button"
+                  onClick={() => { if (pin) onSubmit(pin); }}
+                  className="rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-opacity hover:opacity-90"
+                  style={{ background: "#2b5ceb" }}
+                >
+                  Submit guess
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
       </div>
     </motion.div>
   );
