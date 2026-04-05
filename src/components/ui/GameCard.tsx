@@ -4,11 +4,14 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { IoColorPaletteOutline } from "react-icons/io5";
+import { LuCalendarDays } from "react-icons/lu";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
 
-const gameIcons: Record<string, LucideIcon> = {
+type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
+const gameIcons: Record<string, IconComponent> = {
   waterfall: Waves,
   flags: Flag,
   world: Globe2,
@@ -18,6 +21,8 @@ const gameIcons: Record<string, LucideIcon> = {
   car: Car,
   mushroom: Sprout,
   mountains: Mountain,
+  color: IoColorPaletteOutline,
+  year: LuCalendarDays,
 };
 
 const gameTags: Record<string, string[]> = {

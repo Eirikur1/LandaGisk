@@ -73,6 +73,10 @@
     "mountains": {
       "title": "Fjallsfinnari",
       "description": "Giskaðu á fjallið frá ljósmynd"
+    },
+    "year": {
+      "title": "Ársgisk",
+      "description": "Gettu hvaða ár söguleg mynd var tekin — 5 lotur"
     }
   },
   "game": {

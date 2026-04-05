@@ -73,6 +73,10 @@
     "mountains": {
       "title": "Peak finder",
       "description": "Guess the mountain from a single photograph"
+    },
+    "year": {
+      "title": "Year Guess",
+      "description": "Guess the year a historical photo was taken — 5 rounds"
     }
   },
   "game": {

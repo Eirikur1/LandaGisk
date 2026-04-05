@@ -119,6 +119,7 @@ function hsbToCSS(h: number, s: number, b: number): string {
 }
 
 function hsbDistance(a: HSB, b: HSB): number {
+  // All three channels equally weighted, each normalized to [0, 1]
   const dh = Math.min(Math.abs(a[0] - b[0]), 360 - Math.abs(a[0] - b[0])) / 180;
   const ds = Math.abs(a[1] - b[1]) / 100;
   const db = Math.abs(a[2] - b[2]) / 100;
@@ -126,8 +127,12 @@ function hsbDistance(a: HSB, b: HSB): number {
 }
 
 function scoreFromDist(dist: number): number {
+  // Max possible distance with equal weights: sqrt(1 + 1 + 1) = sqrt(3)
   const max = Math.sqrt(3);
-  return Math.max(0, parseFloat(((1 - dist / max) * 100).toFixed(1)));
+  const linear = Math.max(0, 1 - dist / max);
+  // Exponential growth toward 100 — only near-perfect guesses break 90
+  // linear=0.98 → ~98, linear=0.90 → ~90, linear=0.70 → ~23, linear=0.50 → ~3
+  return parseFloat((100 * Math.pow(linear, 4)).toFixed(1));
 }
 
 // ─── Quips ─────────────────────────────────────────────────────────────────
@@ -193,8 +198,8 @@ function GameCard({ bg, children, motionKey, overflow = "hidden" }: {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] ${overflowClass}`}
-      style={{ background: bg, maxWidth: 740, aspectRatio: "4/3" }}
+      className={`relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] aspect-3/4 sm:aspect-4/3 ${overflowClass}`}
+      style={{ background: bg, maxWidth: 740 }}
     >
       {children}
     </motion.div>
@@ -307,26 +312,35 @@ export default function ColorGuesser() {
   const secondsLeft = ((1 - elapsed) * REVEAL_MS) / 1000;
 
   return (
-    <div className="relative z-10 pt-2 pb-10">
+    <div className="relative z-10 pt-0 pb-10">
       {/* Header — left-aligned */}
-      <div className="px-8 mb-6 max-w-xl">
+      <div className="px-4 sm:px-8 mb-3 max-w-xl">
         <motion.h1
-          className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
+          className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.82] tracking-tight text-(--color-blue) mb-2"
           style={{ fontFamily: "var(--font-display)" }}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          Color guess
+          Color<br />guess
         </motion.h1>
         <motion.p
-          className="text-sm text-(--color-muted) max-w-sm leading-relaxed"
+          className="text-sm text-(--color-muted) max-w-sm leading-relaxed mt-4"
           style={{ fontFamily: "var(--font-sans)" }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          Remember a color, then recreate it from memory. 5 rounds, scored on accuracy.
+          Remember a color, then recreate it from memory.
+        </motion.p>
+        <motion.p
+          className="text-xs text-(--color-muted) max-w-sm leading-relaxed mt-1"
+          style={{ fontFamily: "var(--font-sans)" }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        >
+          5 rounds, scored on accuracy.
         </motion.p>
         <motion.p
           className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-2 opacity-80"
@@ -340,12 +354,10 @@ export default function ColorGuesser() {
       </div>
 
       {/* Game — centered */}
-      <div className="flex flex-col items-center px-8">
+      <div className="flex flex-col items-center px-2 sm:px-8 mt-4 sm:-mt-48">
         <div className="w-full max-w-[740px] flex items-center justify-between mb-3" style={{ minHeight: 28 }}>
           <div>
-            {phase !== "intro" && phase !== "countdown" && (
-              <RoundDots round={round} completedCount={results.length} />
-            )}
+            <RoundDots round={round} completedCount={results.length} />
           </div>
           <button
             type="button"
@@ -380,7 +392,7 @@ export default function ColorGuesser() {
             <GuessPhase key={`guess-${round}`} guess={guess} setGuess={setGuess} onSubmit={submitGuess} round={round} />
           )}
           {phase === "result" && results.length > 0 && (
-            <ResultPhase key={`result-${round}`} result={results[results.length - 1]!} round={round} onNext={nextRound} />
+            <ResultPhase key={`result-${round}`} result={results[results.length - 1]!} onNext={nextRound} />
           )}
         </AnimatePresence>
       </div>
@@ -405,7 +417,7 @@ export default function ColorGuesser() {
 function IntroPhase({ onPlay }: { onPlay: () => void }) {
   return (
     <GameCard bg={FIGMA_CREAM} motionKey="intro">
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-10">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-10 pb-10 pt-10">
         <div className="text-center max-w-sm">
           <p className="text-[11px] tracking-[0.25em] uppercase mb-5" style={{ ...F, color: FIGMA_BLUE }}>
             How to play
@@ -443,8 +455,8 @@ function CountdownPhase({ num }: { num: number }) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden flex items-center justify-center"
-      style={{ maxWidth: 740, aspectRatio: "4/3", background: FIGMA_CREAM }}
+      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden flex items-center justify-center aspect-3/4 sm:aspect-4/3"
+      style={{ maxWidth: 740, background: FIGMA_CREAM }}
     >
       <AnimatePresence mode="wait">
         <motion.p
@@ -678,8 +690,8 @@ function VerticalSlider({ value, min, max, gradient, onChange, width = 40 }: {
 
 // ─── Result ───────────────────────────────────────────────────────────────────
 
-function ResultPhase({ result, round, onNext }: {
-  result: RoundResult; round: number; onNext: () => void;
+function ResultPhase({ result, onNext }: {
+  result: RoundResult; onNext: () => void;
 }) {
   const { target, guess, score, quip } = result;
   const guessBg = hsbToCSS(guess[0], guess[1], guess[2]);
@@ -691,8 +703,8 @@ function ResultPhase({ result, round, onNext }: {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden"
-      style={{ maxWidth: 740, aspectRatio: "4/3" }}
+      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden aspect-3/4 sm:aspect-4/3"
+      style={{ maxWidth: 740 }}
     >
       {/* Bottom layer: original (full card) */}
       <div className="absolute inset-0" style={{ background: targetBg }} />
@@ -759,12 +771,12 @@ function FinalScreen({ results, totalScore, onRestart }: {
   results: RoundResult[]; totalScore: number; onRestart: () => void;
 }) {
   return (
-    <div className="relative z-10 px-8 pt-2 pb-10">
+    <div className="relative z-10 px-4 sm:px-8 pt-2 pb-10">
       <h1
-        className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight mb-8"
+        className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.82] tracking-tight mb-6 sm:mb-8"
         style={{ color: FIGMA_BLUE, fontFamily: "var(--font-display)" }}
       >
-        Color guess
+        Color<br />guess
       </h1>
 
       <div className="flex flex-col items-center mb-10">
@@ -772,29 +784,21 @@ function FinalScreen({ results, totalScore, onRestart }: {
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[740px] rounded-3xl border border-(--color-border) bg-(--color-surface) p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+          className="w-full max-w-[740px] rounded-3xl border border-(--color-border) bg-(--color-surface) p-4 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
         >
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <p className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) mb-1" style={F}>
-                Average score
-              </p>
+          <div className="mb-6">
+            <p className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) mb-1" style={F}>
+              Average score
+            </p>
+            <div className="flex items-baseline gap-1.5">
               <p
-                className="text-[4rem] font-black leading-none tabular-nums"
+                className="text-[2.5rem] sm:text-[4rem] font-black leading-none tabular-nums"
                 style={{ fontFamily: FONT, fontWeight: 700, color: FIGMA_BLUE }}
               >
                 {totalScore.toFixed(1)}
-                <span className="text-2xl font-semibold text-(--color-muted) ml-2">/ 100</span>
               </p>
+              <span className="text-2xl font-semibold text-(--color-muted)" style={F}>/ 100</span>
             </div>
-            <button
-              type="button"
-              onClick={onRestart}
-              className="rounded-full px-7 py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity shrink-0"
-              style={{ ...F, background: FIGMA_BLUE }}
-            >
-              Play again
-            </button>
           </div>
 
           <div className="space-y-2">
@@ -826,6 +830,15 @@ function FinalScreen({ results, totalScore, onRestart }: {
               );
             })}
           </div>
+
+          <button
+            type="button"
+            onClick={onRestart}
+            className="mt-6 w-full rounded-full py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity"
+            style={{ ...F, background: FIGMA_BLUE }}
+          >
+            Play again
+          </button>
         </motion.div>
       </div>
 
