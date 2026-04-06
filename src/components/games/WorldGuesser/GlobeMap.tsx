@@ -201,7 +201,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
-        style={{ display: "block", width: "100%", height: "100%", background: "transparent" }}
+        style={{ display: "block", width: "100%", height: "100%", background: "transparent", borderRadius: "50%", overflow: "hidden" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -230,6 +230,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
             />
           ))}
         </g>
+
 
       </svg>
     </motion.div>

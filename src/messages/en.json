@@ -63,11 +63,11 @@
       "description": "Identify the car model from a close-up shot"
     },
     "mushroom": {
-      "title": "Mushroom ID",
-      "description": "Guess the species from Icelandic Wikipedia’s \u201cFungi in Iceland\u201d photos"
+      "title": "Mushroom Quiz",
+      "description": "5 rounds — identify each mushroom from 4 multiple-choice options"
     },
     "color": {
-      "title": "Color guess",
+      "title": "Color Match",
       "description": "Memorize a color and recreate it with RGB sliders"
     },
     "mountains": {

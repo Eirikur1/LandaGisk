@@ -4,59 +4,107 @@ import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
-import { MUSHROOM_GUESS_POOL, findMushroomByGuessInput, type WikiMushroom } from "@/data/wikiMushrooms";
+import { MUSHROOM_GUESS_POOL, mushroomPrimaryTitle, type WikiMushroom } from "@/data/wikiMushrooms";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { guessesToXp, xpLabel } from "@/lib/xp";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
+
+const ROUNDS = 5;
+const OPTIONS = 4;
 
 const copy = {
   en: {
-    title: "Mushroom guess",
-    subtitle: "Guess today’s mystery species from the Icelandic Wikipedia fungi list. Type its Icelandic name.",
-    input: "Type a species…",
-    guess: "Guess",
-    solved: "Solved!",
-    reset: "Reset",
-    noMatch: "Species not found in this game’s list.",
-    already: "Already guessed.",
-    heading: "Guesses",
-    correct: "Correct",
-    wrong: "Wrong",
-    attribution: "Photo: Wikimedia Commons (license varies by file — see file page).",
+    title: "Mushroom Quiz",
+    subtitle: "5 rounds — identify each mushroom from 4 choices.",
+    round: "Round",
+    of: "of",
+    correct: "Correct!",
+    wrong: "Wrong!",
+    next: "Next →",
+    finish: "See results",
+    results: "Results",
+    score: "Score",
+    playAgain: "Play again",
+    attribution: "Photo: Wikimedia Commons",
     wiki: "Article",
+    perfect: "Perfect score!",
+    great: "Great job!",
+    good: "Not bad!",
+    keep: "Keep practicing!",
   },
   is: {
-    title: "Sveppa gisk",
-    subtitle: "Giskaðu á dularfullan svepp úr Wikipediu-listanum Sveppir á Íslandi. Skrifaðu íslenskt nafn.",
-    input: "Skrifaðu tegund…",
-    guess: "Giska",
-    solved: "Leyst!",
-    reset: "Hreinsa",
-    noMatch: "Tegundin er ekki í þessum leik.",
-    already: "Þegar giskað.",
-    heading: "Getgátur",
-    correct: "Rétt",
-    wrong: "Rangt",
-    attribution: "Mynd: Wikimedia Commons (leyfi mismunandi eftir skrá — sjá skráarsíðu).",
+    title: "Sveppa þraut",
+    subtitle: "5 umferðir — þekktu hvern svepp úr 4 valkostum.",
+    round: "Umferð",
+    of: "af",
+    correct: "Rétt!",
+    wrong: "Rangt!",
+    next: "Næsta →",
+    finish: "Sjá niðurstöður",
+    results: "Niðurstöður",
+    score: "Stig",
+    playAgain: "Spila aftur",
+    attribution: "Mynd: Wikimedia Commons",
     wiki: "Grein",
+    perfect: "Fullkomið!",
+    great: "Vel gert!",
+    good: "Ekki slæmt!",
+    keep: "Haltu áfram að æfa!",
   },
 } as const;
 
-const LEFT_FADE =
-  "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)";
-
-function seededIndex(seed: string, mod: number) {
+function seededRng(seed: string) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
     h ^= seed.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
-  return Math.abs(h) % mod;
+  return () => {
+    h ^= h << 13; h ^= h >> 7; h ^= h << 17;
+    return (Math.abs(h) >>> 0) / 0xffffffff;
+  };
 }
 
+type Round = {
+  target: WikiMushroom;
+  options: WikiMushroom[]; // always OPTIONS length, target is one of them
+};
+
+function buildRounds(day: string): Round[] {
+  const rng = seededRng(day + "mushroomquiz");
+  const pool = [...MUSHROOM_GUESS_POOL];
+
+  // Pick ROUNDS distinct targets
+  const targets: WikiMushroom[] = [];
+  const used = new Set<number>();
+  while (targets.length < ROUNDS) {
+    const idx = Math.floor(rng() * pool.length);
+    if (!used.has(idx)) { used.add(idx); targets.push(pool[idx]!); }
+  }
+
+  return targets.map((target) => {
+    // Pick OPTIONS-1 distinct distractors
+    const distractors: WikiMushroom[] = [];
+    const dUsed = new Set<number>(Array.from(used));
+    while (distractors.length < OPTIONS - 1) {
+      const idx = Math.floor(rng() * pool.length);
+      if (!dUsed.has(idx)) { dUsed.add(idx); distractors.push(pool[idx]!); }
+    }
+    // Shuffle target into options
+    const opts = [...distractors, target];
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [opts[i], opts[j]] = [opts[j]!, opts[i]!];
+    }
+    return { target, options: opts };
+  });
+}
+
+type SavedState = {
+  answers: (string | null)[];
+};
 
 function MushroomGuesserInner() {
   const locale = (useLocale() as "en" | "is") || "en";
@@ -67,324 +115,210 @@ function MushroomGuesserInner() {
   const t = copy[locale];
   const { user } = useAuth();
 
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [earnedXp, setEarnedXp] = useState<number | null>(null);
-  const [gaveUp, setGaveUp] = useState(false);
-  const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const helpSeenKey = "help-seen:mushroom";
   const [showHelp, setShowHelp] = useState(false);
-
   useEffect(() => {
-    try {
-      if (!window.localStorage.getItem(helpSeenKey)) setShowHelp(true);
-    } catch {}
+    try { if (!window.localStorage.getItem(helpSeenKey)) setShowHelp(true); } catch {}
   }, []);
-
   function dismissHelp(permanent: boolean) {
     setShowHelp(false);
-    if (permanent) {
-      try {
-        window.localStorage.setItem(helpSeenKey, "1");
-      } catch {}
-    }
+    if (permanent) { try { window.localStorage.setItem(helpSeenKey, "1"); } catch {} }
   }
 
+  const rounds = useMemo(() => buildRounds(day), [day]);
+
+  // answers[i] = title of chosen option, or null if not answered yet
+  const [answers, setAnswers] = useState<(string | null)[]>(Array(ROUNDS).fill(null));
+  const [currentRound, setCurrentRound] = useState(0);
+  // "idle" | "answered" | "done"
+  const [phase, setPhase] = useState<"idle" | "answered" | "done">("idle");
+
+  const storageKey = `mushroom-quiz:${day}`;
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
   const prevUserRef = useRef<string | null | undefined>(undefined);
+  const [earnedXp, setEarnedXp] = useState<number | null>(null);
 
-  const storageKey = `mushroom-guesser:${day}`;
-  const target = useMemo(() => {
-    if (MUSHROOM_GUESS_POOL.length === 0) return null as unknown as WikiMushroom;
-    return MUSHROOM_GUESS_POOL[seededIndex(day + "mushroom", MUSHROOM_GUESS_POOL.length)]!;
-  }, [day]);
-
+  // Reset on login
   useEffect(() => {
     const prev = prevUserRef.current;
     prevUserRef.current = user?.id ?? null;
     if (prev === undefined) return;
     if (!prev && user) {
-      try {
-        window.localStorage.removeItem(storageKey);
-      } catch {}
-      setGuesses([]);
-      setGaveUp(false);
-      setEarnedXp(null);
-      setError("");
-      setValue("");
-      setConfirmGiveUp(false);
+      try { window.localStorage.removeItem(storageKey); } catch {}
+      setAnswers(Array(ROUNDS).fill(null));
+      setCurrentRound(0);
+      setPhase("idle");
       scoreSavedRef.current = false;
       confettiFiredRef.current = false;
     }
   }, [user, storageKey]);
 
+  // Load from storage
   useEffect(() => {
-    setGuesses([]);
-    setGaveUp(false);
-    setEarnedXp(null);
-    setError("");
-    setValue("");
-    setConfirmGiveUp(false);
+    setAnswers(Array(ROUNDS).fill(null));
+    setCurrentRound(0);
+    setPhase("idle");
     scoreSavedRef.current = false;
     confettiFiredRef.current = false;
     try {
       const raw = window.localStorage.getItem(storageKey);
       if (!raw) return;
-      const parsed = JSON.parse(raw) as { guesses?: string[]; gaveUp?: boolean };
-      if (Array.isArray(parsed)) {
-        setGuesses(parsed);
-        return;
+      const saved = JSON.parse(raw) as SavedState;
+      if (!Array.isArray(saved.answers)) return;
+      const ans = saved.answers as (string | null)[];
+      setAnswers(ans);
+      const answered = ans.filter((a) => a !== null).length;
+      if (answered >= ROUNDS) {
+        setCurrentRound(ROUNDS - 1);
+        setPhase("done");
+      } else if (answered > 0) {
+        setCurrentRound(answered - 1);
+        setPhase("answered");
       }
-      if (parsed.guesses) setGuesses(parsed.guesses);
-      if (parsed.gaveUp) setGaveUp(true);
     } catch {}
   }, [storageKey]);
 
+  // Save to storage
   useEffect(() => {
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify({ guesses, gaveUp }));
-    } catch {}
-  }, [guesses, gaveUp, storageKey]);
+    try { window.localStorage.setItem(storageKey, JSON.stringify({ answers })); } catch {}
+  }, [answers, storageKey]);
 
-  const MAX_GUESSES = 7;
-  const won = target ? guesses.includes(target.title) : false;
-  const failed = !won && guesses.filter((n) => n !== target?.title).length >= MAX_GUESSES;
+  const score = useMemo(
+    () => answers.filter((a, i) => a === rounds[i]?.target.title).length,
+    [answers, rounds]
+  );
 
+  // Save XP when done
   useEffect(() => {
-    if (!won || scoreSavedRef.current || !user || !target) return;
+    if (phase !== "done" || scoreSavedRef.current || !user) return;
     scoreSavedRef.current = true;
-    const guessCount = guesses.length;
-    const xp = guessesToXp(guessCount);
+    const xp = score * 200;
     void supabase
       .from("game_scores")
-      .insert({ user_id: user.id, game_type: "mushroom", game_date: day, guesses: guessCount, xp, won: true })
-      .then(({ error: err }) => {
-        if (!err) setEarnedXp(xp);
-      });
-  }, [won, user, day, guesses.length, target]);
+      .insert({ user_id: user.id, game_type: "mushroom", game_date: day, guesses: ROUNDS, xp, won: score >= 3 })
+      .then(({ error: err }) => { if (!err) setEarnedXp(xp); });
+  }, [phase, score, user, day]);
 
+  // Confetti on perfect
   useEffect(() => {
-    if (!won || confettiFiredRef.current) return;
+    if (phase !== "done" || score < ROUNDS || confettiFiredRef.current) return;
     confettiFiredRef.current = true;
     void import("canvas-confetti").then(({ default: confetti }) => {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ["#2b5ceb", "#22c55e", "#f59e0b", "#ffffff"] });
-      setTimeout(
-        () => confetti({ particleCount: 60, spread: 100, origin: { y: 0.55 }, colors: ["#2b5ceb", "#22c55e", "#f59e0b"] }),
-        300
-      );
+      setTimeout(() => confetti({ particleCount: 60, spread: 100, origin: { y: 0.55 } }), 300);
     });
-  }, [won]);
+  }, [phase, score]);
 
-  const suggestions = useMemo(() => {
-    const q = value.trim().toLowerCase();
-    if (!q) return [];
-    return MUSHROOM_GUESS_POOL.filter((m) => m.title.toLowerCase().includes(q));
-  }, [value]);
-
-  function onGuess() {
-    if (!target) return;
-    const normalized = value.trim().toLowerCase();
-    if (!normalized || won || failed || gaveUp) return;
-    const match = findMushroomByGuessInput(value);
-    if (!match) {
-      setError(t.noMatch);
-      return;
-    }
-    if (guesses.includes(match.title)) {
-      setError(t.already);
-      return;
-    }
-    setError("");
-    setGuesses((g) => [match.title, ...g]);
-    setValue("");
+  function handleAnswer(optionTitle: string) {
+    if (phase !== "idle") return;
+    const newAnswers = [...answers];
+    newAnswers[currentRound] = optionTitle;
+    setAnswers(newAnswers);
+    setPhase("answered");
   }
 
-  function clearDay() {
-    setGuesses([]);
-    setError("");
-    setGaveUp(false);
-    setConfirmGiveUp(false);
-    try {
-      window.localStorage.removeItem(storageKey);
-    } catch {}
+  function handleNext() {
+    if (currentRound >= ROUNDS - 1) {
+      setPhase("done");
+    } else {
+      setCurrentRound((r) => r + 1);
+      setPhase("idle");
+    }
+  }
+
+  function resetGame() {
+    setAnswers(Array(ROUNDS).fill(null));
+    setCurrentRound(0);
+    setPhase("idle");
+    setEarnedXp(null);
     scoreSavedRef.current = false;
     confettiFiredRef.current = false;
+    try { window.localStorage.removeItem(storageKey); } catch {}
   }
 
-  function doGiveUp() {
-    setGaveUp(true);
-    setConfirmGiveUp(false);
+  const round = rounds[currentRound]!;
+  const chosen = answers[currentRound];
+  const isCorrect = chosen === round.target.title;
+  const imageSrc = round.target.thumbnailUrl ?? round.target.originalUrl ?? "";
+
+  function resultLabel() {
+    if (score === ROUNDS) return t.perfect;
+    if (score >= 4) return t.great;
+    if (score >= 2) return t.good;
+    return t.keep;
   }
-
-  const guessRows = useMemo(
-    () =>
-      guesses.map((name) => {
-        const mush = MUSHROOM_GUESS_POOL.find((m) => m.title === name);
-        return { name, mush, correct: target ? name === target.title : false };
-      }),
-    [guesses, target]
-  );
-
-  if (!target) {
-    return (
-      <div className="relative z-10 px-8 py-16 text-sm text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
-        No mushroom image data loaded.
-      </div>
-    );
-  }
-
-  const imageSrc = target.thumbnailUrl ?? target.originalUrl ?? "";
 
   return (
     <>
       <button
         type="button"
         onClick={() => setShowHelp(true)}
-        className="fixed top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
+        className="fixed top-18 md:top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
         aria-label="How to play"
       >
         ?
       </button>
 
-      <div
-        className="hidden md:block pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible"
-        style={{ width: "min(96vw, 1680px)" }}
-      >
+      {/* Help modal */}
+      {showHelp && (
         <div
-          className="absolute inset-y-0 left-0 z-10"
-          style={{ width: "min(56vw, 24rem)", background: LEFT_FADE }}
-        />
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center pr-16">
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          onClick={() => dismissHelp(false)}
+        >
           <motion.div
-            key={target.pageid}
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-            style={{ width: "clamp(280px, 36vw, 520px)" }}
+            initial={{ opacity: 0, scale: 0.94, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="rounded-2xl overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.18)] relative bg-(--color-surface)"
-              style={{ aspectRatio: "4/3" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageSrc} alt="" className="w-full h-full object-cover" />
+            <h2 className="text-xl font-black mb-4 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
+              How to play
+            </h2>
+            <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
+              <p>Each round shows a mushroom photo from Icelandic Wikipedia. Pick the correct species from <strong className="text-(--color-foreground)">4 options</strong>.</p>
+              <p>There are <strong className="text-(--color-foreground)">5 rounds</strong> per day. Each correct answer earns <strong className="text-(--color-foreground)">200 XP</strong>.</p>
+              <p>A new set of mushrooms every day.</p>
             </div>
-            <p className="mt-2 text-[10px] text-(--color-muted) leading-snug max-w-md text-center mx-auto px-2">
-              {t.attribution}
-            </p>
-            {(won || gaveUp) && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="mt-3 text-center space-y-1"
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => dismissHelp(false)}
+                className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
               >
-                <p
-                  className="text-2xl font-black tracking-tight"
-                  style={{ fontFamily: "var(--font-sans)", color: won ? "#22c55e" : "var(--color-muted)" }}
-                >
-                  {target.title}
-                </p>
-                <a
-                  href={target.pageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[11px] text-(--color-blue) underline underline-offset-2 inline-block pointer-events-auto"
-                >
-                  {t.wiki} (Wikipedia)
-                </a>
-              </motion.div>
-            )}
+                Got it
+              </button>
+              <button
+                type="button"
+                onClick={() => dismissHelp(true)}
+                className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
+              >
+                Don&apos;t show again
+              </button>
+            </div>
           </motion.div>
         </div>
-      </div>
+      )}
 
-      <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
-        {isArchive && (
-          <div
-            className="mb-4 rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-2 text-xs text-(--color-muted)"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            <span className="text-(--color-foreground) font-semibold">{day}</span>
-            {" · "}
-            <Link href={`/${locale}/mushroom`} className="underline underline-offset-2 hover:opacity-70 transition-opacity">
-              Today&apos;s puzzle
-            </Link>
-          </div>
-        )}
+      <div className="relative z-10 w-full flex flex-col items-center px-8 pt-0 pb-4" style={{ minHeight: "calc(100dvh - 5rem)" }}>
 
-        {showHelp && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-            onClick={() => dismissHelp(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
-              onClick={(e) => e.stopPropagation()}
+        {/* Title — left aligned */}
+        <div className="w-full mb-3">
+          {isArchive && (
+            <div
+              className="mb-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-2 text-xs text-(--color-muted)"
+              style={{ fontFamily: "var(--font-sans)" }}
             >
-              <h2 className="text-xl font-black mb-4 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
-                How to play
-              </h2>
-              <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
-                <p>
-                  A mystery fungus photo is shown (sourced from Wikimedia Commons via Icelandic Wikipedia). It starts hidden behind
-                  tiles.
-                </p>
-                <p>
-                  <strong className="text-(--color-foreground)">Type the Icelandic Wikipedia species name</strong> and submit. Each
-                  wrong guess reveals another tile. You have <strong className="text-(--color-foreground)">7 guesses</strong>.
-                </p>
-                <p>Fewer guesses = more XP. A new species every calendar day.</p>
-              </div>
-              <div className="mt-5 pt-4 border-t border-(--color-border)">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-(--color-muted) font-semibold mb-2">XP scoring</p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { label: "1 guess", xp: 1000 },
-                    { label: "2 guesses", xp: 800 },
-                    { label: "3 guesses", xp: 600 },
-                    { label: "4–5 guesses", xp: 400 },
-                    { label: "6–7 guesses", xp: 200 },
-                  ].map((r) => (
-                    <span
-                      key={r.label}
-                      className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                      style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}
-                    >
-                      {r.label} → +{r.xp}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-5 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => dismissHelp(false)}
-                  className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
-                >
-                  Got it
-                </button>
-                <button
-                  type="button"
-                  onClick={() => dismissHelp(true)}
-                  className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
-                >
-                  Don&apos;t show again
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        <div className="mb-4 md:mb-12">
+              <span className="text-(--color-foreground) font-semibold">{day}</span>
+              {" · "}
+              <Link href={`/${locale}/mushroom`} className="underline underline-offset-2 hover:opacity-70 transition-opacity">
+                Today&apos;s puzzle
+              </Link>
+            </div>
+          )}
           <motion.h1
-            className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
+            className="text-[clamp(2rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -393,7 +327,7 @@ function MushroomGuesserInner() {
             {t.title}
           </motion.h1>
           <motion.p
-            className="text-sm text-(--color-muted) max-w-sm leading-relaxed"
+            className="text-sm text-(--color-muted) leading-relaxed"
             style={{ fontFamily: "var(--font-sans)" }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -402,7 +336,7 @@ function MushroomGuesserInner() {
             {t.subtitle}
           </motion.p>
           <motion.p
-            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-6 opacity-80"
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-1 opacity-80"
             style={{ fontFamily: "var(--font-sans)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.8 }}
@@ -412,276 +346,225 @@ function MushroomGuesserInner() {
           </motion.p>
         </div>
 
-        {/* Mobile image — shown only on small screens */}
-        <motion.div
-          className="block md:hidden mb-6"
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div
-            className="relative rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] bg-(--color-surface)"
-            style={{ aspectRatio: "4/3" }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageSrc} alt="" className="w-full h-full object-cover" />
-          </div>
-          <p className="mt-2 text-[10px] text-(--color-muted) leading-snug text-center px-2">
-            {t.attribution}
-          </p>
-          {(won || gaveUp) && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="mt-3 text-center space-y-1"
-            >
-              <p
-                className="text-xl font-black tracking-tight"
-                style={{ fontFamily: "var(--font-sans)", color: won ? "#22c55e" : "var(--color-muted)" }}
-              >
-                {target.title}
-              </p>
-              <a
-                href={target.pageUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] text-(--color-blue) underline underline-offset-2 inline-block"
-              >
-                {t.wiki} (Wikipedia)
-              </a>
-            </motion.div>
-          )}
-        </motion.div>
+        {/* ── Game content ─────────────────────────────────────── */}
+        <div className="w-full max-w-sm flex flex-col flex-1">
 
-        {(failed || gaveUp) && !won && (
+        {/* ── Results screen ─────────────────────────────────── */}
+        {phase === "done" ? (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-5 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-4"
           >
-            <div>
-              <p className="font-bold text-(--color-muted)">
-                {failed ? "Out of guesses — " : "The answer was "}
-                <span className="text-(--color-foreground)">{target.title}</span>
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 mb-6">
+              <p className="text-[11px] tracking-[0.18em] uppercase font-semibold text-(--color-muted) mb-1" style={{ fontFamily: "var(--font-sans)" }}>
+                {t.results}
               </p>
-              <p className="text-xs text-(--color-muted) mt-0.5">No XP awarded</p>
-            </div>
-            <button
-              type="button"
-              onClick={clearDay}
-              className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity shrink-0"
-              style={{ color: "var(--color-blue)", fontFamily: "var(--font-sans)" }}
-            >
-              Try again
-            </button>
-          </motion.div>
-        )}
-
-        {won && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mb-5 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 flex items-center justify-between gap-4"
-          >
-            <div>
-              <p className="font-bold text-green-600">
-                {t.solved} — {target.title}
+              <p className="text-5xl font-black text-(--color-blue) mb-1" style={{ fontFamily: "var(--font-display)" }}>
+                {score} / {ROUNDS}
               </p>
-              <p className="text-xs text-(--color-muted) mt-0.5">{xpLabel(guesses.length)}</p>
-            </div>
-            {earnedXp !== null && (
-              <div className="shrink-0 rounded-xl bg-(--color-blue) text-white px-3 py-1.5 text-center">
-                <p className="text-[10px] font-semibold opacity-70 leading-none">XP</p>
-                <p className="text-lg font-black leading-none">+{earnedXp}</p>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        <motion.div
-          className="mb-4 relative"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <input
-                value={value}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                  setError("");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onGuess();
-                }}
-                placeholder={t.input}
-                disabled={won || gaveUp || failed}
-                className="w-full rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue) transition-colors"
-              />
-              {!won && !gaveUp && !failed && suggestions.length > 0 && (
-                <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-20 max-h-48">
-                  {suggestions.map((s) => (
-                    <button
-                      key={s.pageid}
-                      type="button"
-                      onClick={() => {
-                        setValue(s.title);
-                        setError("");
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-(--color-blue-light) transition-colors"
-                    >
-                      {s.title}
-                    </button>
-                  ))}
+              <p className="text-sm text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
+                {resultLabel()}
+              </p>
+              {earnedXp !== null && (
+                <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-(--color-blue) text-white px-4 py-2">
+                  <span className="text-sm font-semibold opacity-70">XP</span>
+                  <span className="text-2xl font-black">+{earnedXp}</span>
                 </div>
               )}
             </div>
+
+            {/* Round recap */}
+            <div className="space-y-3 mb-6">
+              {rounds.map((r, i) => {
+                const ans = answers[i];
+                const correct = ans === r.target.title;
+                const img = r.target.thumbnailUrl ?? r.target.originalUrl ?? "";
+                return (
+                  <div
+                    key={r.target.pageid}
+                    className="flex items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-(--color-muted) mb-0.5" style={{ fontFamily: "var(--font-sans)" }}>
+                        {t.round} {i + 1}
+                      </p>
+                      <p className="font-bold text-sm text-(--color-foreground) truncate" style={{ fontFamily: "var(--font-display)" }}>
+                        {mushroomPrimaryTitle(r.target.title)}
+                      </p>
+                      {!correct && ans && (
+                        <p className="text-xs text-(--color-muted) truncate">
+                          Your answer: {mushroomPrimaryTitle(ans)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                        style={{
+                          background: correct ? "#dcfce7" : "#fee2e2",
+                          color: correct ? "#16a34a" : "#dc2626",
+                        }}
+                      >
+                        {correct ? t.correct : t.wrong}
+                      </span>
+                      <a
+                        href={r.target.pageUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-(--color-blue) underline underline-offset-2"
+                      >
+                        {t.wiki}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
             <button
               type="button"
-              onClick={onGuess}
-              disabled={won || gaveUp || failed}
-              className="rounded-xl px-5 py-2.5 text-sm font-bold text-white bg-(--color-blue) disabled:opacity-40 transition-opacity"
+              onClick={resetGame}
+              className="w-full rounded-xl py-3 text-sm font-bold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
             >
-              {t.guess}
+              {t.playAgain}
             </button>
-          </div>
-          {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="border-t border-(--color-border)"
-        >
-          <div className="flex items-center justify-between pt-5 pb-1">
-            <h2
-              className="text-base font-bold tracking-tight"
-              style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mt-8"
             >
-              {t.heading}
-              <span
-                className="ml-2 text-[10px] tracking-[0.18em] uppercase px-2 py-0.5 rounded-full font-semibold"
-                style={{ background: "var(--color-tag)", color: "var(--color-tag-text)", fontFamily: "var(--font-sans)" }}
-              >
-                {guessRows.length} / {MAX_GUESSES}
+              <MiniLeaderboard />
+            </motion.div>
+          </motion.div>
+        ) : (
+          /* ── Active round ──────────────────────────────────── */
+          <motion.div
+            key={currentRound}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col flex-1"
+          >
+            {/* Progress */}
+            <div className="flex items-center gap-2 mb-3">
+              {Array.from({ length: ROUNDS }, (_, i) => {
+                const ans = answers[i];
+                const done = ans !== null;
+                const correct = done && ans === rounds[i]?.target.title;
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 h-1.5 rounded-full transition-colors duration-300"
+                    style={{
+                      background: i === currentRound
+                        ? "var(--color-blue)"
+                        : done
+                          ? correct ? "#22c55e" : "#ef4444"
+                          : "var(--color-border)",
+                    }}
+                  />
+                );
+              })}
+              <span className="text-xs text-(--color-muted) shrink-0 ml-1" style={{ fontFamily: "var(--font-sans)" }}>
+                {currentRound + 1}/{ROUNDS}
               </span>
-            </h2>
-            {won || gaveUp || failed ? (
-              <button
-                type="button"
-                onClick={clearDay}
-                className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
-                style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-              >
-                {t.reset}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setConfirmGiveUp(true)}
-                className="text-[11px] tracking-[0.14em] uppercase font-semibold hover:opacity-60 transition-opacity"
-                style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
-              >
-                Give up
-              </button>
-            )}
+            </div>
 
-            {confirmGiveUp && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-                onClick={() => setConfirmGiveUp(false)}
-              >
+            {/* Mushroom image */}
+            <div className="flex-1 min-h-0 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] bg-(--color-surface) mb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageSrc} alt="" className="w-full h-full object-cover" />
+            </div>
+            <p className="text-[10px] text-(--color-muted) text-center mb-3" style={{ fontFamily: "var(--font-sans)" }}>
+              {t.attribution}
+            </p>
+
+            {/* Options */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              {round.options.map((opt) => {
+                const isChosen = chosen === opt.title;
+                const isTarget = opt.title === round.target.title;
+                let bg = "var(--color-surface)";
+                let border = "var(--color-border)";
+                let textColor = "var(--color-foreground)";
+
+                if (phase === "answered") {
+                  if (isTarget) { bg = "#dcfce7"; border = "#22c55e"; textColor = "#15803d"; }
+                  else if (isChosen) { bg = "#fee2e2"; border = "#ef4444"; textColor = "#dc2626"; }
+                }
+
+                return (
+                  <button
+                    key={opt.pageid}
+                    type="button"
+                    onClick={() => handleAnswer(opt.title)}
+                    disabled={phase === "answered"}
+                    className="rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-200 hover:opacity-80 disabled:cursor-default"
+                    style={{
+                      background: bg,
+                      borderColor: border,
+                      color: textColor,
+                      fontFamily: "var(--font-sans)",
+                    }}
+                  >
+                    {mushroomPrimaryTitle(opt.title)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Feedback + next */}
+            <AnimatePresence>
+              {phase === "answered" && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                  className="w-full max-w-sm mx-4 rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
-                  onClick={(e) => e.stopPropagation()}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3"
                 >
-                  <h2 className="text-xl font-black mb-2 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
-                    Give up?
-                  </h2>
-                  <p className="text-sm text-(--color-muted) leading-relaxed mb-6">
-                    You won&apos;t earn XP for today. The answer will be shown.
-                  </p>
-                  <div className="flex gap-3">
+                  <div>
+                    <p
+                      className="font-bold text-sm"
+                      style={{ color: isCorrect ? "#22c55e" : "#ef4444" }}
+                    >
+                      {isCorrect ? t.correct : t.wrong}
+                    </p>
+                    {!isCorrect && (
+                      <p className="text-xs text-(--color-muted) mt-0.5">
+                        {mushroomPrimaryTitle(round.target.title)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <a
+                      href={round.target.pageUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-(--color-blue) underline underline-offset-2"
+                    >
+                      {t.wiki}
+                    </a>
                     <button
                       type="button"
-                      onClick={doGiveUp}
-                      className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white hover:opacity-90 transition-opacity"
-                      style={{ background: "#ef4444" }}
+                      onClick={handleNext}
+                      className="rounded-xl px-4 py-2 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
                     >
-                      Yes, give up
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmGiveUp(false)}
-                      className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
-                    >
-                      Keep going
+                      {currentRound >= ROUNDS - 1 ? t.finish : t.next}
                     </button>
                   </div>
                 </motion.div>
-              </div>
-            )}
-          </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
-          {guessRows.length === 0 ? (
-            <div className="py-8 text-sm text-(--color-muted) opacity-60">No guesses yet</div>
-          ) : (
-            <div>
-              {guessRows.map((r) => (
-                <div
-                  key={r.name}
-                  className="grid items-center gap-3 py-4 border-b border-(--color-border)"
-                  style={{ gridTemplateColumns: "auto 1fr auto" }}
-                >
-                  {r.mush?.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={r.mush.thumbnailUrl}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="rounded-md object-cover shrink-0 size-10"
-                    />
-                  ) : (
-                    <span className="size-10 rounded-md bg-(--color-tag) shrink-0" />
-                  )}
-                  <span
-                    className="font-bold text-base text-(--color-foreground)"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {r.name}
-                  </span>
-                  <span
-                    className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                    style={{
-                      background: r.correct ? "#dcfce7" : "var(--color-tag)",
-                      color: r.correct ? "#16a34a" : "var(--color-muted)",
-                    }}
-                  >
-                    {r.correct ? t.correct : t.wrong}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8"
-        >
-          <MiniLeaderboard />
-        </motion.div>
+        </div>{/* end game content */}
       </div>
     </>
   );

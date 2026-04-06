@@ -223,7 +223,7 @@ function FlagGuesserInner() {
       <button
         type="button"
         onClick={() => setShowHelp(true)}
-        className="fixed top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
+        className="fixed top-18 md:top-4 right-4 z-20 w-8 h-8 rounded-full border border-(--color-border) bg-(--color-surface) text-(--color-muted) text-sm font-bold hover:opacity-70 transition-opacity flex items-center justify-center shadow-sm"
         aria-label="How to play"
       >
         ?
@@ -236,7 +236,7 @@ function FlagGuesserInner() {
       >
         {/* left-edge fade */}
         <div
-          className="absolute inset-y-0 left-0 z-10"
+          className="pointer-events-none absolute inset-y-0 left-0 z-10"
           style={{ width: "min(56vw, 24rem)", background: LEFT_FADE }}
         />
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center pr-16">
@@ -296,7 +296,7 @@ function FlagGuesserInner() {
       </div>
 
       {/* ── Left: Game UI ────────────────────────────────────────── */}
-      <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
+      <div className="relative z-10 w-full max-w-xl px-8 pt-2 pb-10">
 
         {isArchive && (
           <div

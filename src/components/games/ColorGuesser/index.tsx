@@ -322,7 +322,7 @@ export default function ColorGuesser() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          Color<br />guess
+          Color<br />Match
         </motion.h1>
         <motion.p
           className="text-sm text-(--color-muted) max-w-sm leading-relaxed mt-4"
