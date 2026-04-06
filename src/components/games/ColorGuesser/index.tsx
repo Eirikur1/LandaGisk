@@ -127,12 +127,8 @@ function hsbDistance(a: HSB, b: HSB): number {
 }
 
 function scoreFromDist(dist: number): number {
-  // Max possible distance with equal weights: sqrt(1 + 1 + 1) = sqrt(3)
   const max = Math.sqrt(3);
-  const linear = Math.max(0, 1 - dist / max);
-  // Exponential growth toward 100 — only near-perfect guesses break 90
-  // linear=0.98 → ~98, linear=0.90 → ~90, linear=0.70 → ~23, linear=0.50 → ~3
-  return parseFloat((100 * Math.pow(linear, 4)).toFixed(1));
+  return Math.max(0, parseFloat(((1 - dist / max) * 100).toFixed(1)));
 }
 
 // ─── Quips ─────────────────────────────────────────────────────────────────
