@@ -18,7 +18,7 @@ import {
   NavigationMenuPositioner,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
-import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, ArrowRight, MinusCircle } from "lucide-react";
+import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle } from "lucide-react";
 
 const menuItemVariants = {
   rest: {},
@@ -130,6 +130,7 @@ const GAMES = [
   { href: "car", titleKey: "games.car.title", available: false, icon: Car },
   { href: "mushroom", titleKey: "games.mushroom.title", available: true, icon: Sprout },
   { href: "color", titleKey: "games.color.title", available: true, icon: Palette },
+  { href: "year", titleKey: "games.year.title", available: true, icon: CalendarDays },
   { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 

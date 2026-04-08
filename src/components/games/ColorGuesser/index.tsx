@@ -128,7 +128,8 @@ function hsbDistance(a: HSB, b: HSB): number {
 
 function scoreFromDist(dist: number): number {
   const max = Math.sqrt(3);
-  return Math.max(0, parseFloat(((1 - dist / max) * 100).toFixed(1)));
+  const linear = Math.max(0, 1 - dist / max);
+  return parseFloat((100 * Math.pow(linear, 1.5)).toFixed(1));
 }
 
 // ─── Quips ─────────────────────────────────────────────────────────────────
