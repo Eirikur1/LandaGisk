@@ -476,7 +476,7 @@ function MushroomGuesserInner() {
             </div>
 
             {/* Mushroom image */}
-            <div className="flex-1 min-h-0 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] bg-(--color-surface) mb-2">
+            <div className="h-72 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] bg-(--color-surface) mb-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageSrc} alt="" className="w-full h-full object-cover" />
             </div>

@@ -28,6 +28,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+
 /* World game map: force tooltip hidden (no hover names). */
 .svgMap-tooltip {
   display: none !important;
