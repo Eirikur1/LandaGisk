@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 function isValidHttpUrl(s: string): boolean {
   try {
@@ -44,7 +44,9 @@ function resolveSupabaseEnv(): { url: string; anonKey: string } {
 
 const { url: supabaseUrl, anonKey: supabaseAnonKey } = resolveSupabaseEnv();
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// createBrowserClient stores the session in cookies so it is accessible
+// server-side (middleware, server components) via @supabase/ssr.
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 /** True when real project URL/key are not set (local dev fallback). Auth will not work. */
 export function isSupabasePlaceholder(): boolean {

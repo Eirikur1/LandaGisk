@@ -28,7 +28,7 @@ function Avatar({ leader }: { leader: Leader }) {
         alt=""
         width={28}
         height={28}
-        className="rounded-full object-cover shrink-0"
+        className="size-7 rounded-full object-cover shrink-0"
       />
     );
   }

@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
 import CookieConsent from "@/components/ui/CookieConsent";
@@ -54,9 +55,14 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const preconnectSupabase = supabaseOrigin();
 
+  // Read the per-request nonce injected by proxy.ts so Next.js can apply it
+  // to its bootstrap scripts, satisfying the nonce-based CSP.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang={locale} className={`${playfair.variable} ${interSans.variable} h-full`}>
       <head>
+        {nonce && <meta property="csp-nonce" content={nonce} />}
         {preconnectSupabase ? (
           <link rel="preconnect" href={preconnectSupabase} crossOrigin="anonymous" />
         ) : null}

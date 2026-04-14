@@ -18,9 +18,10 @@ type Props = {
  * Blob/data URLs (account upload preview) stay as a plain img element.
  */
 export function OptimizedAvatar({ src, alt, width, height, className, priority }: Props) {
+  const combined = className ? `overflow-hidden ${className}` : "overflow-hidden";
   if (src.startsWith("blob:") || src.startsWith("data:")) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={alt} width={width} height={height} className={className} />;
+    return <img src={src} alt={alt} width={width} height={height} className={combined} />;
   }
   return (
     <Image
@@ -28,7 +29,7 @@ export function OptimizedAvatar({ src, alt, width, height, className, priority }
       alt={alt}
       width={width}
       height={height}
-      className={className}
+      className={combined}
       sizes={`${width}px`}
       priority={priority}
     />
