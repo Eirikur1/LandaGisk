@@ -4,14 +4,16 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import RotatingEarth from "@/components/ui/wireframe-dotted-globe";
 
 export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const locale = (params?.locale as string) ?? "en";
+  const callbackError = searchParams.get("error");
 
   const [tab, setTab] = useState<"signin" | "signup">("signin");
 
@@ -171,7 +173,9 @@ export default function AuthPage() {
                   onChange={setSignInPassword}
                   autoComplete="current-password"
                 />
-                {signInError && <p className="text-xs text-red-400">{signInError}</p>}
+                {(signInError || callbackError) && (
+                  <p className="text-xs text-red-400">{signInError || callbackError}</p>
+                )}
                 <SubmitButton busy={signInBusy} label="Sign in" busyLabel="Signing in…" />
               </form>
             </div>

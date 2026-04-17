@@ -51,10 +51,6 @@ const copy = {
   },
 } as const;
 
-const LEFT_FADE =
-  "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)";
-
-
 function toRad(deg: number) { return (deg * Math.PI) / 180; }
 
 function distanceKm(a: WorldCountry, b: WorldCountry) {
@@ -248,33 +244,9 @@ function WorldGuesserInner() {
         ?
       </button>
 
-      {/* ── Right: Globe (fixed to viewport so it never moves) ──── */}
-      <div
-        className="pointer-events-none fixed inset-y-0 right-0 select-none overflow-visible max-md:hidden"
-        style={{ width: "min(96vw, 1680px)" }}
-      >
-        {/* left-edge fade */}
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-10"
-          style={{ width: "min(56vw, 24rem)", background: LEFT_FADE }}
-        />
-        <div className="pointer-events-auto absolute inset-y-0 right-0 flex items-center">
-          <GlobeMap
-            guessedProximity={guessedProximity}
-            targetCcn3={target.ccn3}
-            won={won}
-            panTo={(() => {
-              const last = guesses[0];
-              if (!last) return null;
-              const c = WORLD_COUNTRIES.find((c) => c.name === last);
-              return c ? { lat: c.lat, lon: c.lon } : null;
-            })()}
-          />
-        </div>
-      </div>
-
-      {/* ── Left: Game UI (mirrors hero left column) ────────────── */}
-      <div className="relative z-10 w-full max-w-xl px-8 pt-2 pb-10">
+      <div className="relative z-10 w-full px-6 pt-1 pb-8 md:px-8 xl:px-10">
+        {/* ── Left: Game UI (mirrors hero left column) ────────────── */}
+        <div className="w-full">
 
         {isArchive && (
           <div
@@ -341,9 +313,9 @@ function WorldGuesserInner() {
         )}
 
         {/* Title */}
-        <div className="mb-4 md:mb-12">
+        <div className="mb-3 md:mb-6">
           <motion.h1
-            className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
+            className="text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -361,18 +333,27 @@ function WorldGuesserInner() {
             {t.subtitle}
           </motion.p>
           <motion.p
-            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-6 opacity-80"
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-2 opacity-80"
             style={{ fontFamily: "var(--font-sans)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.8 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
+            {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric", timeZone: "UTC" }).format(new Date())}
           </motion.p>
         </div>
 
-        {/* Mobile globe — between title and search bar */}
-        <div className="md:hidden mb-4 rounded-full overflow-hidden border border-(--color-border)" style={{ height: 260, width: 260, position: "relative", margin: "0 auto 1rem" }}>
+        <div className="w-full max-w-xl mx-auto">
+        {/* Globe — centered between title and search bar */}
+        <div
+          className="mb-3 rounded-full overflow-hidden mx-auto"
+          style={{
+            height: "clamp(220px, 44vh, 520px)",
+            width: "clamp(220px, 44vh, 520px)",
+            position: "relative",
+            margin: "0 auto 1rem",
+          }}
+        >
           <GlobeMap
             inline
             guessedProximity={guessedProximity}
@@ -614,6 +595,8 @@ function WorldGuesserInner() {
         >
           <MiniLeaderboard />
         </motion.div>
+        </div>
+        </div>
       </div>
     </>
   );

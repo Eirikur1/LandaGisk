@@ -415,7 +415,7 @@ function YearGuesserInner() {
   if (phase === "final") {
     return (
       <div
-        className="w-full max-w-2xl mx-auto px-4 py-8"
+        className="w-full max-w-2xl xl:max-w-4xl mx-auto px-4 py-8"
         style={{ fontFamily: FONT }}
       >
         <motion.div
@@ -464,7 +464,7 @@ function YearGuesserInner() {
 
   return (
     <div
-      className="w-full max-w-2xl mx-auto px-4 py-8"
+      className="w-full max-w-2xl xl:max-w-4xl mx-auto px-4 py-8"
       style={{ fontFamily: FONT }}
     >
       {/* Header */}

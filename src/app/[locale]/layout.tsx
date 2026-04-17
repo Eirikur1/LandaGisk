@@ -36,7 +36,7 @@ const interSans = Inter({
 
 export const metadata: Metadata = {
   title: "Dagrun — Daily Icelandic Games",
-  description: "A fresh world puzzle, every day",
+  description: "Daily fun games to challenge your memory, logic, and world knowledge",
 };
 
 export default async function LocaleLayout({

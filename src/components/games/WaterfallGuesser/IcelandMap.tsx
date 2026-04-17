@@ -54,12 +54,10 @@ interface Pin {
 }
 
 interface Props {
-  onSubmit: (pin: Pin) => void;
   resultPin?: Pin | null;
   targetPin?: Pin | null;
   disabled?: boolean;
   onPinChange?: (pin: Pin | null) => void;
-  roundedRight?: boolean;
 }
 
 
@@ -75,17 +73,44 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, onPinChange, roundedRight = true }: Props) {
+export default function IcelandMap({ resultPin, targetPin, disabled, onPinChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const mapLoadedRef = useRef(false);
+  const [mapReady, setMapReady] = useState(false);
   const interactionRef = useRef({ disabled: false, hasResult: false });
   const [pin, setPin] = useState<Pin | null>(null);
   const isMobile = useIsMobile();
 
+  // Keep always-fresh refs so map event handlers never go stale
+  const onPinChangeRef = useRef(onPinChange);
+  const resultPinRef = useRef(resultPin);
+  const targetPinRef = useRef(targetPin);
+  useEffect(() => { onPinChangeRef.current = onPinChange; }, [onPinChange]);
+  useEffect(() => { resultPinRef.current = resultPin; }, [resultPin]);
+  useEffect(() => { targetPinRef.current = targetPin; }, [targetPin]);
+
   useEffect(() => {
     interactionRef.current = { disabled: !!disabled, hasResult: resultPin != null };
   }, [disabled, resultPin]);
+
+  /** Sync all pins + line directly into the MapLibre source */
+  function redrawSource(guessPin: Pin | null) {
+    const map = mapRef.current;
+    if (!map) return;
+    const src = map.getSource("game") as GeoJSONSource | undefined;
+    if (!src) return;
+
+    const features: FeatureCollection<Point | LineString>["features"] = [];
+    const rp = resultPinRef.current;
+    const tp = targetPinRef.current;
+    const guess = rp ?? guessPin;
+
+    if (guess) features.push({ type: "Feature", geometry: { type: "Point", coordinates: [guess.lng, guess.lat] }, properties: { kind: "guess" } });
+    if (tp)    features.push({ type: "Feature", geometry: { type: "Point", coordinates: [tp.lng, tp.lat] }, properties: { kind: "target" } });
+    if (rp && tp) features.push({ type: "Feature", geometry: { type: "LineString", coordinates: [[rp.lng, rp.lat], [tp.lng, tp.lat]] }, properties: { kind: "line" } });
+
+    src.setData({ type: "FeatureCollection", features });
+  }
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -107,7 +132,6 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, o
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
-
       const emptyGame: FeatureCollection<Point | LineString> = { type: "FeatureCollection", features: [] };
       map.addSource("game", { type: "geojson", data: emptyGame });
       map.addLayer({
@@ -165,7 +189,7 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, o
         duration: 0,
         maxZoom: 12,
       });
-      mapLoadedRef.current = true;
+      setMapReady(true);
     });
 
     map.on("click", (e) => {
@@ -173,83 +197,52 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, o
       if (d || hasResult) return;
       const newPin = { lng: e.lngLat.lng, lat: e.lngLat.lat };
       setPin(newPin);
-      onPinChange?.(newPin);
+      onPinChangeRef.current?.(newPin);
+      redrawSource(newPin);
     });
 
     return () => {
       map.remove();
       mapRef.current = null;
-      mapLoadedRef.current = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Redraw when result/target pins arrive (e.g. after submit or on restore from localStorage)
+  useEffect(() => {
+    if (mapReady) redrawSource(pin);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultPin, targetPin, mapReady]);
+
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapLoadedRef.current) return;
+    if (map && mapReady) requestAnimationFrame(() => map.resize());
+  }, [isMobile, mapReady]);
 
-    const features: FeatureCollection<Point | LineString>["features"] = [];
-    const guess = resultPin ?? pin;
-    if (guess) {
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [guess.lng, guess.lat] },
-        properties: { kind: "guess" },
-      });
-    }
-    if (targetPin) {
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [targetPin.lng, targetPin.lat] },
-        properties: { kind: "target" },
-      });
-    }
-    if (resultPin && targetPin) {
-      features.push({
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [resultPin.lng, resultPin.lat],
-            [targetPin.lng, targetPin.lat],
-          ],
-        },
-        properties: { kind: "line" },
-      });
-    }
-    const src = map.getSource("game") as GeoJSONSource | undefined;
-    if (src) src.setData({ type: "FeatureCollection", features });
-  }, [pin, resultPin, targetPin]);
-
-  // Resize the map when layout switches between mobile/desktop
+  // Resize map whenever the container element changes size
   useEffect(() => {
-    const map = mapRef.current;
-    if (map && mapLoadedRef.current) {
-      requestAnimationFrame(() => map.resize());
-    }
-  }, [isMobile]);
-
-  const wrapperStyle: React.CSSProperties = isMobile
-    ? { width: "100%", height: "100%" }
-    : {
-        position: "absolute",
-        left: "calc(384px + 2rem)",
-        right: "1rem",
-        top: "8rem",
-        height: "min(70vh, 620px)",
-      };
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      const map = mapRef.current;
+      if (map) requestAnimationFrame(() => map.resize());
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <motion.div
-      style={{ ...wrapperStyle, borderRadius: roundedRight ? "1rem" : "1rem 0 0 1rem", overflow: "hidden" }}
-      initial={{ opacity: 0, x: "8vw" }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 1.1, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
+      style={{ width: "100%", height: "100%", display: "block" }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
       suppressHydrationWarning
     >
       <div
         ref={containerRef}
         className="relative w-full h-full overflow-hidden border border-slate-200/90 shadow-[0_24px_80px_rgba(15,23,42,0.1)]"
-        style={{ minHeight: 0, borderRadius: roundedRight ? "1rem" : "1rem 0 0 1rem" }}
+        style={{ borderRadius: "1rem" }}
       >
         {/* Prompt overlay */}
         <AnimatePresence>
@@ -275,29 +268,6 @@ export default function IcelandMap({ onSubmit, resultPin, targetPin, disabled, o
           )}
         </AnimatePresence>
 
-        {/* Submit button — inside map on desktop only */}
-        {!isMobile && (
-          <AnimatePresence>
-            {pin && !resultPin && !disabled && (
-              <motion.div
-                className="absolute bottom-4 right-4 z-10"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 6 }}
-                transition={{ duration: 0.2 }}
-              >
-                <button
-                  type="button"
-                  onClick={() => { if (pin) onSubmit(pin); }}
-                  className="rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-opacity hover:opacity-90"
-                  style={{ background: "#2b5ceb" }}
-                >
-                  Submit guess
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
       </div>
     </motion.div>
   );

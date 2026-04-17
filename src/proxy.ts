@@ -34,6 +34,10 @@ function buildCsp(nonce: string): string {
     // Note: 'strict-dynamic' is intentionally omitted — it disables 'self' in
     // nonce-aware browsers, which blocks /_next/static/chunks/ from loading.
     `script-src 'self' 'nonce-${nonce}'${evalDirective}`,
+    // MapLibre GL spawns a blob: URL web worker for tile parsing — must be allowed explicitly
+    // since worker-src falls back to script-src when not set.
+    // 'self' is also needed for /globe-worker.js which is loaded from the public directory.
+    "worker-src blob: 'self'",
     // unsafe-inline is required for CSS-in-JS (Tailwind inline styles, etc.)
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",

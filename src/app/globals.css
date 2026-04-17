@@ -29,6 +29,17 @@ html, body {
 }
 
 
+/* Color game card: aspect-ratio on mobile, viewport-height on desktop */
+.card-height-container {
+  aspect-ratio: 4 / 3;
+}
+@media (min-width: 768px) {
+  .card-height-container {
+    aspect-ratio: unset;
+    height: min(calc(100vh - 160px), 700px);
+  }
+}
+
 /* World game map: force tooltip hidden (no hover names). */
 .svgMap-tooltip {
   display: none !important;

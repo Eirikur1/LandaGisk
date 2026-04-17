@@ -318,7 +318,7 @@ function MushroomGuesserInner() {
             </div>
           )}
           <motion.h1
-            className="text-[clamp(2rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
+            className="text-[clamp(2rem,6vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -347,7 +347,7 @@ function MushroomGuesserInner() {
         </div>
 
         {/* ── Game content ─────────────────────────────────────── */}
-        <div className="w-full max-w-sm flex flex-col flex-1">
+        <div className="w-full max-w-sm xl:max-w-lg flex flex-col flex-1">
 
         {/* ── Results screen ─────────────────────────────────── */}
         {phase === "done" ? (

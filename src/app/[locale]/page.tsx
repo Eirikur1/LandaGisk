@@ -37,14 +37,14 @@ export default async function HomePage({
       <HeroGlobeClient />
 
       {/* Left content column */}
-      <div className="relative z-10 max-w-xl px-8 pt-2 pb-10">
+      <div className="relative z-10 max-w-xl xl:max-w-2xl px-8 pt-2 pb-10">
 
         {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
         <div className="mb-12">
           <HeroSplitText
             as="h1"
             text={t("title")}
-            className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
+            className="text-[clamp(3.25rem,10vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
           />
           <HeroSplitText

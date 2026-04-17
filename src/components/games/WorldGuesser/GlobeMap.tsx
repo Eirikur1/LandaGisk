@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import * as d3geo from "d3-geo";
 
-const GEO_URL = "/countries-110m.json";
+const GEO_URL_LO = "/countries-110m.json";
+const GEO_URL_HI = "/countries-50m.json";
 
 interface Props {
   guessedProximity: Map<string, number>;
@@ -14,11 +15,29 @@ interface Props {
   inline?: boolean;
 }
 
-// proximity 0–100 → light blue → app blue (never green — green is only for the correct answer)
+// Digital Blue palette mapped to proximity 0–100
+// Scale is compressed toward the top: most guesses are light, only very close ones go dark.
+// Adjacent countries score ~97–99, so #002966 only appears for neighbours / near-misses.
 function proximityColor(proximity: number): string {
-  if (proximity >= 60) return "#2b5ceb";
-  if (proximity >= 30) return "#5b8af5";
-  return "#93b4f8";
+  if (proximity >= 97) return "#002966"; // 900 — adjacent / essentially correct
+  if (proximity >= 93) return "#003D99"; // 700 — ~500 km away
+  if (proximity >= 88) return "#0052CC"; // 600 — ~1 500 km away
+  if (proximity >= 80) return "#0066FF"; // 500 — ~2 500 km away
+  if (proximity >= 68) return "#3385FF"; // 400 — ~4 000 km away
+  if (proximity >= 50) return "#68A3FF"; // 300 — ~6 000 km away
+  if (proximity >= 25) return "#99C2FF"; // 200 — far
+  return "#E5F0FF";                      // 50 — very far
+}
+
+function proximityStroke(proximity: number): string {
+  if (proximity >= 97) return "#001433";
+  if (proximity >= 93) return "#002966";
+  if (proximity >= 88) return "#003D99";
+  if (proximity >= 80) return "#0052CC";
+  if (proximity >= 68) return "#0066FF";
+  if (proximity >= 50) return "#3385FF";
+  if (proximity >= 25) return "#68A3FF";
+  return "#CCE0FF";
 }
 
 function getFill(id: string, guessedProximity: Map<string, number>, targetCcn3: string, won: boolean) {
@@ -31,7 +50,7 @@ function getFill(id: string, guessedProximity: Map<string, number>, targetCcn3: 
 function getStroke(id: string, guessedProximity: Map<string, number>, targetCcn3: string, won: boolean) {
   if (won && id === targetCcn3) return "#16a34a";
   const p = guessedProximity.get(id);
-  if (p !== undefined) return "#1e4fd4";
+  if (p !== undefined) return proximityStroke(p);
   return "#7a9db8";
 }
 
@@ -39,6 +58,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
   const svgRef = useRef<SVGSVGElement>(null);
   const rotateRef = useRef<[number, number, number]>([-10, -40, 0]);
   const scaleRef = useRef(1);
+  const needsRenderRef = useRef(true);
   const dragging = useRef(false);
   const lastPos = useRef<[number, number]>([0, 0]);
   const panningRef = useRef(false);
@@ -47,19 +67,49 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
   const panProgressRef = useRef(0);
   const lastPanToRef = useRef<{ lat: number; lon: number } | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [features, setFeatures] = useState<any[]>([]);
+  const [featuresLo, setFeaturesLo] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [featuresHi, setFeaturesHi] = useState<any[]>([]);
   const [size, setSize] = useState(600);
   const animFrameRef = useRef<number>(0);
+  const wheelFrameRef = useRef<number>(0);
+  const wheelSettleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Separate "render resolution" from zoom scale so we only switch to hi-res
+  // after zooming stops, avoiding expensive path recomputation every frame.
+  const renderHiResRef = useRef(false);
 
-  // Load geo data
+  // features to actually render — hi-res when zoomed in past 1.8×
+  // NOTE: read inside draw() via refs so the callback always picks the right set
+  const featuresLoRef = useRef(featuresLo);
+  const featuresHiRef = useRef(featuresHi);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const featureMapLoRef = useRef<Map<string, any>>(new Map());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const featureMapHiRef = useRef<Map<string, any>>(new Map());
+  useEffect(() => { featuresLoRef.current = featuresLo; }, [featuresLo]);
+  useEffect(() => { featuresHiRef.current = featuresHi; }, [featuresHi]);
   useEffect(() => {
-    Promise.all([
-      import("topojson-client"),
-      fetch(GEO_URL).then((r) => r.json()),
-    ]).then(([topojson, topo]) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const geo = (topojson as any).feature(topo, (topo as any).objects.countries);
-      setFeatures(geo.features);
+    featureMapLoRef.current = new Map(featuresLo.map((f) => [String(f.id), f]));
+  }, [featuresLo]);
+  useEffect(() => {
+    featureMapHiRef.current = new Map(featuresHi.map((f) => [String(f.id), f]));
+  }, [featuresHi]);
+
+  // Load both resolutions
+  useEffect(() => {
+    import("topojson-client").then((topojson) => {
+      // Low-res loads first for fast initial render
+      fetch(GEO_URL_LO).then((r) => r.json()).then((topo) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const geo = (topojson as any).feature(topo, (topo as any).objects.countries);
+        setFeaturesLo(geo.features);
+      });
+      // High-res loads in background
+      fetch(GEO_URL_HI).then((r) => r.json()).then((topo) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const geo = (topojson as any).feature(topo, (topo as any).objects.countries);
+        setFeaturesHi(geo.features);
+      });
     });
   }, []);
 
@@ -84,6 +134,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
     panTargetRef.current = [-panTo.lon, -panTo.lat, 0];
     panProgressRef.current = 0;
     panningRef.current = true;
+    needsRenderRef.current = true;
   }, [panTo]);
 
   // Auto-rotate / pan
@@ -100,20 +151,30 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
             panStartRef.current[1] + (panTargetRef.current[1] - panStartRef.current[1]) * t,
             0,
           ];
+          needsRenderRef.current = true;
           if (panProgressRef.current >= 1) panningRef.current = false;
         }
-        draw();
+        if (needsRenderRef.current) {
+          draw();
+          needsRenderRef.current = false;
+        }
       }
       animFrameRef.current = requestAnimationFrame(tick);
     };
     animFrameRef.current = requestAnimationFrame(tick);
     return () => { running = false; cancelAnimationFrame(animFrameRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [features, size, guessedProximity, targetCcn3, won]);
+  }, [featuresLo, featuresHi, size, guessedProximity, targetCcn3, won]);
+
+  useEffect(() => {
+    needsRenderRef.current = true;
+  }, [featuresLo, featuresHi, size, guessedProximity, targetCcn3, won]);
 
   const draw = useCallback(() => {
     const svg = svgRef.current;
-    if (!svg || features.length === 0) return;
+    const useHiRes = renderHiResRef.current && featuresHiRef.current.length > 0;
+    const activeFeatures = useHiRes ? featuresHiRef.current : featuresLoRef.current;
+    if (!svg || activeFeatures.length === 0) return;
     const cx = size / 2;
     const projection = d3geo.geoOrthographic()
       .scale(cx * 0.96 * scaleRef.current)
@@ -131,17 +192,21 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
     const grat = svg.querySelector<SVGPathElement>(".globe-graticule");
     if (grat) grat.setAttribute("d", path(d3geo.geoGraticule()()) ?? "");
 
+    // Build a fast lookup map from feature id → feature
+    const featMap = useHiRes ? featureMapHiRef.current : featureMapLoRef.current;
+
     // Countries
     const countryEls = svg.querySelectorAll<SVGPathElement>("[data-id]");
     countryEls.forEach((el) => {
       const id = el.getAttribute("data-id") ?? "";
-      const feat = features.find((f) => f.id === id);
+      const feat = featMap.get(id);
       if (!feat) return;
       el.setAttribute("d", path(feat) ?? "");
       el.setAttribute("fill", getFill(id, guessedProximity, targetCcn3, won));
       el.setAttribute("stroke", getStroke(id, guessedProximity, targetCcn3, won));
     });
-  }, [features, size, guessedProximity, targetCcn3, won]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size, guessedProximity, targetCcn3, won]);
 
   // Drag to rotate
   function onPointerDown(e: React.PointerEvent) {
@@ -159,6 +224,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
       Math.max(-90, Math.min(90, rotateRef.current[1] - dy * 0.4)),
       rotateRef.current[2],
     ];
+    needsRenderRef.current = true;
     draw();
   }
   function onPointerUp() { dragging.current = false; }
@@ -169,10 +235,19 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
     const handler = (e: WheelEvent) => {
       e.preventDefault();
       scaleRef.current = Math.max(1, Math.min(4, scaleRef.current * (e.deltaY < 0 ? 1.1 : 0.9)));
-      draw();
+      needsRenderRef.current = true;
+      if (wheelFrameRef.current) return;
+      wheelFrameRef.current = requestAnimationFrame(() => {
+        wheelFrameRef.current = 0;
+        draw();
+        needsRenderRef.current = false;
+      });
     };
     el.addEventListener("wheel", handler, { passive: false });
-    return () => el.removeEventListener("wheel", handler);
+    return () => {
+      el.removeEventListener("wheel", handler);
+      if (wheelFrameRef.current) cancelAnimationFrame(wheelFrameRef.current);
+    };
   }, [draw]);
 
   const cx = size / 2;
@@ -219,8 +294,8 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
           <circle className="globe-ocean" cx={cx} cy={cx} r={cx * 0.96} fill="#c8dcea" />
           {/* Graticule */}
           <path className="globe-graticule" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
-          {/* Countries */}
-          {features.map((f, i) => (
+          {/* Countries — DOM nodes keyed by id; draw() updates paths each frame */}
+          {featuresLo.map((f, i) => (
             <path
               key={`${f.id}-${i}`}
               data-id={f.id}

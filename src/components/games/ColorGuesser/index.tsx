@@ -195,8 +195,8 @@ function GameCard({ bg, children, motionKey, overflow = "hidden" }: {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] aspect-3/4 sm:aspect-4/3 ${overflowClass}`}
-      style={{ background: bg, maxWidth: 740 }}
+      className={`relative w-full h-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] ${overflowClass}`}
+      style={{ background: bg }}
     >
       {children}
     </motion.div>
@@ -308,103 +308,117 @@ export default function ColorGuesser() {
 
   const secondsLeft = ((1 - elapsed) * REVEAL_MS) / 1000;
 
-  return (
-    <div className="relative z-10 pt-0 pb-10">
-      {/* Header — left-aligned */}
-      <div className="px-4 sm:px-8 mb-3 max-w-xl">
-        <motion.h1
-          className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.82] tracking-tight text-(--color-blue) mb-2"
-          style={{ fontFamily: "var(--font-display)" }}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          Color<br />Match
-        </motion.h1>
-        <motion.p
-          className="text-sm text-(--color-muted) max-w-sm leading-relaxed mt-4"
-          style={{ fontFamily: "var(--font-sans)" }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          Remember a color, then recreate it from memory.
-        </motion.p>
-        <motion.p
-          className="text-xs text-(--color-muted) max-w-sm leading-relaxed mt-1"
-          style={{ fontFamily: "var(--font-sans)" }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-        >
-          5 rounds, scored on accuracy.
-        </motion.p>
-        <motion.p
-          className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-2 opacity-80"
-          style={{ fontFamily: "var(--font-sans)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
-        </motion.p>
-      </div>
+  const muteButton = (
+    <button
+      type="button"
+      onClick={() => setMuted((m) => !m)}
+      aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+      className="rounded-full p-2 transition-opacity hover:opacity-70"
+      style={{ color: FIGMA_BLUE }}
+    >
+      {muted ? (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <line x1="23" y1="9" x2="17" y2="15"/>
+          <line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      )}
+    </button>
+  );
 
-      {/* Game — centered */}
-      <div className="flex flex-col items-center px-2 sm:px-8 mt-4 sm:-mt-48">
-        <div className="w-full max-w-[740px] flex items-center justify-between mb-3" style={{ minHeight: 28 }}>
-          <div>
-            <RoundDots round={round} completedCount={results.length} />
-          </div>
-          <button
-            type="button"
-            onClick={() => setMuted((m) => !m)}
-            aria-label={muted ? "Unmute sounds" : "Mute sounds"}
-            className="rounded-full p-2 transition-opacity hover:opacity-70"
-            style={{ color: FIGMA_BLUE }}
+  return (
+    <div className="relative z-10 pt-0 pb-6 px-4 sm:px-8">
+      {/*
+        Single unified layout. CSS grid switches between:
+        - mobile: 1 column (stacked)
+        - md+: 2 columns (title left, card right)
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,320px)_1fr] gap-y-0 md:gap-x-8 items-start w-full">
+
+        {/* Title block — full width on mobile, left column on desktop */}
+        <div className="md:pt-2 mb-3 md:mb-0">
+          <motion.h1
+            className="font-black leading-[0.85] tracking-tight text-(--color-blue)"
+            style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 4vw, 5rem)" }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {muted ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <line x1="23" y1="9" x2="17" y2="15"/>
-                <line x1="17" y1="9" x2="23" y2="15"/>
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              </svg>
-            )}
-          </button>
+            Color<br />Match
+          </motion.h1>
+          <motion.p
+            className="text-sm text-(--color-muted) leading-relaxed mt-3"
+            style={{ fontFamily: "var(--font-sans)" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Remember a color, then recreate it from memory.
+          </motion.p>
+          <motion.p
+            className="text-xs text-(--color-muted) leading-relaxed mt-1"
+            style={{ fontFamily: "var(--font-sans)" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          >
+            5 rounds, scored on accuracy.
+          </motion.p>
+          <motion.p
+            className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-2 opacity-80"
+            style={{ fontFamily: "var(--font-sans)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
+          </motion.p>
+
+          {/* Leaderboard: shown in left column on desktop, hidden on mobile (shown below card instead) */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="hidden md:block mt-6"
+          >
+            <Suspense fallback={null}><MiniLeaderboard /></Suspense>
+          </motion.div>
         </div>
 
-        <AnimatePresence mode="wait" initial={false}>
-          {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
-          {phase === "countdown" && <CountdownPhase key={`cd-${round}`} num={countdownNum} />}
-          {phase === "reveal" && (
-            <RevealPhase key={`reveal-${round}`} target={target} elapsed={elapsed} secondsLeft={secondsLeft} round={round} />
-          )}
-          {phase === "guess" && (
-            <GuessPhase key={`guess-${round}`} guess={guess} setGuess={setGuess} onSubmit={submitGuess} round={round} />
-          )}
-          {phase === "result" && results.length > 0 && (
-            <ResultPhase key={`result-${round}`} result={results[results.length - 1]!} onNext={nextRound} />
-          )}
-        </AnimatePresence>
-      </div>
+        {/* Game card — full width on mobile, right column on desktop */}
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center justify-between mb-2" style={{ minHeight: 28 }}>
+            <RoundDots round={round} completedCount={results.length} />
+            {muteButton}
+          </div>
+          <div className="w-full card-height-container">
+            <AnimatePresence mode="wait" initial={false}>
+              {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
+              {phase === "countdown" && <CountdownPhase key={`cd-${round}`} num={countdownNum} />}
+              {phase === "reveal" && <RevealPhase key={`reveal-${round}`} target={target} elapsed={elapsed} secondsLeft={secondsLeft} round={round} />}
+              {phase === "guess" && <GuessPhase key={`guess-${round}`} guess={guess} setGuess={setGuess} onSubmit={submitGuess} round={round} />}
+              {phase === "result" && results.length > 0 && <ResultPhase key={`result-${round}`} result={results[results.length - 1]!} onNext={nextRound} />}
+            </AnimatePresence>
+          </div>
+        </div>
 
-      {/* Leaderboard — left-aligned */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="px-8 mt-8 max-w-xl"
-      >
-        <Suspense fallback={null}>
-          <MiniLeaderboard />
-        </Suspense>
-      </motion.div>
+        {/* Leaderboard: below card on mobile only */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="md:hidden mt-8"
+        >
+          <Suspense fallback={null}><MiniLeaderboard /></Suspense>
+        </motion.div>
+
+      </div>
     </div>
   );
 }
@@ -414,25 +428,25 @@ export default function ColorGuesser() {
 function IntroPhase({ onPlay }: { onPlay: () => void }) {
   return (
     <GameCard bg={FIGMA_CREAM} motionKey="intro">
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-10 pb-10 pt-10">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 xl:gap-6 px-6 xl:px-10 pb-6 xl:pb-10 pt-6 xl:pt-10">
         <div className="text-center max-w-sm">
-          <p className="text-[11px] tracking-[0.25em] uppercase mb-5" style={{ ...F, color: FIGMA_BLUE }}>
+          <p className="text-[10px] xl:text-[11px] tracking-[0.25em] uppercase mb-3 xl:mb-5" style={{ ...F, color: FIGMA_BLUE }}>
             How to play
           </p>
-          <p className="text-lg font-semibold leading-relaxed mb-2" style={{ ...F, color: "#1a1a1a" }}>
+          <p className="text-sm xl:text-lg font-semibold leading-relaxed mb-1 xl:mb-2" style={{ ...F, color: "#1a1a1a" }}>
             You&apos;ll see a color for 5 seconds.
           </p>
-          <p className="text-lg font-semibold leading-relaxed" style={{ ...F, color: "#1a1a1a" }}>
+          <p className="text-sm xl:text-lg font-semibold leading-relaxed" style={{ ...F, color: "#1a1a1a" }}>
             Then it disappears — use the sliders to recreate it from memory.
           </p>
-          <p className="text-sm mt-4" style={{ ...F, color: "#999" }}>
+          <p className="text-xs xl:text-sm mt-2 xl:mt-4" style={{ ...F, color: "#999" }}>
             5 rounds · scored 0–100 on accuracy
           </p>
         </div>
         <button
           type="button"
           onClick={onPlay}
-          className="rounded-full px-10 py-3.5 text-base font-bold text-white transition-opacity hover:opacity-90"
+          className="rounded-full px-7 xl:px-10 py-2.5 xl:py-3.5 text-sm xl:text-base font-bold text-white transition-opacity hover:opacity-90"
           style={{ ...F, background: FIGMA_BLUE }}
         >
           Play
@@ -452,8 +466,8 @@ function CountdownPhase({ num }: { num: number }) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden flex items-center justify-center aspect-3/4 sm:aspect-4/3"
-      style={{ maxWidth: 740, background: FIGMA_CREAM }}
+      className="relative w-full h-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden flex items-center justify-center"
+      style={{ background: FIGMA_CREAM }}
     >
       <AnimatePresence mode="wait">
         <motion.p
@@ -700,8 +714,7 @@ function ResultPhase({ result, onNext }: {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden aspect-3/4 sm:aspect-4/3"
-      style={{ maxWidth: 740 }}
+      className="relative w-full h-full rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.18)] overflow-hidden"
     >
       {/* Bottom layer: original (full card) */}
       <div className="absolute inset-0" style={{ background: targetBg }} />
@@ -770,7 +783,7 @@ function FinalScreen({ results, totalScore, onRestart }: {
   return (
     <div className="relative z-10 px-4 sm:px-8 pt-2 pb-10">
       <h1
-        className="text-[clamp(3.25rem,10vw,5.5rem)] font-black leading-[0.82] tracking-tight mb-6 sm:mb-8"
+        className="text-[clamp(3.25rem,10vw,8rem)] font-black leading-[0.82] tracking-tight mb-6 sm:mb-8"
         style={{ color: FIGMA_BLUE, fontFamily: "var(--font-display)" }}
       >
         Color<br />guess
@@ -781,7 +794,7 @@ function FinalScreen({ results, totalScore, onRestart }: {
           initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[740px] rounded-3xl border border-(--color-border) bg-(--color-surface) p-4 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+          className="w-full max-w-[960px] rounded-3xl border border-(--color-border) bg-(--color-surface) p-4 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
         >
           <div className="mb-6">
             <p className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) mb-1" style={F}>
