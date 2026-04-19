@@ -6,7 +6,31 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { worldXpTable } from "@/lib/xp";
 import { TbInfoCircle } from "react-icons/tb";
-import { useLeaderboard } from "@/lib/useLeaderboard";
+import { useLeaderboard, type AllTimeRow, type TodayRow } from "@/lib/useLeaderboard";
+import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
+
+function Avatar({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
+  const initials = (username ?? "?").slice(0, 2).toUpperCase();
+  if (avatarUrl) {
+    return (
+      <OptimizedAvatar
+        src={avatarUrl}
+        alt=""
+        width={28}
+        height={28}
+        className="size-7 rounded-full object-cover shrink-0"
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-full flex items-center justify-center shrink-0 font-black text-white bg-(--color-blue) text-[10px]"
+      style={{ width: 28, height: 28 }}
+    >
+      {initials}
+    </div>
+  );
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -141,6 +165,7 @@ export default function LeaderboardPage() {
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 <span className="w-5 shrink-0">#</span>
+                <span className="w-7 shrink-0" />
                 <span className="flex-1">Player</span>
                 <span className="w-16 shrink-0">Game</span>
                 <span className="w-8 shrink-0 text-center">G</span>
@@ -160,6 +185,7 @@ export default function LeaderboardPage() {
                       <span className="w-5 shrink-0 tabular-nums text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
                         {i + 1}
                       </span>
+                      <Avatar username={row.username} avatarUrl={row.avatar_url} />
                       <span
                         className="flex-1 truncate font-semibold"
                         style={{ color: isMe ? "var(--color-blue)" : "var(--color-foreground)", fontFamily: "var(--font-sans)" }}
@@ -193,6 +219,7 @@ export default function LeaderboardPage() {
               style={{ fontFamily: "var(--font-sans)" }}
             >
               <span className="w-5 shrink-0">#</span>
+              <span className="w-7 shrink-0" />
               <span className="min-w-0 flex-1">Player</span>
               <span className="w-11 sm:w-12 shrink-0 text-right">Country</span>
               <span className="w-9 sm:w-10 shrink-0 text-right">Flag</span>
@@ -214,6 +241,7 @@ export default function LeaderboardPage() {
                     <span className="w-5 shrink-0 tabular-nums text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
                       {i + 1}
                     </span>
+                    <Avatar username={row.username} avatarUrl={row.avatar_url} />
                     <span
                       className="min-w-0 flex-1 truncate font-semibold"
                       style={{ color: isMe ? "var(--color-blue)" : "var(--color-foreground)", fontFamily: "var(--font-sans)" }}

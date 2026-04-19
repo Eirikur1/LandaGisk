@@ -22,6 +22,7 @@ export type Leader = {
 
 export type AllTimeRow = {
   username: string;
+  avatar_url: string | null;
   world_xp: number;
   flags_xp: number;
   waterfall_xp: number;
@@ -31,6 +32,7 @@ export type AllTimeRow = {
 
 export type TodayRow = {
   username: string;
+  avatar_url: string | null;
   game_type: string;
   guesses: number;
   xp: number;
@@ -69,7 +71,7 @@ async function fetchAndCache(force = false): Promise<void> {
       // All-time top 50 — only columns the original queries used successfully
       supabase
         .from("leaderboard")
-        .select("username, world_xp, flags_xp, waterfall_xp, mushroom_xp, total_xp")
+        .select("username, avatar_url, world_xp, flags_xp, waterfall_xp, mushroom_xp, total_xp")
         .gt("total_xp", 0)
         .order("total_xp", { ascending: false })
         .limit(50),
@@ -94,6 +96,7 @@ async function fetchAndCache(force = false): Promise<void> {
   const allTimeDetailed: AllTimeRow[] = atData
     ? atData.map((r: any) => ({
         username: r.username ?? "—",
+        avatar_url: r.avatar_url ?? null,
         world_xp: Number(r.world_xp) || 0,
         flags_xp: Number(r.flags_xp) || 0,
         waterfall_xp: Number(r.waterfall_xp) || 0,
@@ -106,7 +109,7 @@ async function fetchAndCache(force = false): Promise<void> {
   const allTime: Leader[] = allTimeDetailed.map((r) => ({
     user_id: r.username,
     username: r.username,
-    avatar_url: null,
+    avatar_url: r.avatar_url,
     xp: r.total_xp,
   }));
 
@@ -136,6 +139,7 @@ async function fetchAndCache(force = false): Promise<void> {
       const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
       return {
         username: profile?.username ?? "—",
+        avatar_url: profile?.avatar_url ?? null,
         game_type: r.game_type as string,
         guesses: r.guesses as number,
         xp: r.xp as number,
