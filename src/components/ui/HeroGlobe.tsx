@@ -6,6 +6,7 @@ import * as d3 from "d3";
 // Module-level cache — survives re-renders and client-side navigation
 let dotCache: { lng: number; lat: number }[] | null = null;
 
+
 const LEFT_FADE =
   "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)";
 

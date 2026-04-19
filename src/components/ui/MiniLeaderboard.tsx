@@ -1,28 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-
-type Row = { username: string; total_xp: number };
+import { useLeaderboard } from "@/lib/useLeaderboard";
 
 export default function MiniLeaderboard() {
   const { username } = useAuth();
   const params = useParams();
   const locale = (params?.locale as string) ?? "en";
-  const [rows, setRows] = useState<Row[] | null>(null);
+  const { data, loading } = useLeaderboard();
 
-  useEffect(() => {
-    supabase
-      .from("leaderboard")
-      .select("username, total_xp")
-      .gt("total_xp", 0)
-      .order("total_xp", { ascending: false })
-      .limit(5)
-      .then(({ data }) => setRows((data as Row[]) ?? []));
-  }, []);
+  const rows = (data?.allTime ?? []).slice(0, 5);
 
   return (
     <div className="mt-8 pt-6 border-t border-(--color-border)">
@@ -42,7 +31,7 @@ export default function MiniLeaderboard() {
         </Link>
       </div>
 
-      {rows === null ? (
+      {loading ? (
         <div className="space-y-2.5">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-3">
@@ -60,7 +49,7 @@ export default function MiniLeaderboard() {
             const isMe = row.username === username;
             return (
               <li
-                key={row.username}
+                key={row.user_id}
                 className="flex items-center gap-3 py-2 border-b border-(--color-border) last:border-0"
               >
                 <span
@@ -76,7 +65,7 @@ export default function MiniLeaderboard() {
                     color: isMe ? "var(--color-blue)" : "var(--color-foreground)",
                   }}
                 >
-                  {row.username}
+                  {row.username ?? "—"}
                   {isMe && (
                     <span className="ml-1 font-normal text-[11px] text-(--color-muted)">you</span>
                   )}
@@ -85,7 +74,7 @@ export default function MiniLeaderboard() {
                   className="text-[11px] font-semibold tabular-nums text-(--color-blue) shrink-0"
                   style={{ fontFamily: "var(--font-sans)" }}
                 >
-                  {row.total_xp.toLocaleString()}
+                  {row.xp.toLocaleString()} XP
                 </span>
               </li>
             );

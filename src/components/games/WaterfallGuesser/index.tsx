@@ -9,6 +9,7 @@ import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { WATERFALLS } from "@/data/waterfalls";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import dynamic from "next/dynamic";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 import { distanceKm } from "./distanceKm";
@@ -196,7 +197,7 @@ function WaterfallGuesserInner() {
     scoreSavedRef.current = true;
     supabase.from("game_scores")
       .insert({ user_id: user.id, game_type: "waterfall", game_date: day, guesses: 1, xp: saved.totalXp, won: true })
-      .then(({ error: err }) => { if (!err) setEarnedXp(saved.totalXp); });
+      .then(({ error: err }) => { if (!err) { setEarnedXp(saved.totalXp); invalidateLeaderboard(); } });
   }, [nameDone, saved, user, day]);
 
   useEffect(() => {

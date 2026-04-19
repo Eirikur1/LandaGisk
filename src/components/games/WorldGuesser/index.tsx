@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 const GlobeMap = dynamic(() => import("./GlobeMap"), { ssr: false });
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import { guessesToXp, xpLabel } from "@/lib/xp";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 
@@ -165,7 +166,7 @@ function WorldGuesserInner() {
     const xp = guessesToXp(guessCount);
     supabase.from("game_scores")
       .insert({ user_id: user.id, game_type: "world", game_date: day, guesses: guessCount, xp, won: true })
-      .then(({ error: err }) => { if (!err) setEarnedXp(xp); });
+      .then(({ error: err }) => { if (!err) { setEarnedXp(xp); invalidateLeaderboard(); } });
   }, [won, user, day, guesses.length]);
 
   useEffect(() => {
@@ -315,7 +316,7 @@ function WorldGuesserInner() {
         {/* Title */}
         <div className="mb-3 md:mb-6">
           <motion.h1
-            className="text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
+            className="text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

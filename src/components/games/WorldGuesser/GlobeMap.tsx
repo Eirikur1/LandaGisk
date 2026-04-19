@@ -212,7 +212,8 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
   function onPointerDown(e: React.PointerEvent) {
     dragging.current = true;
     lastPos.current = [e.clientX, e.clientY];
-    (e.target as Element).setPointerCapture(e.pointerId);
+    svgRef.current?.setPointerCapture(e.pointerId);
+    if (svgRef.current) svgRef.current.style.cursor = "grabbing";
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!dragging.current) return;
@@ -227,7 +228,10 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
     needsRenderRef.current = true;
     draw();
   }
-  function onPointerUp() { dragging.current = false; }
+  function onPointerUp() {
+    dragging.current = false;
+    if (svgRef.current) svgRef.current.style.cursor = "grab";
+  }
 
   useEffect(() => {
     const el = svgRef.current;
@@ -254,7 +258,6 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
 
   return (
     <motion.div
-      className="cursor-grab active:cursor-grabbing"
       style={inline ? {
         position: "relative",
         width: "100%",
@@ -276,7 +279,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
-        style={{ display: "block", width: "100%", height: "100%", background: "transparent", borderRadius: "50%", overflow: "hidden" }}
+        style={{ display: "block", width: "100%", height: "100%", background: "transparent", borderRadius: "50%", overflow: "hidden", cursor: "grab" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

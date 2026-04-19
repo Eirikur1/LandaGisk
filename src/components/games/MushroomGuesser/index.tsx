@@ -9,6 +9,7 @@ import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { MUSHROOM_GUESS_POOL, mushroomPrimaryTitle, type WikiMushroom } from "@/data/wikiMushrooms";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 
 const ROUNDS = 5;
@@ -197,7 +198,7 @@ function MushroomGuesserInner() {
     void supabase
       .from("game_scores")
       .insert({ user_id: user.id, game_type: "mushroom", game_date: day, guesses: ROUNDS, xp, won: score >= 3 })
-      .then(({ error: err }) => { if (!err) setEarnedXp(xp); });
+      .then(({ error: err }) => { if (!err) { setEarnedXp(xp); invalidateLeaderboard(); } });
   }, [phase, score, user, day]);
 
   // Confetti on perfect

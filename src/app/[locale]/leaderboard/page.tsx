@@ -1,24 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { worldXpTable } from "@/lib/xp";
 import { TbInfoCircle } from "react-icons/tb";
-import { useRef } from "react";
+import { useLeaderboard } from "@/lib/useLeaderboard";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-type TodayRow = { username: string; game_type: string; guesses: number; xp: number };
-type AllTimeRow = {
-  username: string;
-  world_xp: number;
-  flags_xp: number;
-  waterfall_xp: number;
-  mushroom_xp: number;
-  total_xp: number;
-};
 type Tab = "today" | "alltime";
 
 function ymdNow() { return new Date().toISOString().slice(0, 10); }
@@ -78,47 +69,10 @@ function XpInfo() {
 export default function LeaderboardPage() {
   const { username } = useAuth();
   const [tab, setTab] = useState<Tab>("today");
-  const [todayRows, setTodayRows] = useState<TodayRow[] | null>(null);
-  const [allRows, setAllRows] = useState<AllTimeRow[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useLeaderboard();
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const today = ymdNow();
-
-      const [{ data: todayData }, { data: allData }] = await Promise.all([
-        supabase
-          .from("game_scores")
-          .select("user_id, game_type, guesses, xp, profiles(username)")
-          .eq("won", true)
-          .eq("game_date", today)
-          .order("xp", { ascending: false })
-          .limit(50),
-        supabase
-          .from("leaderboard")
-          .select("username, world_xp, flags_xp, waterfall_xp, mushroom_xp, total_xp")
-          .gt("total_xp", 0)
-          .order("total_xp", { ascending: false })
-          .limit(50),
-      ]);
-
-      if (todayData) {
-        setTodayRows(
-          todayData.map((r) => ({
-            username: (r.profiles as unknown as { username: string } | null)?.username ?? "—",
-            game_type: r.game_type as string,
-            guesses: r.guesses as number,
-            xp: r.xp as number,
-          }))
-        );
-      }
-
-      if (allData) setAllRows(allData as AllTimeRow[]);
-      setLoading(false);
-    }
-    void load();
-  }, []);
+  const todayRows = data?.todayDetailed ?? null;
+  const allRows = data?.allTimeDetailed ?? null;
 
   const gameLabel: Record<string, string> = {
     world: "Country",

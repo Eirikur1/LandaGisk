@@ -1,23 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
-
-// Module-level cache — survives re-renders and client-side navigation
-const CACHE_TTL = 60_000;
-type CachedLeaders = { allTime: Leader[]; today: Leader[]; ts: number };
-let leaderCache: CachedLeaders | null = null;
-
-type Leader = {
-  user_id: string;
-  username: string | null;
-  avatar_url: string | null;
-  xp: number;
-};
+import { useLeaderboard, type Leader } from "@/lib/useLeaderboard";
 
 function Avatar({ leader }: { leader: Leader }) {
   const initials = (leader.username ?? "?").slice(0, 2).toUpperCase();
@@ -61,94 +49,10 @@ export default function HomeLeaderboard() {
   const t = useTranslations("home");
   const { username } = useAuth();
   const [tab, setTab] = useState<"alltime" | "today">("alltime");
-  const [allTime, setAllTime] = useState<Leader[]>([]);
-  const [today, setToday] = useState<Leader[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useLeaderboard();
 
-  const load = useCallback(async (silent: boolean) => {
-    if (leaderCache && Date.now() - leaderCache.ts < CACHE_TTL) {
-      setAllTime(leaderCache.allTime);
-      setToday(leaderCache.today);
-      if (!silent) setLoading(false);
-      return;
-    }
-    if (!silent) setLoading(true);
-    const todayStr = new Date().toISOString().slice(0, 10);
-
-    try {
-      // All-time top 5
-      const { data: atData } = await supabase
-        .from("leaderboard")
-        .select("user_id, username, total_xp, avatar_url")
-        .gt("total_xp", 0)
-        .order("total_xp", { ascending: false })
-        .limit(5);
-
-      const atRows: Leader[] = atData
-        ? atData.map((r: any) => ({
-            user_id: r.user_id,
-            username: r.username ?? null,
-            avatar_url: r.avatar_url ?? null,
-            xp: Number(r.total_xp) || 0,
-          }))
-        : [];
-
-      // Today top 5 — aggregate per user
-      const { data: todayData } = await supabase
-        .from("game_scores")
-        .select("user_id, xp, profiles(username, avatar_url)")
-        .eq("won", true)
-        .eq("game_date", todayStr)
-        .order("xp", { ascending: false });
-
-      let todayRows: Leader[] = [];
-      if (todayData) {
-        const map = new Map<string, { xp: number; username: string | null; avatar_url: string | null }>();
-        for (const row of todayData as any[]) {
-          const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-          const prev = map.get(row.user_id);
-          map.set(row.user_id, {
-            xp: (prev?.xp ?? 0) + (row.xp ?? 0),
-            username: profile?.username ?? prev?.username ?? null,
-            avatar_url: profile?.avatar_url ?? prev?.avatar_url ?? null,
-          });
-        }
-        todayRows = [...map.entries()]
-          .sort((a, b) => b[1].xp - a[1].xp)
-          .slice(0, 5)
-          .map(([user_id, v]) => ({ user_id, ...v }));
-      }
-
-      leaderCache = { allTime: atRows, today: todayRows, ts: Date.now() };
-      setAllTime(atRows);
-      setToday(todayRows);
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { void load(false); }, [load]);
-
-  // Avoid Supabase Realtime WebSocket here: it logs browser console errors when the socket
-  // cannot connect (e.g. Lighthouse, offline, DNS issues) and isn’t required for this widget.
-  useEffect(() => {
-    const refresh = () => void load(true);
-    const onFocus = () => refresh();
-    const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisible);
-    const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") refresh();
-    }, 60_000);
-    return () => {
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisible);
-      window.clearInterval(interval);
-    };
-  }, [load]);
-
+  const allTime = (data?.allTime ?? []).slice(0, 5);
+  const today = (data?.today ?? []).slice(0, 5);
   const rows = tab === "alltime" ? allTime : today;
 
   return (
