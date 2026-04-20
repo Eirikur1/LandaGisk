@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
+import ColorLeaderboard from "@/components/ui/ColorLeaderboard";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { invalidateLeaderboard } from "@/lib/useLeaderboard";
+import { ymdUtcNow } from "@/lib/game-date";
 
 const TOTAL_ROUNDS = 5;
 const REVEAL_MS = 5000;
@@ -206,6 +210,7 @@ function GameCard({ bg, children, motionKey, overflow = "hidden" }: {
 // ─── Main component ─────────────────────────────────────────────────────────
 
 export default function ColorGuesser() {
+  const { user } = useAuth();
   const [muted, setMuted] = useState(false);
   const [phase, setPhase] = useState<Phase>("intro");
   const [round, setRound] = useState(0);
@@ -214,6 +219,7 @@ export default function ColorGuesser() {
   const [guess, setGuess] = useState<HSB>([180, 50, 50]);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [elapsed, setElapsed] = useState(0);
+  const scoreSavedRef = useRef(false);
 
   useEffect(() => { audioMuted = muted; }, [muted]);
 
@@ -293,6 +299,7 @@ export default function ColorGuesser() {
   function restart() {
     cancelAnimationFrame(rafRef.current);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    scoreSavedRef.current = false;
     setRound(0);
     setResults([]);
     setPhase("intro");
@@ -301,6 +308,25 @@ export default function ColorGuesser() {
   const totalScore = results.length > 0
     ? results.reduce((acc, r) => acc + r.score, 0) / results.length
     : 0;
+
+  useEffect(() => {
+    if (phase !== "final" || scoreSavedRef.current || !user) return;
+    scoreSavedRef.current = true;
+    const xp = Math.round(totalScore * 10);
+    supabase
+      .from("game_scores")
+      .insert({
+        user_id: user.id,
+        game_type: "color",
+        game_date: ymdUtcNow(),
+        guesses: TOTAL_ROUNDS,
+        xp,
+        won: true,
+      })
+      .then(({ error }) => {
+        if (!error) invalidateLeaderboard();
+      });
+  }, [phase, user, totalScore]);
 
   if (phase === "final") {
     return <FinalScreen results={results} totalScore={totalScore} onRestart={restart} />;
@@ -387,7 +413,7 @@ export default function ColorGuesser() {
             transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="hidden md:block mt-6"
           >
-            <Suspense fallback={null}><MiniLeaderboard /></Suspense>
+            <Suspense fallback={null}><ColorLeaderboard /></Suspense>
           </motion.div>
         </div>
 
@@ -415,7 +441,7 @@ export default function ColorGuesser() {
           transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="md:hidden mt-8"
         >
-          <Suspense fallback={null}><MiniLeaderboard /></Suspense>
+          <Suspense fallback={null}><ColorLeaderboard /></Suspense>
         </motion.div>
 
       </div>
@@ -854,7 +880,7 @@ function FinalScreen({ results, totalScore, onRestart }: {
 
       <div className="max-w-xl">
         <Suspense fallback={null}>
-          <MiniLeaderboard />
+          <ColorLeaderboard />
         </Suspense>
       </div>
     </div>
