@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -20,12 +20,6 @@ function supabaseOrigin(): string | null {
     return null;
   }
 }
-
-const displayMono = Roboto_Mono({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "500", "700"],
-});
 
 const interSans = Inter({
   subsets: ["latin"],
@@ -59,7 +53,7 @@ export default async function LocaleLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang={locale} className={`${displayMono.variable} ${interSans.variable} h-full`}>
+    <html lang={locale} className={`${interSans.variable} h-full`}>
       <head>
         {nonce && <meta property="csp-nonce" content={nonce} />}
         {preconnectSupabase ? (

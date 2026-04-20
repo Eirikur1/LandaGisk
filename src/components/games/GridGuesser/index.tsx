@@ -186,7 +186,7 @@ export default function GridGuesser() {
 
   return (
     <div className="relative z-10 pt-0 pb-6 px-4 sm:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,300px)_1fr] gap-y-4 md:gap-x-8 items-start w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[clamp(220px,28vw,360px)_1fr] gap-y-4 md:gap-x-8 items-start w-full">
 
         {/* Left panel */}
         <div className="md:pt-2">
@@ -341,7 +341,7 @@ export default function GridGuesser() {
         {/* Right: map */}
         <motion.div
           className="w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
-          style={{ aspectRatio: "7/4" }}
+          style={{ aspectRatio: "700/380" }}
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

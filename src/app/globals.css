@@ -22,14 +22,14 @@
   --color-blue: #2b5ceb;
   --color-blue-light: #e8edfd;
 
-  --font-display: var(--font-playfair);
-  --font-title: "Drobei", var(--font-playfair), serif;
+  --font-display: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-title: "Drobei", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-sans: var(--font-inter);
 }
 
 /* Big blue display titles get Drobei */
 h1[style*="--font-display"] {
-  font-family: "Drobei", var(--font-playfair), serif !important;
+  font-family: "Drobei", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
 * { box-sizing: border-box; }
