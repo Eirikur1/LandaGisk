@@ -18,8 +18,9 @@ import {
   NavigationMenuPositioner,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
-import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle } from "lucide-react";
+import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle, Music2, Grid3x3 } from "lucide-react";
 import { AiFillMeh } from "react-icons/ai";
+import { FaGamepad } from "react-icons/fa6";
 
 const menuItemVariants = {
   rest: {},
@@ -132,6 +133,8 @@ const GAMES = [
   { href: "mushroom", titleKey: "games.mushroom.title", available: true, icon: Sprout },
   { href: "color", titleKey: "games.color.title", available: true, icon: Palette },
   { href: "year", titleKey: "games.year.title", available: true, icon: CalendarDays },
+  { href: "pitch", titleKey: "games.pitch.title", available: true, icon: Music2 },
+  { href: "grid",  titleKey: "games.grid.title",  available: true, icon: Grid3x3 },
   { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
@@ -148,8 +151,12 @@ export default function Header() {
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
 
   const gamesBase = `/${locale}`;
+  const allGamesPath = `${gamesBase}/games`;
   const gamesRoutes = GAMES.filter((g) => g.available).map((g) => `${gamesBase}/${g.href}`);
-  const gamesHubActive = gamesRoutes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const gamesHubActive =
+    pathname === allGamesPath ||
+    pathname.startsWith(`${allGamesPath}/`) ||
+    gamesRoutes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const leaderboardPath = `${gamesBase}/leaderboard`;
   const leaderboardActive = pathname === leaderboardPath || pathname.startsWith(`${leaderboardPath}/`);
   const archivePath = `${gamesBase}/archive`;
@@ -218,6 +225,19 @@ export default function Header() {
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="p-0 w-auto min-w-56">
                   <ul className="grid gap-0.5 p-1.5">
+                    <li>
+                      <DropdownItem
+                        href={allGamesPath}
+                        icon={FaGamepad}
+                        label={locale === "is" ? "Allir leikir" : "All games"}
+                        variant="game"
+                        active={pathname === allGamesPath || pathname.startsWith(`${allGamesPath}/`)}
+                        fontFamily="var(--font-sans)"
+                        fontWeight={600}
+                        onClose={() => setGamesMenuOpen("")}
+                      />
+                    </li>
+                    <li className="my-1 h-px bg-border" />
                     {GAMES.map(({ href, titleKey, available, icon: GameIcon }) => {
                       const full = `/${locale}/${href}`;
                       const active = available && (pathname === full || pathname.startsWith(`${full}/`));

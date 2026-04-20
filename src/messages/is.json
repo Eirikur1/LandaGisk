@@ -77,6 +77,14 @@
     "year": {
       "title": "Ársgisk",
       "description": "Gettu hvaða ár söguleg mynd var tekin — 5 lotur"
+    },
+    "pitch": {
+      "title": "Tóngisk",
+      "description": "Hlustaðu á tón og reyndu að giska á tíðni hans — 5 lotur"
+    },
+    "grid": {
+      "title": "Kortareitur",
+      "description": "Reitur á kortinu lýsist upp — nefndu öll lönd innan hans"
     }
   },
   "game": {

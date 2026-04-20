@@ -8,6 +8,8 @@ const ALL_GAMES = [
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true  },
   { slug: "mushroom",  titleKey: "games.mushroom.title",  descriptionKey: "games.mushroom.description",  color: "forest" as const, available: true  },
   { slug: "color",    titleKey: "games.color.title",    descriptionKey: "games.color.description",    color: "rust"   as const, available: true  },
+  { slug: "pitch",    titleKey: "games.pitch.title",    descriptionKey: "games.pitch.description",    color: "navy"   as const, available: true  },
+  { slug: "grid",     titleKey: "games.grid.title",     descriptionKey: "games.grid.description",     color: "forest" as const, available: true  },
   { slug: "year",     titleKey: "games.year.title",     descriptionKey: "games.year.description",     color: "navy"   as const, available: true  },
   { slug: "birds",     titleKey: "games.birds.title",     descriptionKey: "games.birds.description",     color: "forest" as const, available: false },
   { slug: "plants",    titleKey: "games.plants.title",    descriptionKey: "games.plants.description",    color: "rust"   as const, available: false },

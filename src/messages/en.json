@@ -77,6 +77,14 @@
     "year": {
       "title": "Year Guess",
       "description": "Guess the year a historical photo was taken — 5 rounds"
+    },
+    "pitch": {
+      "title": "Pitch Match",
+      "description": "Listen to a tone and match its frequency from memory — 5 rounds"
+    },
+    "grid": {
+      "title": "Grid Guesser",
+      "description": "A cell lights up on a borderless Europe map — name every country inside it"
     }
   },
   "game": {
