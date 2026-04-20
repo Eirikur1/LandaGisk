@@ -319,13 +319,13 @@ function MushroomGuesserInner() {
             </div>
           )}
           <motion.h1
-            className="text-[clamp(2rem,6vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
+            className="text-[clamp(2rem,4vw,5rem)] font-black leading-[0.85] tracking-tight text-(--color-blue) mb-1"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {t.title}
+            Mushroom<br />Quiz
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) leading-relaxed"

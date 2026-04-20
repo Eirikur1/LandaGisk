@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { TERRITORY_POOL, flagUrl, matchesTerritory, type Territory } from "@/data/territories";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,7 @@ import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import MiniLeaderboard from "@/components/ui/MiniLeaderboard";
 
 const ROUNDS = 5;
+const OPTIONS = 4;
 
 const copy = {
   en: {
@@ -25,15 +26,12 @@ const copy = {
     finish: "See results",
     results: "Results",
     playAgain: "Play again",
-    placeholder: "Type territory name…",
-    giveUp: "Give up",
     sovereign: "Administered by",
     perfect: "Perfect score!",
     great: "Great job!",
     good: "Not bad!",
     keep: "Keep practicing!",
     yourAnswer: "Your answer",
-    correctAnswer: "Correct answer",
   },
   is: {
     title: "Fánar yfirráðasvæða",
@@ -45,15 +43,12 @@ const copy = {
     finish: "Sjá niðurstöður",
     results: "Niðurstöður",
     playAgain: "Spila aftur",
-    placeholder: "Sláðu inn nafn…",
-    giveUp: "Gefast upp",
     sovereign: "Stjórnað af",
     perfect: "Fullkomið!",
     great: "Vel gert!",
     good: "Ekki slæmt!",
     keep: "Haltu áfram að æfa!",
     yourAnswer: "Svar þitt",
-    correctAnswer: "Rétt svar",
   },
 } as const;
 
@@ -69,18 +64,33 @@ function seededRng(seed: string) {
   };
 }
 
-type Round = { territory: Territory };
+type Round = { territory: Territory; options: Territory[] };
 
 function buildRounds(day: string): Round[] {
   const rng = seededRng(day + "territoryflag");
   const pool = [...TERRITORY_POOL];
-  const picks: Territory[] = [];
+
+  const targets: Territory[] = [];
   const used = new Set<number>();
-  while (picks.length < ROUNDS) {
+  while (targets.length < ROUNDS) {
     const idx = Math.floor(rng() * pool.length);
-    if (!used.has(idx)) { used.add(idx); picks.push(pool[idx]!); }
+    if (!used.has(idx)) { used.add(idx); targets.push(pool[idx]!); }
   }
-  return picks.map((territory) => ({ territory }));
+
+  return targets.map((territory) => {
+    const distractors: Territory[] = [];
+    const dUsed = new Set<number>(Array.from(used));
+    while (distractors.length < OPTIONS - 1) {
+      const idx = Math.floor(rng() * pool.length);
+      if (!dUsed.has(idx)) { dUsed.add(idx); distractors.push(pool[idx]!); }
+    }
+    const opts = [...distractors, territory];
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [opts[i], opts[j]] = [opts[j]!, opts[i]!];
+    }
+    return { territory, options: opts };
+  });
 }
 
 type SavedState = { answers: (string | null)[] };
@@ -108,19 +118,12 @@ function TerritoryFlagsInner() {
 
   const [answers, setAnswers] = useState<(string | null)[]>(Array(ROUNDS).fill(null));
   const [currentRound, setCurrentRound] = useState(0);
-  const [phase, setPhase] = useState<"idle" | "answered" | "gaveup" | "done">("idle");
-  const [inputVal, setInputVal] = useState("");
-  const [shake, setShake] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [phase, setPhase] = useState<"idle" | "answered" | "done">("idle");
   const storageKey = `territory-flags:${day}`;
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
   const prevUserRef = useRef<string | null | undefined>(undefined);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (phase === "idle") setTimeout(() => inputRef.current?.focus(), 50);
-  }, [phase, currentRound]);
 
   // Reset on login
   useEffect(() => {
@@ -132,7 +135,6 @@ function TerritoryFlagsInner() {
       setAnswers(Array(ROUNDS).fill(null));
       setCurrentRound(0);
       setPhase("idle");
-      setInputVal("");
       scoreSavedRef.current = false;
       confettiFiredRef.current = false;
     }
@@ -143,7 +145,6 @@ function TerritoryFlagsInner() {
     setAnswers(Array(ROUNDS).fill(null));
     setCurrentRound(0);
     setPhase("idle");
-    setInputVal("");
     scoreSavedRef.current = false;
     confettiFiredRef.current = false;
     try {
@@ -198,27 +199,12 @@ function TerritoryFlagsInner() {
     });
   }, [phase, score]);
 
-  function submitGuess() {
-    const val = inputVal.trim();
-    if (!val || phase !== "idle") return;
-    const round = rounds[currentRound]!;
-    if (matchesTerritory(val, round.territory)) {
-      const newAnswers = [...answers];
-      newAnswers[currentRound] = val;
-      setAnswers(newAnswers);
-      setPhase("answered");
-    } else {
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
-    }
-    setInputVal("");
-  }
-
-  function handleGiveUp() {
+  function handleAnswer(optionName: string) {
+    if (phase !== "idle") return;
     const newAnswers = [...answers];
-    newAnswers[currentRound] = "";
+    newAnswers[currentRound] = optionName;
     setAnswers(newAnswers);
-    setPhase("gaveup");
+    setPhase("answered");
   }
 
   function handleNext() {
@@ -227,7 +213,6 @@ function TerritoryFlagsInner() {
     } else {
       setCurrentRound((r) => r + 1);
       setPhase("idle");
-      setInputVal("");
     }
   }
 
@@ -235,7 +220,6 @@ function TerritoryFlagsInner() {
     setAnswers(Array(ROUNDS).fill(null));
     setCurrentRound(0);
     setPhase("idle");
-    setInputVal("");
     setEarnedXp(null);
     scoreSavedRef.current = false;
     confettiFiredRef.current = false;
@@ -250,8 +234,8 @@ function TerritoryFlagsInner() {
   }
 
   const round = rounds[currentRound]!;
-  const chosenAnswer = answers[currentRound];
-  const roundCorrect = chosenAnswer !== null && chosenAnswer !== "" && matchesTerritory(chosenAnswer, round.territory);
+  const chosen = answers[currentRound];
+  const isCorrect = chosen !== null && chosen !== "" && matchesTerritory(chosen, round.territory);
 
   return (
     <>
@@ -281,9 +265,9 @@ function TerritoryFlagsInner() {
               How to play
             </h2>
             <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
-              <p>Each round shows the flag of a territory, overseas region, or dependency. Type the correct name.</p>
+              <p>Each round shows the flag of a territory, overseas region, or dependency. Pick the correct name from <strong className="text-(--color-foreground)">4 options</strong>.</p>
               <p>There are <strong className="text-(--color-foreground)">5 rounds</strong> per day. Each correct answer earns <strong className="text-(--color-foreground)">200 XP</strong>.</p>
-              <p>Common abbreviations and alternate names are accepted.</p>
+              <p>A new set of territories every day.</p>
             </div>
             <div className="mt-5 flex gap-2">
               <button
@@ -306,9 +290,7 @@ function TerritoryFlagsInner() {
       )}
 
       <div className="relative z-10 w-full flex flex-col items-center px-8 pt-0 pb-4" style={{ minHeight: "calc(100dvh - 5rem)" }}>
-
-        {/* Title */}
-        <div className="w-full mb-3">
+        <div className="w-full mb-3 pt-2">
           {isArchive && (
             <div
               className="mb-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-3 py-2 text-xs text-(--color-muted)"
@@ -322,20 +304,20 @@ function TerritoryFlagsInner() {
             </div>
           )}
           <motion.h1
-            className="text-[clamp(2rem,6vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
+            className="text-[clamp(2rem,4vw,5rem)] font-black leading-[0.85] tracking-tight text-(--color-blue) mb-1"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {t.title}
+            Territory<br />Flags
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) leading-relaxed"
             style={{ fontFamily: "var(--font-sans)" }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
             {t.subtitle}
           </motion.p>
@@ -378,25 +360,23 @@ function TerritoryFlagsInner() {
               </div>
 
               {/* Round recap */}
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 mb-6">
                 {rounds.map((r, i) => {
                   const ans = answers[i];
                   const correct = ans !== null && ans !== "" && matchesTerritory(ans, r.territory);
                   return (
                     <div
                       key={`${r.territory.code}-${i}`}
-                      className="flex items-center gap-3 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3"
+                      className="flex items-center gap-3 rounded-2xl border-2 bg-(--color-surface) px-4 py-3 overflow-hidden"
+                      style={{ borderColor: correct ? "#22c55e" : "#ef4444" }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={flagUrl(r.territory.code)}
                         alt={r.territory.name}
-                        className="w-14 h-9 rounded object-cover shrink-0 border border-(--color-border)"
+                        className="w-16 h-10 rounded-lg object-cover shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-(--color-muted) mb-0.5" style={{ fontFamily: "var(--font-sans)" }}>
-                          {t.round} {i + 1}
-                        </p>
                         <p className="font-bold text-sm text-(--color-foreground) truncate" style={{ fontFamily: "var(--font-display)" }}>
                           {r.territory.name}
                         </p>
@@ -404,15 +384,12 @@ function TerritoryFlagsInner() {
                           <p className="text-[11px] text-(--color-muted) truncate">{t.sovereign}: {r.territory.sovereign}</p>
                         )}
                         {!correct && ans && (
-                          <p className="text-xs text-red-500 truncate">{t.yourAnswer}: {ans}</p>
+                          <p className="text-[11px] truncate" style={{ color: "#ef4444" }}>{t.yourAnswer}: {ans}</p>
                         )}
                       </div>
                       <span
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0"
-                        style={{
-                          background: correct ? "#dcfce7" : "#fee2e2",
-                          color: correct ? "#16a34a" : "#dc2626",
-                        }}
+                        className="text-xs font-bold shrink-0"
+                        style={{ color: correct ? "#22c55e" : "#ef4444" }}
                       >
                         {correct ? t.correct : t.wrong}
                       </span>
@@ -447,111 +424,115 @@ function TerritoryFlagsInner() {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col flex-1"
             >
-              {/* Progress */}
-              <div className="flex items-center gap-2 mb-4">
-                {Array.from({ length: ROUNDS }, (_, i) => {
-                  const ans = answers[i];
-                  const done = ans !== null;
-                  const correct = done && ans !== "" && matchesTerritory(ans, rounds[i]!.territory);
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 h-1.5 rounded-full transition-colors duration-300"
-                      style={{
-                        background: i === currentRound
-                          ? "var(--color-blue)"
-                          : done
-                            ? correct ? "#22c55e" : "#ef4444"
-                            : "var(--color-border)",
-                      }}
-                    />
-                  );
-                })}
-                <span className="text-xs text-(--color-muted) shrink-0 ml-1" style={{ fontFamily: "var(--font-sans)" }}>
+              {/* Progress — pill badge + dots (ColorMatch style) */}
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="inline-flex items-center justify-center rounded-[24px] px-2.5 py-0.5 text-[15px] font-semibold tabular-nums leading-none shrink-0"
+                  style={{ background: "rgb(253,253,251)", color: "rgb(20,93,245)", fontFamily: "var(--font-sans)" }}
+                >
                   {currentRound + 1}/{ROUNDS}
                 </span>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: ROUNDS }, (_, i) => {
+                    const ans = answers[i];
+                    const done = ans !== null;
+                    const correct = done && ans !== "" && matchesTerritory(ans, rounds[i]!.territory);
+                    const isCurrent = i === currentRound;
+                    return (
+                      <div
+                        key={i}
+                        className="h-2 w-2 rounded-full shrink-0 transition-colors duration-300"
+                        style={
+                          isCurrent
+                            ? { background: "var(--color-blue)" }
+                            : done
+                              ? { background: correct ? "#22c55e" : "#ef4444" }
+                              : { border: "1px solid rgb(20,93,245)", background: "transparent" }
+                        }
+                      />
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Flag image — full size, centered */}
-              <div className="flex justify-center mb-5">
-                <div className="rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] border border-(--color-border) bg-(--color-surface)">
+              {/* Flag image */}
+              <div className="mb-4">
+                <div className="rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.15)] border border-(--color-border)">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={flagUrl(round.territory.code)}
                     alt=""
-                    className="w-full max-w-xs sm:max-w-sm object-contain"
-                    style={{ aspectRatio: "3/2" }}
+                    className="w-full block object-cover"
                   />
                 </div>
               </div>
 
-              {/* Input or reveal */}
-              <AnimatePresence mode="wait">
-                {phase === "idle" && (
-                  <motion.form
-                    key="input"
-                    onSubmit={(e) => { e.preventDefault(); submitGuess(); }}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex flex-col gap-3"
-                  >
-                    <motion.div
-                      className="flex gap-2"
-                      animate={shake ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
-                      transition={{ duration: 0.35 }}
-                    >
-                      <input
-                        ref={inputRef}
-                        value={inputVal}
-                        onChange={(e) => setInputVal(e.target.value)}
-                        placeholder={t.placeholder}
-                        autoComplete="off"
-                        spellCheck={false}
-                        className="flex-1 rounded-full px-4 py-2.5 text-sm border border-(--color-border) bg-(--color-surface) outline-none focus:border-(--color-blue) transition-colors"
-                        style={{ fontFamily: "var(--font-sans)" }}
-                      />
-                      <button
-                        type="submit"
-                        className="rounded-full px-5 py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity shrink-0"
-                      >
-                        →
-                      </button>
-                    </motion.div>
-                    <button
-                      type="button"
-                      onClick={handleGiveUp}
-                      className="text-[11px] tracking-[0.12em] uppercase text-(--color-muted) hover:opacity-60 transition-opacity text-left"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: 700 }}
-                    >
-                      {t.giveUp} →
-                    </button>
-                  </motion.form>
-                )}
+              {/* Options */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                {round.options.map((opt) => {
+                  const isChosen = chosen === opt.name;
+                  const isTarget = opt.code === round.territory.code;
+                  let bg = "var(--color-surface)";
+                  let border = "var(--color-border)";
+                  let textColor = "var(--color-foreground)";
 
-                {(phase === "answered" || phase === "gaveup") && (
+                  if (phase === "answered") {
+                    if (isTarget) { bg = "#dcfce7"; border = "#22c55e"; textColor = "#15803d"; }
+                    else if (isChosen) { bg = "#fee2e2"; border = "#ef4444"; textColor = "#dc2626"; }
+                  }
+
+                  const popAnim = phase === "answered"
+                    ? isTarget
+                      ? { scale: [1, 1.06, 0.97, 1.02, 1], transition: { duration: 0.4, ease: "easeOut" } }
+                      : isChosen
+                        ? { x: [0, -8, 8, -5, 5, -2, 2, 0], transition: { duration: 0.4, ease: "easeOut" } }
+                        : {}
+                    : {};
+
+                  return (
+                    <motion.button
+                      key={opt.code}
+                      type="button"
+                      onClick={() => handleAnswer(opt.name)}
+                      disabled={phase === "answered"}
+                      animate={popAnim}
+                      className="rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 hover:opacity-80 disabled:cursor-default"
+                      style={{
+                        background: bg,
+                        borderColor: phase === "answered" ? border : "var(--color-blue)",
+                        color: textColor,
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {opt.name}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Feedback + next */}
+              {phase === "answered" && (
                   <motion.div
-                    key="feedback"
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
                     className="flex items-center justify-between gap-4 rounded-xl border border-(--color-border) bg-(--color-surface) px-4 py-3"
                   >
                     <div>
                       <p
                         className="font-bold text-sm"
-                        style={{ color: roundCorrect ? "#22c55e" : "#ef4444" }}
+                        style={{ color: isCorrect ? "#22c55e" : "#ef4444" }}
                       >
-                        {roundCorrect ? t.correct : t.wrong}
+                        {isCorrect ? t.correct : t.wrong}
                       </p>
-                      <p className="text-xs text-(--color-muted) mt-0.5">
-                        {round.territory.name}
-                        {round.territory.sovereign && (
-                          <span className="ml-1 opacity-60">· {round.territory.sovereign}</span>
-                        )}
-                      </p>
+                      {!isCorrect && (
+                        <p className="text-xs text-(--color-muted) mt-0.5">
+                          {round.territory.name}
+                          {round.territory.sovereign && (
+                            <span className="ml-1 opacity-60">· {round.territory.sovereign}</span>
+                          )}
+                        </p>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -562,7 +543,6 @@ function TerritoryFlagsInner() {
                     </button>
                   </motion.div>
                 )}
-              </AnimatePresence>
             </motion.div>
           )}
         </div>

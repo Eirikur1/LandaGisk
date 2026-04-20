@@ -18,9 +18,33 @@ import {
   NavigationMenuPositioner,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
-import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle, Music2, Grid3x3 } from "lucide-react";
-import { AiFillMeh } from "react-icons/ai";
+import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle, Music2, Grid3x3, MapPin } from "lucide-react";
+import { AiFillMeh, AiFillSmile } from "react-icons/ai";
+import { BsEmojiSmileUpsideDownFill } from "react-icons/bs";
+import { FaSmileWink } from "react-icons/fa";
 import { FaGamepad } from "react-icons/fa6";
+import {
+  PiSmileyAngryFill,
+  PiSmileyBlankFill,
+  PiSmileyNervousFill,
+  PiSmileyWinkFill,
+  PiSmileyXEyesFill,
+} from "react-icons/pi";
+import { RiUserSmileFill } from "react-icons/ri";
+
+/** Random home logo — picked once when the header mounts. */
+const LOGO_ICONS = [
+  AiFillMeh,
+  AiFillSmile,
+  PiSmileyAngryFill,
+  FaSmileWink,
+  BsEmojiSmileUpsideDownFill,
+  PiSmileyNervousFill,
+  PiSmileyXEyesFill,
+  PiSmileyWinkFill,
+  PiSmileyBlankFill,
+  RiUserSmileFill,
+] as const;
 
 const menuItemVariants = {
   rest: {},
@@ -135,6 +159,7 @@ const GAMES = [
   { href: "year", titleKey: "games.year.title", available: true, icon: CalendarDays },
   { href: "pitch", titleKey: "games.pitch.title", available: true, icon: Music2 },
   { href: "grid",  titleKey: "games.grid.title",  available: true, icon: Grid3x3 },
+  { href: "territory", titleKey: "games.territory.title", available: true, icon: MapPin },
   { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
@@ -146,6 +171,9 @@ export default function Header() {
   const pathname = usePathname();
   const { user, username, avatarUrl, signOut } = useAuth();
   const [gamesMenuOpen, setGamesMenuOpen] = React.useState("");
+  const [LogoIcon] = React.useState<(typeof LOGO_ICONS)[number]>(
+    () => LOGO_ICONS[Math.floor(Math.random() * LOGO_ICONS.length)]!
+  );
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
@@ -196,10 +224,20 @@ export default function Header() {
         {/* Logo */}
         <Link
           href={`/${locale}`}
-          className="text-(--color-blue) hover:opacity-60 transition-opacity flex items-center"
+          className="text-(--color-blue) flex items-center"
           aria-label="Dagrun home"
         >
-          <AiFillMeh size={20} />
+          <motion.span
+            className="relative block h-5 w-5 shrink-0"
+            whileHover={{
+              scale: 1.12,
+              rotate: -8,
+              transition: { type: "spring", stiffness: 420, damping: 14 },
+            }}
+            whileTap={{ scale: 0.92, transition: { type: "spring", stiffness: 500, damping: 18 } }}
+          >
+            <LogoIcon size={20} className="block" aria-hidden />
+          </motion.span>
         </Link>
 
         {/* Center nav: Games ▾ · Leaderboard · Archive */}

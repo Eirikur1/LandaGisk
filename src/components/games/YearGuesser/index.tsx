@@ -461,206 +461,150 @@ function YearGuesserInner() {
 
   // ── Playing / round result ────────────────────────────────────────────────
   const currentResult = results[round];
+  const diff = currentResult ? Math.abs(currentResult.guessYear - currentResult.actualYear) : 0;
 
   return (
-    <div
-      className="w-full max-w-2xl xl:max-w-4xl mx-auto px-4 py-8"
-      style={{ fontFamily: FONT }}
-    >
-      {/* Header */}
-      <div className="flex items-baseline gap-2 mb-1">
+    <div className="relative z-10 pt-0 pb-6 px-4 sm:px-8 flex flex-col items-center" style={{ fontFamily: FONT }}>
+
+      {/* Title */}
+      <div className="w-full mb-3">
         <h1
-          className="text-2xl font-black text-(--color-foreground)"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="font-black leading-[0.85] tracking-tight text-(--color-blue)"
+          style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 4vw, 5rem)" }}
         >
-          {t.title}
+          Year<br />Guess
         </h1>
-        <span className="text-xs text-(--color-muted) ml-auto">
-          {t.round} {round + 1} {t.of} {TOTAL_ROUNDS}
+        <p className="text-sm text-(--color-muted) mt-2 leading-relaxed">{t.subtitle}</p>
+        <p className="text-[10px] tracking-[0.25em] text-(--color-muted) mt-1 opacity-80">
+          {new Intl.DateTimeFormat("en-US", { weekday: "short", month: "long", day: "numeric" }).format(new Date())}
+        </p>
+      </div>
+
+      {/* Round indicator */}
+      <div className="w-full max-w-2xl flex items-center gap-2 mb-2">
+        <span
+          className="inline-flex items-center justify-center rounded-[24px] px-2.5 py-0.5 text-[15px] font-semibold tabular-nums leading-none shrink-0"
+          style={{ background: "rgb(253,253,251)", color: "rgb(20,93,245)", fontFamily: FONT }}
+        >
+          {round + 1}/{TOTAL_ROUNDS}
         </span>
-      </div>
-      <p className="text-sm text-(--color-muted) mb-5">{t.subtitle}</p>
-
-      {/* Round progress dots */}
-      <div className="flex gap-1.5 mb-6">
-        {Array.from({ length: TOTAL_ROUNDS }).map((_, i) => {
-          const done = i < results.length;
-          const active = i === round;
-          return (
-            <div
-              key={i}
-              className="h-1.5 rounded-full flex-1 transition-all duration-300"
-              style={{
-                background: done
-                  ? "var(--color-blue)"
-                  : active
-                  ? "var(--color-border)"
-                  : "var(--color-border)",
-                opacity: active ? 1 : done ? 1 : 0.4,
-              }}
-            />
-          );
-        })}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: TOTAL_ROUNDS }).map((_, i) => {
+            const done = i < results.length;
+            const active = i === round;
+            return (
+              <div key={i} className="h-2 w-2 rounded-full shrink-0 transition-colors duration-300"
+                style={
+                  active ? { background: "var(--color-blue)" }
+                  : done  ? { background: "var(--color-blue)" }
+                  : { border: "1px solid rgb(20,93,245)", background: "transparent" }
+                }
+              />
+            );
+          })}
+        </div>
       </div>
 
-      {/* Photo */}
-      <motion.div
-        key={`photo-${round}`}
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full rounded-2xl overflow-hidden mb-4 shadow-lg"
-        style={{ aspectRatio: "16/9", background: "var(--color-border)" }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={currentPhoto.imageUrl}
-          alt="Historical photo — guess the year"
-          className="w-full h-full object-cover"
-        />
+      {/* Card */}
+      <div className="w-full max-w-2xl rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
+        style={{ background: "var(--color-surface)" }}>
 
-        {/* Overlay: after submit show actual year */}
-        <AnimatePresence>
-          {submitted && currentResult && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex flex-col items-center justify-center"
-              style={{ background: "rgba(0,0,0,0.55)" }}
-            >
-              <p
-                className="text-6xl font-black text-white"
-                style={{ fontFamily: "var(--font-display)", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
+        {/* Photo */}
+        <motion.div
+          key={`photo-${round}`}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full overflow-hidden rounded-t-3xl"
+          style={{ aspectRatio: "16/9", background: "var(--color-border)" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={currentPhoto.imageUrl} alt="Historical photo — guess the year" className="w-full h-full object-cover" />
+          <AnimatePresence>
+            {submitted && currentResult && (
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col items-center justify-center"
+                style={{ background: "rgba(0,0,0,0.55)" }}
               >
-                {currentResult.actualYear}
-              </p>
-              <p
-                className="text-sm font-semibold mt-1"
-                style={{ color: resultColor(Math.abs(currentResult.guessYear - currentResult.actualYear)) }}
-              >
-                {resultLabel(Math.abs(currentResult.guessYear - currentResult.actualYear), t)}
-                {" · +"}
-                {currentResult.xp} XP
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Hint toggle */}
-      <div className="mb-5">
-        <button
-          onClick={() => setShowHint((v) => !v)}
-          className="text-xs text-(--color-blue) underline underline-offset-2 hover:opacity-70 transition-opacity"
-        >
-          {showHint ? t.hideHint : t.showHint}
-        </button>
-        <AnimatePresence>
-          {showHint && (
-            <motion.p
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-sm text-(--color-muted) mt-1 italic overflow-hidden"
-            >
-              {currentPhoto.hint}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Slider */}
-      <div className="mb-6">
-        <YearSlider
-          value={guessYear}
-          onChange={setGuessYear}
-          disabled={submitted}
-        />
-      </div>
-
-      {/* Action button */}
-      {!submitted ? (
-        <button
-          onClick={handleSubmit}
-          className="w-full py-3 rounded-xl font-bold text-white text-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "var(--color-blue)", fontFamily: FONT }}
-        >
-          {t.submit}
-        </button>
-      ) : (
-        <button
-          onClick={handleNext}
-          className="w-full py-3 rounded-xl font-bold text-white text-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "var(--color-blue)", fontFamily: FONT }}
-        >
-          {round + 1 >= TOTAL_ROUNDS ? t.seeFinal : t.nextRound}
-        </button>
-      )}
-
-      {/* Inline result (after submit) */}
-      <AnimatePresence>
-        {submitted && currentResult && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="mt-4 p-4 rounded-2xl border"
-            style={{
-              borderColor: "var(--color-border)",
-              background: "var(--color-surface)",
-            }}
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-xs text-(--color-muted) uppercase tracking-wider">{t.yourGuess}</p>
-                <p
-                  className="text-2xl font-black tabular-nums"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    color: resultColor(Math.abs(currentResult.guessYear - currentResult.actualYear)),
-                  }}
-                >
-                  {currentResult.guessYear}
-                </p>
-              </div>
-              <div className="text-center">
-                <p
-                  className="text-base font-bold"
-                  style={{ color: resultColor(Math.abs(currentResult.guessYear - currentResult.actualYear)) }}
-                >
-                  {resultLabel(Math.abs(currentResult.guessYear - currentResult.actualYear), t)}
-                </p>
-                <p className="text-xs text-(--color-muted)">
-                  {Math.abs(currentResult.guessYear - currentResult.actualYear) === 0
-                    ? "Exact!"
-                    : `${Math.abs(currentResult.guessYear - currentResult.actualYear)} year${Math.abs(currentResult.guessYear - currentResult.actualYear) === 1 ? "" : "s"} off`}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-(--color-muted) uppercase tracking-wider">{t.answer}</p>
-                <p
-                  className="text-2xl font-black tabular-nums"
-                  style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
-                >
+                <p className="text-6xl font-black text-white" style={{ fontFamily: "var(--font-display)", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
                   {currentResult.actualYear}
                 </p>
-              </div>
-            </div>
-            <div className="mt-3 flex justify-end">
-              <span
-                className="text-lg font-black"
-                style={{ fontFamily: "var(--font-display)", color: "var(--color-blue)" }}
+                <p className="text-sm font-semibold mt-1" style={{ color: resultColor(diff) }}>
+                  {resultLabel(diff, t)}{" · +"}{currentResult.xp} XP
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Controls panel */}
+        <div className="px-5 py-4 flex flex-col gap-4 border-t border-black/6">
+
+          {/* Hint */}
+          <div>
+            <button onClick={() => setShowHint((v) => !v)}
+              className="text-xs text-(--color-blue) underline underline-offset-2 hover:opacity-70 transition-opacity">
+              {showHint ? t.hideHint : t.showHint}
+            </button>
+            <AnimatePresence>
+              {showHint && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  className="text-sm text-(--color-muted) mt-1 italic overflow-hidden">
+                  {currentPhoto.hint}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Slider */}
+          <YearSlider value={guessYear} onChange={setGuessYear} disabled={submitted} />
+
+          {/* Result row (after submit) */}
+          <AnimatePresence>
+            {submitted && currentResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="flex justify-between items-center rounded-2xl px-4 py-3 border"
+                style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
               >
-                +{currentResult.xp} XP
-              </span>
-            </div>
-            <div className="mt-2">
-              <ScoreBar xp={currentResult.xp} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <div>
+                  <p className="text-xs text-(--color-muted) uppercase tracking-wider">{t.yourGuess}</p>
+                  <p className="text-2xl font-black tabular-nums" style={{ fontFamily: "var(--font-display)", color: resultColor(diff) }}>
+                    {currentResult.guessYear}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-base font-bold" style={{ color: resultColor(diff) }}>{resultLabel(diff, t)}</p>
+                  <p className="text-xs text-(--color-muted)">
+                    {diff === 0 ? "Exact!" : `${diff} year${diff === 1 ? "" : "s"} off`}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-(--color-muted) uppercase tracking-wider">{t.answer}</p>
+                  <p className="text-2xl font-black tabular-nums" style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}>
+                    {currentResult.actualYear}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Action button */}
+          <button
+            onClick={submitted ? handleNext : handleSubmit}
+            className="w-full py-3 rounded-xl font-bold text-white text-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
+            style={{ background: "var(--color-blue)", fontFamily: FONT }}
+          >
+            {submitted ? (round + 1 >= TOTAL_ROUNDS ? t.seeFinal : t.nextRound) : t.submit}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-8 w-full max-w-2xl">
+        <MiniLeaderboard />
+      </div>
     </div>
   );
 }
