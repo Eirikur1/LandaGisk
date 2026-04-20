@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "svgmap/style.min";
 
+@font-face {
+  font-family: "Drobei";
+  src: url("../fonts/Drobei (1).ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   /* Landly-style warm cream */
   --color-background: #f2f0e6;
@@ -15,7 +23,13 @@
   --color-blue-light: #e8edfd;
 
   --font-display: var(--font-playfair);
+  --font-title: "Drobei", var(--font-playfair), serif;
   --font-sans: var(--font-inter);
+}
+
+/* Big blue display titles get Drobei */
+h1[style*="--font-display"] {
+  font-family: "Drobei", var(--font-playfair), serif !important;
 }
 
 * { box-sizing: border-box; }

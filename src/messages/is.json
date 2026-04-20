@@ -36,15 +36,15 @@
   "games": {
     "waterfall": {
       "title": "Foss dagsins",
-      "description": "Gettu á íslenska foss dagsins á myndinni"
+      "description": "Giskaður á íslenska foss dagsins á myndinni"
     },
     "flags": {
       "title": "Fáni dagsins",
-      "description": "Gettu á landið út frá fánanum"
+      "description": "Giskaður á landið út frá fánanum"
     },
     "world": {
       "title": "Landa gisk",
-      "description": "Gettu á landið út frá lögun þess"
+      "description": "Giskaður á landið út frá lögun þess"
     },
     "birds": {
       "title": "Fugla gisk",
@@ -64,7 +64,7 @@
     },
     "mushroom": {
       "title": "Sveppa gisk",
-      "description": "Giskaðu á tegundina úr myndum úr Wikipediu-flokknum Sveppir á Íslandi"
+      "description": "Giskaður á tegundina úr myndum úr Wikipediu-flokknum Sveppir á Íslandi"
     },
     "color": {
       "title": "Lita gisk",
@@ -72,7 +72,7 @@
     },
     "mountains": {
       "title": "Fjallsfinnari",
-      "description": "Giskaðu á fjallið frá ljósmynd"
+      "description": "Giskaður á fjallið frá ljósmynd"
     },
     "year": {
       "title": "Ársgisk",
@@ -85,6 +85,10 @@
     "grid": {
       "title": "Kortareitur",
       "description": "Reitur á kortinu lýsist upp — nefndu öll lönd innan hans"
+    },
+    "territory": {
+      "title": "Fánar yfirráðasvæða",
+      "description": "Nefndu yfirráðasvæðið út frá fánanum — 5 lotur"
     }
   },
   "game": {

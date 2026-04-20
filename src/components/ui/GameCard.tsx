@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight } from "lucide-react";
+import { Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight, MapPin } from "lucide-react";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { LuCalendarDays } from "react-icons/lu";
 
@@ -23,6 +23,7 @@ const gameIcons: Record<string, IconComponent> = {
   mountains: Mountain,
   color: IoColorPaletteOutline,
   year: LuCalendarDays,
+  territory: MapPin,
 };
 
 const gameTags: Record<string, string[]> = {
@@ -35,6 +36,7 @@ const gameTags: Record<string, string[]> = {
   car:       ["Cars",    "Models",    "Daily"],
   mushroom:  ["Nature",  "Fungi",     "Daily"],
   mountains: ["Nature",  "Geography", "Daily"],
+  territory: ["World",   "Flags",     "Daily"],
 };
 
 // ── Variants ───────────────────────────────────────────────────────────────

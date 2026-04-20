@@ -221,7 +221,7 @@ export const WORLD_COUNTRY_LIST: WorldCountryEntry[] = [
   { id: "214", name: "Dominican Republic", aliases: [], bbox: [-71.99, 17.6, -68.32, 19.93] },
   { id: "226", name: "Equatorial Guinea", aliases: [], bbox: [8.05, 0.86, 11.35, 3.76] },
   { id: "238", name: "Falkland Islands", aliases: ["Malvinas"], bbox: [-61.35, -52.36, -57.72, -51.27] },
-  { id: "242", name: "Fiji", aliases: [], bbox: [-180.0, -21.71, 180.0, -12.48] },
+  { id: "242", name: "Fiji", aliases: [], bbox: [177.0, -21.71, -178.5, -12.48], antimeridian: true },
   { id: "288", name: "Ghana", aliases: [], bbox: [-3.26, 4.74, 1.06, 11.17] },
   { id: "304", name: "Greenland", aliases: ["Kalaallit Nunaat"], bbox: [-73.3, 59.77, -12.21, 83.63] },
   { id: "312", name: "Guadeloupe", aliases: [], bbox: [-61.81, 15.84, -61.0, 16.52] },

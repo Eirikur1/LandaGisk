@@ -85,6 +85,10 @@
     "grid": {
       "title": "Grid Guesser",
       "description": "A cell lights up on a borderless Europe map — name every country inside it"
+    },
+    "territory": {
+      "title": "Territory Flags",
+      "description": "Name the territory from its flag — 5 rounds"
     }
   },
   "game": {

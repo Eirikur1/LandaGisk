@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as d3geo from "d3-geo";
-import { ALL_COUNTRIES, type WorldCountryEntry } from "./worldCountries";
+import { ALL_COUNTRIES } from "./worldCountries";
 
 interface Props {
   cols: number;
@@ -16,6 +16,56 @@ interface Props {
 }
 
 const KNOWN_IDS = new Set(ALL_COUNTRIES.map((c) => c.id));
+
+function cellPolygon(
+  colIdx: number,
+  rowIdx: number,
+  cols: number,
+  rows: number
+): GeoJSON.Feature<GeoJSON.Polygon> {
+  const cellW = 360 / cols;
+  const cellH = 180 / rows;
+  const west  = -180 + colIdx * cellW;
+  const east  = west + cellW;
+  const north = 90 - rowIdx * cellH;
+  const south = north - cellH;
+
+  // Dense ring so the curved projection renders accurately
+  const steps = 32;
+  const ring: [number, number][] = [];
+  for (let i = 0; i <= steps; i++) ring.push([west + (east - west) * i / steps, north]);
+  for (let i = 0; i <= steps; i++) ring.push([east, north + (south - north) * i / steps]);
+  for (let i = 0; i <= steps; i++) ring.push([east + (west - east) * i / steps, south]);
+  for (let i = 0; i <= steps; i++) ring.push([west, south + (north - south) * i / steps]);
+  ring.push([west, north]);
+
+  return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [ring] } };
+}
+
+function gridLines(cols: number, rows: number): GeoJSON.Feature<GeoJSON.MultiLineString> {
+  const cellW = 360 / cols;
+  const cellH = 180 / rows;
+  const steps = 32;
+  const lines: [number, number][][] = [];
+
+  // Vertical lines (meridians)
+  for (let c = 0; c <= cols; c++) {
+    const lon = -180 + c * cellW;
+    const seg: [number, number][] = [];
+    for (let i = 0; i <= steps; i++) seg.push([lon, 90 - 180 * i / steps]);
+    lines.push(seg);
+  }
+
+  // Horizontal lines (parallels)
+  for (let r = 0; r <= rows; r++) {
+    const lat = 90 - r * cellH;
+    const seg: [number, number][] = [];
+    for (let i = 0; i <= steps; i++) seg.push([-180 + 360 * i / steps, lat]);
+    lines.push(seg);
+  }
+
+  return { type: "Feature", properties: {}, geometry: { type: "MultiLineString", coordinates: lines } };
+}
 
 export default function WorldMap({
   cols, rows, activeCol, activeRow, foundIds, revealIds, width = 700, height = 380,
@@ -43,43 +93,14 @@ export default function WorldMap({
           setFeatures(result);
         });
       });
-  // path is stable (recreated same way each render), but we only need this once
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Cell rectangle in pixel space
-  const cellW = 360 / cols;
-  const cellH = 180 / rows;
-  const cellWestDeg  = -180 + activeCol * cellW;
-  const cellEastDeg  = cellWestDeg + cellW;
-  const cellNorthDeg = 90 - activeRow * cellH;
-  const cellSouthDeg = cellNorthDeg - cellH;
-
-  const [px0, py0] = proj([cellWestDeg, cellNorthDeg]) ?? [0, 0];
-  const [px1, py1] = proj([cellEastDeg, cellSouthDeg]) ?? [0, 0];
-  const rx = Math.min(px0, px1);
-  const ry = Math.min(py0, py1);
-  const rw = Math.abs(px1 - px0);
-  const rh = Math.abs(py1 - py0);
-
-  // Grid lines
-  const vLines: [number, number, number, number][] = [];
-  for (let c = 0; c <= cols; c++) {
-    const lon = -180 + c * cellW;
-    const [x0, y0] = proj([lon, 85]) ?? [0, 0];
-    const [x1, y1] = proj([lon, -85]) ?? [0, 0];
-    vLines.push([x0, y0, x1, y1]);
-  }
-  const hLines: [number, number, number, number][] = [];
-  for (let r = 0; r <= rows; r++) {
-    const lat = 90 - r * cellH;
-    const [x0, y0] = proj([-180, lat]) ?? [0, 0];
-    const [x1, y1] = proj([180, lat]) ?? [0, 0];
-    hLines.push([x0, y0, x1, y1]);
-  }
-
-  const foundSet = new Set(foundIds);
+  const foundSet  = new Set(foundIds);
   const revealSet = new Set(revealIds);
+
+  const gridPath  = path(gridLines(cols, rows)) ?? "";
+  const cellPath  = path(cellPolygon(activeCol, activeRow, cols, rows)) ?? "";
 
   return (
     <svg
@@ -94,7 +115,7 @@ export default function WorldMap({
 
       {/* Countries */}
       {features.map(({ id, d }, i) => {
-        const isFound   = foundSet.has(id);
+        const isFound    = foundSet.has(id);
         const isRevealed = revealSet.has(id);
         return (
           <path
@@ -108,27 +129,20 @@ export default function WorldMap({
       })}
 
       {/* Grid lines */}
-      {vLines.map(([x0, y0, x1, y1], i) => (
-        <line key={`v${i}`} x1={x0} y1={y0} x2={x1} y2={y1} stroke="rgba(20,93,245,0.15)" strokeWidth={0.6} />
-      ))}
-      {hLines.map(([x0, y0, x1, y1], i) => (
-        <line key={`h${i}`} x1={x0} y1={y0} x2={x1} y2={y1} stroke="rgba(20,93,245,0.15)" strokeWidth={0.6} />
-      ))}
+      <path d={gridPath} fill="none" stroke="rgba(20,93,245,0.15)" strokeWidth={0.6} />
 
       {/* Active cell */}
-      <rect
-        x={rx} y={ry} width={rw} height={rh}
-        fill="rgba(20,93,245,0.15)"
-        stroke="#145df5"
-        strokeWidth={1.5}
-        rx={1}
-      />
+      <path d={cellPath} fill="rgba(20,93,245,0.15)" stroke="#145df5" strokeWidth={1.5} />
     </svg>
   );
 }
 
 function makeProjection(width: number, height: number) {
-  return d3geo.geoNaturalEarth1()
-    .scale(width / 6.3)
-    .translate([width / 2, height / 2]);
+  // Equirectangular: degrees map linearly to pixels, so grid cells align with country bbox detection.
+  // 360° → width, 180° → height/2*2 = height (with padding)
+  const scale = Math.min(width / (2 * Math.PI), height / Math.PI);
+  return d3geo.geoEquirectangular()
+    .scale(scale)
+    .translate([width / 2, height / 2])
+    .precision(0.1);
 }
