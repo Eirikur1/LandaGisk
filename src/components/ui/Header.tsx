@@ -203,7 +203,7 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
       {monkeys.map((m) => (
         <div
           key={m.id}
-          className="pointer-events-none fixed w-28 h-28"
+          className="pointer-events-none fixed w-28 h-28 hidden sm:block"
           style={{
             top: "calc(1rem + 2.75rem - 20px)",
             left: m.left,
@@ -243,7 +243,7 @@ export default function Header() {
   const archivePath = `${gamesBase}/archive`;
   const archiveActive = pathname === archivePath || pathname.startsWith(`${archivePath}/`);
   const navBtnClass =
-    "inline-flex h-6 max-h-6 min-h-6 items-center justify-center whitespace-nowrap text-[15px] leading-none tracking-[0.18em] uppercase transition-opacity hover:opacity-60";
+    "inline-flex h-6 max-h-6 min-h-6 items-center justify-center whitespace-nowrap text-[12px] sm:text-[15px] leading-none tracking-[0.12em] sm:tracking-[0.18em] uppercase transition-opacity hover:opacity-60";
   const navTriggerClass = `${navBtnClass} !h-6 !min-h-6 !max-h-6 !rounded-none !bg-transparent !px-0 !py-0 !shadow-none hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent`;
   /** Icon-only account control: fill header row height so the glyph centers vertically (no text underline offsets). */
   const accountIconTriggerClass =
@@ -260,7 +260,7 @@ export default function Header() {
       transition={{ duration: 1.1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
       <header
-        className="pointer-events-auto grid items-center px-5 h-11"
+        className="pointer-events-auto grid items-center px-3 sm:px-5 h-11"
         style={{
           gridTemplateColumns: "auto 1fr auto",
           background: "rgba(255,255,255,0.85)",
@@ -269,7 +269,7 @@ export default function Header() {
           border: "1px solid rgba(0,0,0,0.08)",
           borderRadius: "100px",
           boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
-          minWidth: "min(600px, calc(100vw - 2rem))",
+          minWidth: "min(480px, calc(100vw - 2rem))",
           maxWidth: "calc(100vw - 2rem)",
           gap: "20px",
         }}
@@ -295,7 +295,7 @@ export default function Header() {
         </Link>
 
         {/* Center nav: Games ▾ · Leaderboard · Archive */}
-        <nav className="flex items-center justify-center gap-5 sm:gap-6">
+        <nav className="flex items-center justify-center gap-3 sm:gap-5 md:gap-6">
           <NavigationMenu
             className="flex-none"
             closeDelay={300}

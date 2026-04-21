@@ -18,7 +18,7 @@ export default function HeroMonkeyLottieClient() {
   return (
     <div
       id="hero-monkey-root"
-      className="pointer-events-none absolute top-0 right-0 select-none overflow-visible"
+      className="pointer-events-none absolute top-0 right-0 select-none overflow-visible hidden sm:block"
       style={{ width: "min(96vw, 1680px)", height: "100dvh" }}
       aria-hidden="true"
     >

@@ -112,7 +112,7 @@ export default function GameCard({
         <div className="min-w-0">
           <div className="flex items-baseline gap-3 flex-wrap mb-2">
             <h3
-              className="text-xl font-bold text-(--color-foreground) group-hover:text-(--color-blue) transition-colors duration-200 leading-tight"
+              className="text-base sm:text-xl font-bold text-(--color-foreground) group-hover:text-(--color-blue) transition-colors duration-200 leading-tight"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {t(titleKey as Parameters<typeof t>[0])}

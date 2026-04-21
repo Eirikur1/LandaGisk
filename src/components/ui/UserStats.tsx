@@ -74,11 +74,11 @@ export default function UserStats() {
   ];
 
   return (
-    <div className="mt-6 pt-4 grid grid-cols-3 gap-6">
+    <div className="mt-6 pt-4 grid grid-cols-3 gap-3 sm:gap-6">
       {items.map(({ id, msgKey, value }) => (
         <div key={id} className="flex flex-col gap-1.5">
           <span
-            className="text-3xl font-black tabular-nums text-(--color-blue) leading-none"
+            className="text-2xl sm:text-3xl font-black tabular-nums text-(--color-blue) leading-none"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {value}

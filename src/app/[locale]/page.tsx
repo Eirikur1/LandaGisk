@@ -22,19 +22,19 @@ export default async function HomePage({
   const t = await getTranslations("home");
 
   return (
-    <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden flex items-center">
+    <div className="relative min-h-[calc(100vh-5rem)] flex items-start overflow-x-hidden overflow-y-visible sm:items-center sm:overflow-hidden">
       {/* ASCII art — right half, absolute */}
       <HeroMonkeyLottieGate />
 
       {/* Left content column */}
-      <div className="relative z-10 max-w-xl xl:max-w-2xl px-8 py-10">
+      <div className="relative z-10 max-w-xl xl:max-w-2xl px-5 sm:px-8 py-8 sm:py-10">
 
         {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
         <div className="relative mb-6">
           <HeroSplitText
             as="h1"
             text={t("title")}
-            className="text-[clamp(3.25rem,10vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
+            className="text-[clamp(2.5rem,10vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
             style={{ fontFamily: "var(--font-display)" }}
           />
           <HeroSplitText

@@ -400,9 +400,9 @@ function FlagGuesserInner() {
                   <motion.div
                     key={i}
                     initial={false}
-                    animate={{ opacity: revealedSet.has(i) ? 0 : 1 }}
+                    animate={{ scaleY: revealedSet.has(i) ? 0 : 1 }}
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="pointer-events-none"
+                    className="pointer-events-none origin-top"
                     style={{ background: "var(--color-surface)" }}
                   />
                 ))}
@@ -485,7 +485,7 @@ function FlagGuesserInner() {
 
           {/* Input */}
           <motion.div
-            className="mb-4 relative z-30"
+            className="mb-4 relative"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
@@ -501,7 +501,7 @@ function FlagGuesserInner() {
                   className="w-full rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue) transition-colors"
                 />
                 {!won && !gaveUp && !failed && suggestions.length > 0 && (
-                  <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-20 max-h-48">
+                  <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-50 max-h-48">
                     {suggestions.map((s) => (
                       <button
                         key={s.code}
