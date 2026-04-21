@@ -52,7 +52,7 @@ export default function MonkeyPet() {
         className="w-14 h-14"
         style={{
           transform: `scaleX(${direction === 1 ? -1 : 1})`,
-          filter: "invert(19%) sepia(99%) saturate(7496%) hue-rotate(225deg) brightness(97%) contrast(104%)",
+          filter: "brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(1200%) hue-rotate(213deg) brightness(98%) contrast(101%)",
         }}
       >
         <Lottie

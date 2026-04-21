@@ -243,6 +243,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         position: "relative",
         width: "100%",
         height: "100%",
+        pointerEvents: "none",
       } : {
         position: "absolute",
         width: "min(80vmin, min(75dvh, 720px))",
@@ -260,7 +261,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
-        style={{ display: "block", width: "100%", height: "100%", background: "transparent", borderRadius: "50%", overflow: "hidden", cursor: "grab" }}
+        style={{ display: "block", width: "100%", height: "100%", background: "transparent", borderRadius: "50%", overflow: "hidden", cursor: "grab", touchAction: "none", pointerEvents: "auto" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
