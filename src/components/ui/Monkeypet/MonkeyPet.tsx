@@ -40,8 +40,9 @@ export default function MonkeyPet() {
 
   return (
     <div
-      className="fixed bottom-4 z-50 select-none"
+      className="absolute z-10 select-none"
       style={{
+        top: "-56px",
         left: `${posX}%`,
         transform: "translateX(-50%)",
         transition: "left 0.2s linear",

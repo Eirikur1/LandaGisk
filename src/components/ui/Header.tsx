@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -9,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 import Lottie from "lottie-react";
-import monkeyAnim from "@/assets/lottie/404Mono.json";
+import monkeyAnim from "@/assets/lottie/PlainSwingingMonkey.json";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -166,33 +167,49 @@ const GAMES = [
 ];
 
 
-function HangingMonkey() {
-  const lottieRef = React.useRef<import("lottie-react").LottieRefCurrentProps>(null);
+function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement | null> }) {
+  const [left, setLeft] = React.useState<number | null>(null);
+  const [visible, setVisible] = React.useState(false);
 
   React.useEffect(() => {
-    const play = () => {
-      lottieRef.current?.goToAndPlay(0);
-    };
-    play();
-    const id = setInterval(play, 15000);
-    return () => clearInterval(id);
+    const id = setTimeout(() => setVisible(true), 4000);
+    return () => clearTimeout(id);
   }, []);
 
-  return (
+  React.useEffect(() => {
+    const measure = () => {
+      const el = logoRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setLeft(rect.left + rect.width / 2 + 40);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [logoRef]);
+
+  const node = (
     <div
-      className="pointer-events-none absolute left-1/2 -translate-x-1/2 w-28 h-28"
-      style={{ top: "calc(100% - 20px)" }}
+      className="pointer-events-none fixed w-28 h-28"
+      style={{
+        top: "calc(1rem + 2.75rem - 20px)",
+        left: left !== null ? left : "50%",
+        transform: "translateX(-50%)",
+        zIndex: 49,
+      }}
       aria-hidden
     >
       <Lottie
-        lottieRef={lottieRef}
         animationData={monkeyAnim}
-        loop={false}
-        autoplay={false}
+        loop
+        autoplay
         style={{ width: "100%", height: "100%" }}
       />
     </div>
   );
+
+  if (typeof document === "undefined" || !visible) return null;
+  return createPortal(node, document.body);
 }
 
 export default function Header() {
@@ -201,6 +218,7 @@ export default function Header() {
   const tNav = useTranslations("nav");
   const pathname = usePathname();
   const { user, username, avatarUrl, signOut } = useAuth();
+  const logoRef = React.useRef<HTMLAnchorElement>(null);
   const [gamesMenuOpen, setGamesMenuOpen] = React.useState("");
   const [LogoIcon, setLogoIcon] = React.useState<(typeof LOGO_ICONS)[number]>(() => LOGO_ICONS[0]!);
   React.useEffect(() => {
@@ -255,6 +273,7 @@ export default function Header() {
       >
         {/* Logo */}
         <Link
+          ref={logoRef}
           href={`/${locale}`}
           className="text-(--color-blue) flex items-center"
           aria-label="Dagrun home"
@@ -477,7 +496,7 @@ export default function Header() {
       </header>
 
       {/* Monkey hanging below the navbar */}
-      <HangingMonkey />
+      <HangingMonkey logoRef={logoRef} />
     </motion.div>
   );
 }

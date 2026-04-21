@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import monkeyDrop from "@/assets/lottie/404Mono.json";
+import monkeyDrop from "@/assets/lottie/PlainSwingingMonkey.json";
 
 const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
   ssr: false,
