@@ -217,6 +217,40 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
   useEffect(() => {
     const el = svgRef.current;
     if (!el) return;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+      dragging.current = true;
+      lastPos.current = [e.touches[0].clientX, e.touches[0].clientY];
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!dragging.current || e.touches.length !== 1) return;
+      e.preventDefault();
+      const dx = e.touches[0].clientX - lastPos.current[0];
+      const dy = e.touches[0].clientY - lastPos.current[1];
+      lastPos.current = [e.touches[0].clientX, e.touches[0].clientY];
+      rotateRef.current = [
+        rotateRef.current[0] + dx * 0.4,
+        Math.max(-90, Math.min(90, rotateRef.current[1] - dy * 0.4)),
+        rotateRef.current[2],
+      ];
+      needsRenderRef.current = true;
+      draw();
+    };
+    const onTouchEnd = () => { dragging.current = false; };
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [draw]);
+
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
     const handler = (e: WheelEvent) => {
       e.preventDefault();
       scaleRef.current = Math.max(1, Math.min(4, scaleRef.current * (e.deltaY < 0 ? 1.1 : 0.9)));
