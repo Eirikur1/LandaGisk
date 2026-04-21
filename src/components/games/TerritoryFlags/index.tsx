@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, type TargetAndTransition } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
 import { TERRITORY_POOL, flagUrl, matchesTerritory, type Territory } from "@/data/territories";
 import { useAuth } from "@/contexts/AuthContext";
@@ -481,13 +481,15 @@ function TerritoryFlagsInner() {
                     else if (isChosen) { bg = "#fee2e2"; border = "#ef4444"; textColor = "#dc2626"; }
                   }
 
-                  const popAnim = phase === "answered"
-                    ? isTarget
-                      ? { scale: [1, 1.06, 0.97, 1.02, 1], transition: { duration: 0.4, ease: "easeOut" } }
-                      : isChosen
-                        ? { x: [0, -8, 8, -5, 5, -2, 2, 0], transition: { duration: 0.4, ease: "easeOut" } }
-                        : {}
-                    : {};
+                  const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+                  let popAnim: TargetAndTransition | undefined;
+                  if (phase === "answered" && isTarget) {
+                    popAnim = { scale: [1, 1.06, 0.97, 1.02, 1], transition: { duration: 0.4, ease: EASE_OUT } };
+                  } else if (phase === "answered" && isChosen) {
+                    popAnim = { x: [0, -8, 8, -5, 5, -2, 2, 0], transition: { duration: 0.4, ease: EASE_OUT } };
+                  } else {
+                    popAnim = undefined;
+                  }
 
                   return (
                     <motion.button
