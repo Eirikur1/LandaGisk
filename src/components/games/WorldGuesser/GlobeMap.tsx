@@ -29,29 +29,11 @@ function proximityColor(proximity: number): string {
   return "#E5F0FF";                      // 50 — very far
 }
 
-function proximityStroke(proximity: number): string {
-  if (proximity >= 97) return "#001433";
-  if (proximity >= 93) return "#002966";
-  if (proximity >= 88) return "#003D99";
-  if (proximity >= 80) return "#0052CC";
-  if (proximity >= 68) return "#0066FF";
-  if (proximity >= 50) return "#3385FF";
-  if (proximity >= 25) return "#68A3FF";
-  return "#CCE0FF";
-}
-
 function getFill(id: string, guessedProximity: Map<string, number>, targetCcn3: string, won: boolean) {
   if (won && id === targetCcn3) return "#22c55e";
   const p = guessedProximity.get(id);
   if (p !== undefined) return proximityColor(p);
   return "#ffffff";
-}
-
-function getStroke(id: string, guessedProximity: Map<string, number>, targetCcn3: string, won: boolean) {
-  if (won && id === targetCcn3) return "#16a34a";
-  const p = guessedProximity.get(id);
-  if (p !== undefined) return proximityStroke(p);
-  return "#7a9db8";
 }
 
 export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inline }: Props) {
@@ -203,7 +185,6 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
       if (!feat) return;
       el.setAttribute("d", path(feat) ?? "");
       el.setAttribute("fill", getFill(id, guessedProximity, targetCcn3, won));
-      el.setAttribute("stroke", getStroke(id, guessedProximity, targetCcn3, won));
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size, guessedProximity, targetCcn3, won]);
@@ -295,16 +276,15 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         <g clipPath="url(#globe-clip)">
           {/* Ocean fill */}
           <circle className="globe-ocean" cx={cx} cy={cx} r={cx * 0.96} fill="#c8dcea" />
-          {/* Graticule */}
-          <path className="globe-graticule" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={0.5} />
+          {/* Graticule intentionally hidden for a cleaner globe look */}
+          <path className="globe-graticule" fill="none" stroke="none" />
           {/* Countries — DOM nodes keyed by id; draw() updates paths each frame */}
           {featuresLo.map((f, i) => (
             <path
               key={`${f.id}-${i}`}
               data-id={f.id}
               fill={getFill(f.id, guessedProximity, targetCcn3, won)}
-              stroke={getStroke(f.id, guessedProximity, targetCcn3, won)}
-              strokeWidth={0.5}
+              stroke="none"
             />
           ))}
         </g>

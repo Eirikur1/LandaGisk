@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import HeroGlobeClient from "@/components/ui/HeroGlobeClient";
+// Swap to `HeroGlobeClient` to restore the D3 globe hero (static import + `<HeroGlobeClient />`).
+import HeroMonkeyLottieGate from "@/components/ui/HeroMonkeyLottieGate";
 import HeroSplitText from "@/components/ui/HeroSplitText";
 import GameList from "@/components/ui/GameList";
 import HomeLeaderboard from "@/components/ui/HomeLeaderboard";
@@ -33,13 +34,13 @@ export default async function HomePage({
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* ASCII art — right half, absolute */}
-      <HeroGlobeClient />
+      <HeroMonkeyLottieGate />
 
       {/* Left content column */}
       <div className="relative z-10 max-w-xl xl:max-w-2xl px-8 pt-2 pb-10">
 
         {/* Title block — Dagrun: big serif wordmark + quiet subtitle */}
-        <div className="mb-12">
+        <div className="relative mb-12">
           <HeroSplitText
             as="h1"
             text={t("title")}

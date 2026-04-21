@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
 import CookieConsent from "@/components/ui/CookieConsent";
+import MonkeyPet from "@/components/ui/Monkeypet/MonkeyPet";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
 import "flag-icons/css/flag-icons.min.css";
@@ -77,6 +78,7 @@ export default async function LocaleLayout({
             </p>
           </footer>
           <CookieConsent />
+          <MonkeyPet />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

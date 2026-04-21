@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
+import Lottie from "lottie-react";
+import monkeyAnim from "@/assets/lottie/404Mono.json";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -164,6 +166,35 @@ const GAMES = [
 ];
 
 
+function HangingMonkey() {
+  const lottieRef = React.useRef<import("lottie-react").LottieRefCurrentProps>(null);
+
+  React.useEffect(() => {
+    const play = () => {
+      lottieRef.current?.goToAndPlay(0);
+    };
+    play();
+    const id = setInterval(play, 15000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div
+      className="pointer-events-none absolute left-1/2 -translate-x-1/2 w-28 h-28"
+      style={{ top: "calc(100% - 20px)" }}
+      aria-hidden
+    >
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={monkeyAnim}
+        loop={false}
+        autoplay={false}
+        style={{ width: "100%", height: "100%" }}
+      />
+    </div>
+  );
+}
+
 export default function Header() {
   const locale = useLocale() as "en" | "is";
   const t = useTranslations();
@@ -171,9 +202,10 @@ export default function Header() {
   const pathname = usePathname();
   const { user, username, avatarUrl, signOut } = useAuth();
   const [gamesMenuOpen, setGamesMenuOpen] = React.useState("");
-  const [LogoIcon] = React.useState<(typeof LOGO_ICONS)[number]>(
-    () => LOGO_ICONS[Math.floor(Math.random() * LOGO_ICONS.length)]!
-  );
+  const [LogoIcon, setLogoIcon] = React.useState<(typeof LOGO_ICONS)[number]>(() => LOGO_ICONS[0]!);
+  React.useEffect(() => {
+    setLogoIcon(() => LOGO_ICONS[Math.floor(Math.random() * LOGO_ICONS.length)]!);
+  }, []);
 
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
@@ -443,6 +475,9 @@ export default function Header() {
           </NavigationMenu>
         </div>
       </header>
+
+      {/* Monkey hanging below the navbar */}
+      <HangingMonkey />
     </motion.div>
   );
 }

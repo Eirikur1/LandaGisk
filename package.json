@@ -31,6 +31,7 @@
     "d3-geo-projection": "^4.0.0",
     "flag-icons": "^7.5.0",
     "framer-motion": "^12.38.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^1.7.0",
     "maplibre-gl": "^5.21.1",
     "motion": "^12.38.0",
