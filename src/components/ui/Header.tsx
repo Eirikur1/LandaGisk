@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 import Lottie from "lottie-react";
 import monkeyAnim from "@/assets/lottie/PlainSwingingMonkey.json";
+import swingInAnim from "@/assets/lottie/SwingInMonkey.json";
+import staringIntoTheAbiss from "@/assets/lottie/StaringIntoTheAbiss.svg";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,32 +24,8 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
 import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle, Music2, Grid3x3, MapPin } from "lucide-react";
-import { AiFillMeh, AiFillSmile } from "react-icons/ai";
-import { BsEmojiSmileUpsideDownFill } from "react-icons/bs";
-import { FaSmileWink } from "react-icons/fa";
 import { FaGamepad } from "react-icons/fa6";
-import {
-  PiSmileyAngryFill,
-  PiSmileyBlankFill,
-  PiSmileyNervousFill,
-  PiSmileyWinkFill,
-  PiSmileyXEyesFill,
-} from "react-icons/pi";
-import { RiUserSmileFill } from "react-icons/ri";
 
-/** Random home logo — picked once when the header mounts. */
-const LOGO_ICONS = [
-  AiFillMeh,
-  AiFillSmile,
-  PiSmileyAngryFill,
-  FaSmileWink,
-  BsEmojiSmileUpsideDownFill,
-  PiSmileyNervousFill,
-  PiSmileyXEyesFill,
-  PiSmileyWinkFill,
-  PiSmileyBlankFill,
-  RiUserSmileFill,
-] as const;
 
 const menuItemVariants = {
   rest: {},
@@ -85,8 +63,8 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
         <button
           type="button"
           onClick={onClick}
-          className="w-full flex flex-row items-center justify-between gap-2.5 rounded-sm p-2 text-sm hover:bg-red-50 transition-colors cursor-pointer"
-          style={{ fontFamily }}
+          className="w-full flex flex-row items-center justify-between gap-2.5 rounded-sm p-2 hover:bg-red-50 transition-colors cursor-pointer"
+          style={{ fontFamily, fontSize: "16px" }}
         >
           <span className="flex items-center gap-2.5 text-red-600 group-hover:text-red-700 transition-colors duration-200">
             <motion.span variants={menuIcon} className="inline-flex">
@@ -113,8 +91,8 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
             <Link
               href={href}
               onClick={onClose}
-              className="flex flex-row items-center justify-between gap-2.5 w-full rounded-sm p-2 text-sm hover:bg-accent transition-colors"
-              style={{ fontFamily, fontWeight: active ? 700 : (fontWeight ?? 500) }}
+              className="flex flex-row items-center justify-between gap-2.5 w-full rounded-sm p-2 hover:bg-accent transition-colors"
+              style={{ fontFamily, fontSize: "16px", fontWeight: active ? 700 : (fontWeight ?? 500) }}
             />
           }
         >
@@ -138,8 +116,8 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
       render={
         <Link
           href={href}
-          className="flex flex-row items-center gap-2.5 w-full rounded-sm p-2 text-sm hover:bg-accent transition-colors"
-          style={{ fontFamily, fontWeight }}
+          className="flex flex-row items-center gap-2.5 w-full rounded-sm p-2 hover:bg-accent transition-colors"
+          style={{ fontFamily, fontSize: "16px", fontWeight }}
         />
       }
     >
@@ -153,63 +131,88 @@ const GAMES = [
   { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: Waves },
   { href: "flags", titleKey: "games.flags.title", available: true, icon: Flag },
   { href: "world", titleKey: "games.world.title", available: true, icon: Globe2 },
-  { href: "birds", titleKey: "games.birds.title", available: false, icon: Bird },
-  { href: "plants", titleKey: "games.plants.title", available: false, icon: Leaf },
-  { href: "dogbreed", titleKey: "games.dogbreed.title", available: false, icon: Dog },
-  { href: "car", titleKey: "games.car.title", available: false, icon: Car },
   { href: "mushroom", titleKey: "games.mushroom.title", available: true, icon: Sprout },
   { href: "color", titleKey: "games.color.title", available: true, icon: Palette },
   { href: "year", titleKey: "games.year.title", available: true, icon: CalendarDays },
   { href: "pitch", titleKey: "games.pitch.title", available: true, icon: Music2 },
   { href: "grid",  titleKey: "games.grid.title",  available: true, icon: Grid3x3 },
   { href: "territory", titleKey: "games.territory.title", available: true, icon: MapPin },
-  { href: "mountains", titleKey: "games.mountains.title", available: false, icon: Mountain },
 ];
 
 
+type MonkeyInstance = { id: number; left: number; anim: typeof monkeyAnim; duration: number };
+
 function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement | null> }) {
-  const [left, setLeft] = React.useState<number | null>(null);
-  const [visible, setVisible] = React.useState(false);
+  const [navbarLeft, setNavbarLeft] = React.useState<number | null>(null);
+  const [navbarRight, setNavbarRight] = React.useState<number | null>(null);
+  const [monkeys, setMonkeys] = React.useState<MonkeyInstance[]>([]);
+  const nextId = React.useRef(0);
 
-  React.useEffect(() => {
-    const id = setTimeout(() => setVisible(true), 4000);
-    return () => clearTimeout(id);
-  }, []);
-
+  // Measure the navbar pill edges so monkeys stay within them
   React.useEffect(() => {
     const measure = () => {
       const el = logoRef.current;
       if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setLeft(rect.left + rect.width / 2 + 40);
+      const navbar = el.closest("header");
+      if (!navbar) return;
+      const rect = navbar.getBoundingClientRect();
+      setNavbarLeft(rect.left + 56);   // a bit inset from the left edge
+      setNavbarRight(rect.right - 56); // a bit inset from the right edge
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, [logoRef]);
 
-  const node = (
-    <div
-      className="pointer-events-none fixed w-28 h-28"
-      style={{
-        top: "calc(1rem + 2.75rem - 20px)",
-        left: left !== null ? left : "50%",
-        transform: "translateX(-50%)",
-        zIndex: 49,
-      }}
-      aria-hidden
-    >
-      <Lottie
-        animationData={monkeyAnim}
-        loop
-        autoplay
-        style={{ width: "100%", height: "100%" }}
-      />
-    </div>
-  );
+  // Spawn monkeys on intervals after an initial delay
+  React.useEffect(() => {
+    if (navbarLeft === null || navbarRight === null) return;
 
-  if (typeof document === "undefined" || !visible) return null;
-  return createPortal(node, document.body);
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const spawn = () => {
+      const left = navbarLeft + Math.random() * (navbarRight - navbarLeft);
+      const isSwing = Math.random() < 0.5;
+      const anim = isSwing ? swingInAnim : monkeyAnim;
+      const duration = isSwing ? 5000 : 11110;
+      const id = nextId.current++;
+      setMonkeys((prev) => [...prev, { id, left, anim, duration }]);
+
+      // Wait for animation to finish, then remove and schedule next spawn
+      const gap = 6000 + Math.random() * 8000;
+      setTimeout(() => {
+        setMonkeys((prev) => prev.filter((m) => m.id !== id));
+        timeoutId = setTimeout(spawn, gap);
+      }, duration);
+    };
+
+    // Initial delay before first monkey
+    timeoutId = setTimeout(spawn, 4000);
+    return () => clearTimeout(timeoutId);
+  }, [navbarLeft, navbarRight]);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <>
+      {monkeys.map((m) => (
+        <div
+          key={m.id}
+          className="pointer-events-none fixed w-28 h-28"
+          style={{
+            top: "calc(1rem + 2.75rem - 20px)",
+            left: m.left,
+            transform: "translateX(-50%)",
+            zIndex: 49,
+          }}
+          aria-hidden
+        >
+          <Lottie animationData={m.anim} loop={m.anim === monkeyAnim} autoplay style={{ width: "100%", height: "100%" }} />
+        </div>
+      ))}
+    </>,
+    document.body
+  );
 }
 
 export default function Header() {
@@ -220,11 +223,6 @@ export default function Header() {
   const { user, username, avatarUrl, signOut } = useAuth();
   const logoRef = React.useRef<HTMLAnchorElement>(null);
   const [gamesMenuOpen, setGamesMenuOpen] = React.useState("");
-  const [LogoIcon, setLogoIcon] = React.useState<(typeof LOGO_ICONS)[number]>(() => LOGO_ICONS[0]!);
-  React.useEffect(() => {
-    setLogoIcon(() => LOGO_ICONS[Math.floor(Math.random() * LOGO_ICONS.length)]!);
-  }, []);
-
   const otherLocale = locale === "en" ? "is" : "en";
   const otherLocalePath = pathname.replace(`/${locale}`, `/${otherLocale}`);
 
@@ -240,7 +238,7 @@ export default function Header() {
   const archivePath = `${gamesBase}/archive`;
   const archiveActive = pathname === archivePath || pathname.startsWith(`${archivePath}/`);
   const navBtnClass =
-    "inline-flex h-6 max-h-6 min-h-6 items-center justify-center whitespace-nowrap text-[11px] leading-none tracking-[0.18em] uppercase transition-opacity hover:opacity-60";
+    "inline-flex h-6 max-h-6 min-h-6 items-center justify-center whitespace-nowrap text-[15px] leading-none tracking-[0.18em] uppercase transition-opacity hover:opacity-60";
   const navTriggerClass = `${navBtnClass} !h-6 !min-h-6 !max-h-6 !rounded-none !bg-transparent !px-0 !py-0 !shadow-none hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent`;
   /** Icon-only account control: fill header row height so the glyph centers vertically (no text underline offsets). */
   const accountIconTriggerClass =
@@ -287,7 +285,7 @@ export default function Header() {
             }}
             whileTap={{ scale: 0.92, transition: { type: "spring", stiffness: 500, damping: 18 } }}
           >
-            <LogoIcon size={20} className="block" aria-hidden />
+            <Image src={staringIntoTheAbiss} alt="" width={20} height={20} className="block" aria-hidden />
           </motion.span>
         </Link>
 
@@ -321,7 +319,7 @@ export default function Header() {
                         label={locale === "is" ? "Allir leikir" : "All games"}
                         variant="game"
                         active={pathname === allGamesPath || pathname.startsWith(`${allGamesPath}/`)}
-                        fontFamily="var(--font-sans)"
+                        fontFamily="var(--font-jersey15)"
                         fontWeight={600}
                         onClose={() => setGamesMenuOpen("")}
                       />
@@ -339,13 +337,13 @@ export default function Header() {
                               label={t(titleKey as Parameters<typeof t>[0])}
                               variant="game"
                               active={active}
-                              fontFamily="var(--font-sans)"
+                              fontFamily="var(--font-jersey15)"
                               onClose={() => setGamesMenuOpen("")}
                             />
                           ) : (
                             <div
-                              className="flex items-center justify-between rounded-sm p-2 text-sm text-(--color-muted)"
-                              style={{ fontFamily: "var(--font-sans)" }}
+                              className="flex items-center justify-between rounded-sm p-2 text-(--color-muted)"
+                              style={{ fontFamily: "var(--font-jersey15)", fontSize: "16px" }}
                             >
                               <span className="flex items-center gap-2.5">
                                 <GameIcon size={14} className="opacity-60" />
@@ -405,7 +403,7 @@ export default function Header() {
                   aria-label={tNav("accountMenu")}
                   className={accountIconTriggerClass}
                   style={{
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: "var(--font-jersey15)",
                     color: "var(--color-muted)",
                   }}
                 >
@@ -421,7 +419,7 @@ export default function Header() {
                     ) : user ? (
                       <span
                         className="size-6 rounded-full flex items-center justify-center font-black text-[9px] text-white bg-(--color-blue) ring-1 ring-black/10"
-                        style={{ fontFamily: "var(--font-sans)" }}
+                        style={{ fontFamily: "var(--font-jersey15)" }}
                         aria-hidden
                       >
                         {(username ?? user.email ?? "?").slice(0, 2).toUpperCase()}
@@ -447,7 +445,7 @@ export default function Header() {
                         )}
                         label={otherLocale.toUpperCase()}
                         variant="plain"
-                        fontFamily="var(--font-sans)"
+                        fontFamily="var(--font-jersey15)"
                       />
                     </li>
                     {user ? (
@@ -459,14 +457,14 @@ export default function Header() {
                         </li>
                         <li className="my-1 h-px bg-border" />
                         <li>
-                          <DropdownItem href={`/${locale}/account`} icon={Settings} label={tNav("profile")} variant="game" fontFamily="var(--font-sans)" />
+                          <DropdownItem href={`/${locale}/account`} icon={Settings} label={tNav("profile")} variant="game" fontFamily="var(--font-jersey15)" />
                         </li>
                         <li>
-                          <DropdownItem href={`/${locale}/leaderboard`} icon={Trophy} label="Leaderboard" variant="game" fontFamily="var(--font-sans)" />
+                          <DropdownItem href={`/${locale}/leaderboard`} icon={Trophy} label="Leaderboard" variant="game" fontFamily="var(--font-jersey15)" />
                         </li>
                         <li className="my-1 h-px bg-border" />
                         <li>
-                          <DropdownItem icon={LogOut} label="Sign out" variant="destructive" onClick={() => void signOut()} fontFamily="var(--font-sans)" />
+                          <DropdownItem icon={LogOut} label="Sign out" variant="destructive" onClick={() => void signOut()} fontFamily="var(--font-jersey15)" />
                         </li>
                       </>
                     ) : (
@@ -478,7 +476,7 @@ export default function Header() {
                             icon={User}
                             label="Sign in"
                             variant="game"
-                            fontFamily="var(--font-sans)"
+                            fontFamily="var(--font-jersey15)"
                             fontWeight={600}
                           />
                         </li>

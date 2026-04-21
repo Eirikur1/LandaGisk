@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import GameCard from "@/components/ui/GameCard";
-import HeroGlobeClient from "@/components/ui/HeroGlobeClient";
+import HeroAbyssClient from "@/components/ui/HeroAbyssClient";
 
 const ALL_GAMES = [
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true  },
@@ -27,7 +27,7 @@ export default async function GamesPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
-      <HeroGlobeClient />
+      <HeroAbyssClient />
     <div className="relative z-10 max-w-xl px-8 pt-10 pb-16">
 
       <div className="mb-10">
