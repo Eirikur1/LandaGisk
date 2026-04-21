@@ -140,7 +140,12 @@ const GAMES = [
 ];
 
 
-type MonkeyInstance = { id: number; left: number; anim: typeof monkeyAnim; duration: number };
+type MonkeyInstance = {
+  id: number;
+  left: number;
+  anim: typeof monkeyAnim | typeof swingInAnim;
+  duration: number;
+};
 
 function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement | null> }) {
   const [navbarLeft, setNavbarLeft] = React.useState<number | null>(null);
