@@ -124,22 +124,20 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
     let running = true;
     const tick = () => {
       if (!running) return;
-      if (!dragging.current) {
-        if (panningRef.current) {
-          panProgressRef.current = Math.min(panProgressRef.current + 0.025, 1);
-          const t = 1 - Math.pow(1 - panProgressRef.current, 3); // ease out cubic
-          rotateRef.current = [
-            panStartRef.current[0] + (panTargetRef.current[0] - panStartRef.current[0]) * t,
-            panStartRef.current[1] + (panTargetRef.current[1] - panStartRef.current[1]) * t,
-            0,
-          ];
-          needsRenderRef.current = true;
-          if (panProgressRef.current >= 1) panningRef.current = false;
-        }
-        if (needsRenderRef.current) {
-          draw();
-          needsRenderRef.current = false;
-        }
+      if (!dragging.current && panningRef.current) {
+        panProgressRef.current = Math.min(panProgressRef.current + 0.025, 1);
+        const t = 1 - Math.pow(1 - panProgressRef.current, 3); // ease out cubic
+        rotateRef.current = [
+          panStartRef.current[0] + (panTargetRef.current[0] - panStartRef.current[0]) * t,
+          panStartRef.current[1] + (panTargetRef.current[1] - panStartRef.current[1]) * t,
+          0,
+        ];
+        needsRenderRef.current = true;
+        if (panProgressRef.current >= 1) panningRef.current = false;
+      }
+      if (needsRenderRef.current) {
+        draw();
+        needsRenderRef.current = false;
       }
       animFrameRef.current = requestAnimationFrame(tick);
     };
@@ -235,7 +233,6 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         rotateRef.current[2],
       ];
       needsRenderRef.current = true;
-      draw();
     };
     const onTouchEnd = () => { dragging.current = false; };
     el.addEventListener("touchstart", onTouchStart, { passive: false });

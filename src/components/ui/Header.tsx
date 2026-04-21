@@ -148,10 +148,13 @@ type MonkeyInstance = {
 };
 
 function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement | null> }) {
+  const [mounted, setMounted] = React.useState(false);
   const [navbarLeft, setNavbarLeft] = React.useState<number | null>(null);
   const [navbarRight, setNavbarRight] = React.useState<number | null>(null);
   const [monkeys, setMonkeys] = React.useState<MonkeyInstance[]>([]);
   const nextId = React.useRef(0);
+
+  React.useEffect(() => { setMounted(true); }, []);
 
   // Measure the navbar pill edges so monkeys stay within them
   React.useEffect(() => {
@@ -196,7 +199,7 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
     return () => clearTimeout(timeoutId);
   }, [navbarLeft, navbarRight]);
 
-  if (typeof document === "undefined") return null;
+  if (!mounted) return null;
 
   return createPortal(
     <>
