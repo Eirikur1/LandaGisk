@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Jersey_15 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -28,6 +28,12 @@ const interSans = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
+const jersey15 = Jersey_15({
+  subsets: ["latin"],
+  variable: "--font-jersey15",
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "Dagrun — Daily Icelandic Games",
   description: "Daily fun games to challenge your memory, logic, and world knowledge",
@@ -54,7 +60,7 @@ export default async function LocaleLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang={locale} className={`${interSans.variable} h-full`}>
+    <html lang={locale} className={`${interSans.variable} ${jersey15.variable} h-full`}>
       <head>
         {nonce && <meta property="csp-nonce" content={nonce} />}
         {preconnectSupabase ? (

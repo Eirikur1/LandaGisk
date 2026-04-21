@@ -304,7 +304,7 @@ export default function Header() {
                 <NavigationMenuTrigger
                   className={navTriggerClass}
                   style={{
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: "var(--font-jersey15)",
                     color: gamesHubActive ? "var(--color-blue)" : "var(--color-muted)",
                     borderBottom: gamesHubActive ? "1px solid var(--color-blue)" : "1px solid transparent",
                     paddingBottom: "1px",
@@ -372,7 +372,7 @@ export default function Header() {
             href={leaderboardPath}
             className={navBtnClass}
             style={{
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-jersey15)",
               color: leaderboardActive ? "var(--color-blue)" : "var(--color-muted)",
               borderBottom: leaderboardActive ? "1px solid var(--color-blue)" : "1px solid transparent",
               paddingBottom: "1px",
@@ -385,7 +385,7 @@ export default function Header() {
             href={archivePath}
             className={navBtnClass}
             style={{
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-jersey15)",
               color: archiveActive ? "var(--color-blue)" : "var(--color-muted)",
               borderBottom: archiveActive ? "1px solid var(--color-blue)" : "1px solid transparent",
               paddingBottom: "1px",

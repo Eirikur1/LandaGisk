@@ -264,7 +264,7 @@ function MushroomGuesserInner() {
       {/* Help modal */}
       {showHelp && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/30 backdrop-blur-sm"
           onClick={() => dismissHelp(false)}
         >
           <motion.div

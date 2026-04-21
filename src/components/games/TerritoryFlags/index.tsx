@@ -251,7 +251,7 @@ function TerritoryFlagsInner() {
       {/* Help modal */}
       {showHelp && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/30 backdrop-blur-sm"
           onClick={() => dismissHelp(false)}
         >
           <motion.div
@@ -419,8 +419,8 @@ function TerritoryFlagsInner() {
             /* Active round */
             <motion.div
               key={currentRound}
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col flex-1"
             >
