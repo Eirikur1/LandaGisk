@@ -2,9 +2,7 @@ import { getTranslations } from "next-intl/server";
 // Swap to `HeroGlobeClient` to restore the D3 globe hero (static import + `<HeroGlobeClient />`).
 import HeroMonkeyLottieGate from "@/components/ui/HeroMonkeyLottieGate";
 import HeroSplitText from "@/components/ui/HeroSplitText";
-import GameList from "@/components/ui/GameList";
-import HomeLeaderboard from "@/components/ui/HomeLeaderboard";
-import UserStats from "@/components/ui/UserStats";
+import HomeDeferredSections from "@/components/ui/HomeDeferredSections";
 
 const GAMES = [
   { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true },
@@ -45,12 +43,7 @@ export default async function HomePage({
           />
         </div>
 
-        <GameList games={GAMES} />
-
-
-        <UserStats />
-
-        <HomeLeaderboard />
+        <HomeDeferredSections games={GAMES} />
       </div>
     </div>
   );

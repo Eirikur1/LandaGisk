@@ -25,7 +25,9 @@ export default function HeroSplitText({
     const split = splitText(el, { chars: true });
 
     split.addEffect(({ chars }: { chars: HTMLElement[] }) => {
-      return animate(chars, {
+      // Promote to GPU layer before animating to avoid mid-animation compositing cost
+      chars.forEach((c) => { c.style.willChange = "transform, opacity"; });
+      const anim = animate(chars, {
         opacity: [{ from: 0, to: 1 }],
         y: [{ from: "0.6em", to: "0em" }],
         rotateX: [{ from: 40, to: 0 }],
@@ -33,6 +35,8 @@ export default function HeroSplitText({
         duration: 700,
         delay: (_el: unknown, index: number) => index * 26,
       });
+      anim.then(() => { chars.forEach((c) => { c.style.willChange = "auto"; }); });
+      return anim;
     });
 
     return () => {

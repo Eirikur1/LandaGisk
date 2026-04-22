@@ -1,25 +1,25 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import locoMono from "@/assets/lottie/LocoMonoito.svg";
+import Lottie from "lottie-react";
 
 const LEFT_FADE =
   "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)";
 
 export default function HeroMonkeyLottieClient() {
-  const [ready, setReady] = useState(false);
+  const [heroData, setHeroData] = useState<object | null>(null);
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(id);
+    import("@/assets/lottie/herosupermonkeypunch.json").then((m) =>
+      setHeroData(m.default)
+    );
   }, []);
 
   return (
     <div
       id="hero-monkey-root"
-      className="pointer-events-none absolute top-0 right-0 select-none overflow-visible hidden sm:block"
-      style={{ width: "min(96vw, 1680px)", height: "100dvh" }}
+      className="pointer-events-none absolute top-0 right-0 select-none overflow-hidden hidden sm:block"
+      style={{ width: "100vw", height: "100dvh" }}
       aria-hidden="true"
     >
       <div
@@ -28,31 +28,23 @@ export default function HeroMonkeyLottieClient() {
       />
 
       <div
-        className="absolute flex items-center justify-center will-change-transform overflow-visible"
+        className="absolute will-change-transform"
         style={{
-          width: "min(120vmin, min(118dvh, 1160px))",
-          height: "min(120vmin, min(118dvh, 1160px))",
-          right: "max(-17vw, -9.5rem)",
+          width: "120dvh",
+          height: "120dvh",
+          right: "-60px",
           top: "50%",
-          transform: ready ? "translateY(-38%) translateX(0)" : "translateY(20%) translateX(100vw)",
-          opacity: ready ? 1 : 0,
-          transition: "opacity 1.4s ease, transform 2.2s cubic-bezier(0.16, 1, 0.3, 1)",
+          transform: "translateY(-50%)",
         }}
       >
-        <div className="relative h-full w-full max-h-full max-w-full overflow-visible">
-          <Image
-            src={locoMono}
-            alt=""
-            fill
-            priority
-            className="object-contain scale-[1.02]"
-            style={{
-              filter: ready ? "none" : "blur(8px)",
-              transition: "filter 1.4s cubic-bezier(0.16, 1, 0.3, 1)",
-              imageRendering: "pixelated",
-            }}
+        {heroData && (
+          <Lottie
+            animationData={heroData}
+            loop={false}
+            autoplay
+            style={{ width: "100%", height: "100%" }}
           />
-        </div>
+        )}
       </div>
     </div>
   );
