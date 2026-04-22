@@ -79,7 +79,7 @@ export default function AuthPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          Dagrun
+          ApaBiz
         </motion.a>
       </div>
 
@@ -261,7 +261,7 @@ export default function AuthPage() {
               onClick={() => router.push(`/${locale}`)}
               className="hover:opacity-60 transition-opacity"
             >
-              ← Back to Dagrun
+              ← Back to ApaBiz
             </button>
           </p>
         </motion.div>

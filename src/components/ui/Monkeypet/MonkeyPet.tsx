@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
-import walkData from "@/assets/lottie/BlueWalkingMonkey.json";
-import sleepData from "@/assets/lottie/64bitSleepingMono.json";
+
+type LottieData = object;
 
 type Phase = "walking" | "sleeping";
 
@@ -23,6 +23,13 @@ export default function MonkeyPet() {
   const [posX, setPosX] = useState(40);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [phase, setPhase] = useState<Phase>("walking");
+  const [walkData, setWalkData] = useState<LottieData | null>(null);
+  const [sleepData, setSleepData] = useState<LottieData | null>(null);
+
+  useEffect(() => {
+    import("@/assets/lottie/BlueWalkingMonkey.json").then((m) => setWalkData(m.default));
+    import("@/assets/lottie/64bitSleepingMono.json").then((m) => setSleepData(m.default));
+  }, []);
 
   // Schedule random sleep
   useEffect(() => {
@@ -83,34 +90,26 @@ export default function MonkeyPet() {
         transition: "left 0.2s linear, top 0.3s ease",
       }}
     >
-      {/* Walk — always mounted to avoid flicker on direction change */}
-      <div
-        className="w-16 h-16"
-        style={{
-          transform: `scaleX(${direction === 1 ? -1 : 1})`,
-          display: isSleeping ? "none" : "block",
-        }}
-      >
-        <Lottie
-          animationData={walkData}
-          loop
-          autoplay
-          style={{ width: "100%", height: "100%" }}
-        />
-      </div>
+      {walkData && (
+        <div
+          className="w-16 h-16"
+          style={{
+            transform: `scaleX(${direction === 1 ? -1 : 1})`,
+            display: isSleeping ? "none" : "block",
+          }}
+        >
+          <Lottie animationData={walkData} loop autoplay style={{ width: "100%", height: "100%" }} />
+        </div>
+      )}
 
-      {/* Sleep — always mounted to avoid remount on wake */}
-      <div
-        className="w-20 h-20"
-        style={{ display: isSleeping ? "block" : "none" }}
-      >
-        <Lottie
-          animationData={sleepData}
-          loop
-          autoplay
-          style={{ width: "100%", height: "100%" }}
-        />
-      </div>
+      {sleepData && (
+        <div
+          className="w-20 h-20"
+          style={{ display: isSleeping ? "block" : "none" }}
+        >
+          <Lottie animationData={sleepData} loop autoplay style={{ width: "100%", height: "100%" }} />
+        </div>
+      )}
     </div>
   );
 }

@@ -35,7 +35,7 @@ const jersey15 = Jersey_15({
 });
 
 export const metadata: Metadata = {
-  title: "Dagrun — Daily Icelandic Games",
+  title: "ApaBiz — Daily Icelandic Games",
   description: "Daily fun games to challenge your memory, logic, and world knowledge",
 };
 

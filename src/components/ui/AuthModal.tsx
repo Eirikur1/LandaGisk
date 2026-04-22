@@ -72,7 +72,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
             className="text-[10px] uppercase tracking-[0.18em] text-(--color-muted) mb-3"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Dagrun account
+            ApaBiz account
           </p>
           <div className="flex gap-1">
             <button

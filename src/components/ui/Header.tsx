@@ -10,8 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 import Lottie from "lottie-react";
-import monkeyAnim from "@/assets/lottie/PlainSwingingMonkey.json";
-import swingInAnim from "@/assets/lottie/SwingInMonkey.json";
 import staringIntoTheAbiss from "@/assets/lottie/StaringIntoTheAbiss.svg";
 import {
   NavigationMenu,
@@ -143,7 +141,7 @@ const GAMES = [
 type MonkeyInstance = {
   id: number;
   left: number;
-  anim: typeof monkeyAnim | typeof swingInAnim;
+  anim: object;
   duration: number;
 };
 
@@ -153,6 +151,7 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
   const [navbarRight, setNavbarRight] = React.useState<number | null>(null);
   const [monkeys, setMonkeys] = React.useState<MonkeyInstance[]>([]);
   const nextId = React.useRef(0);
+  const animsRef = React.useRef<{ plain: object; swingIn: object } | null>(null);
 
   React.useEffect(() => { setMounted(true); }, []);
 
@@ -178,10 +177,18 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    const spawn = () => {
+    const spawn = async () => {
+      if (!animsRef.current) {
+        const [plain, swingIn] = await Promise.all([
+          import("@/assets/lottie/PlainSwingingMonkey.json").then((m) => m.default),
+          import("@/assets/lottie/SwingInMonkey.json").then((m) => m.default),
+        ]);
+        animsRef.current = { plain, swingIn };
+      }
+      const { plain, swingIn } = animsRef.current;
       const left = navbarLeft + Math.random() * (navbarRight - navbarLeft);
       const isSwing = Math.random() < 0.5;
-      const anim = isSwing ? swingInAnim : monkeyAnim;
+      const anim = isSwing ? swingIn : plain;
       const duration = isSwing ? 5000 : 11110;
       const id = nextId.current++;
       setMonkeys((prev) => [...prev, { id, left, anim, duration }]);
@@ -215,7 +222,7 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
           }}
           aria-hidden
         >
-          <Lottie animationData={m.anim} loop={m.anim === monkeyAnim} autoplay style={{ width: "100%", height: "100%" }} />
+          <Lottie animationData={m.anim} loop={m.duration === 11110} autoplay style={{ width: "100%", height: "100%" }} />
         </div>
       ))}
     </>,
@@ -282,7 +289,7 @@ export default function Header() {
           ref={logoRef}
           href={`/${locale}`}
           className="text-(--color-blue) flex items-center"
-          aria-label="Dagrun home"
+          aria-label="ApaBiz home"
         >
           <motion.span
             className="relative block h-5 w-5 shrink-0"
@@ -300,13 +307,13 @@ export default function Header() {
         {/* Center nav: Games ▾ · Leaderboard · Archive */}
         <nav className="flex items-center justify-center gap-3 sm:gap-5 md:gap-6">
           <NavigationMenu
-            className="flex-none"
+            className="flex-none flex items-center"
             closeDelay={300}
             value={gamesMenuOpen}
             onValueChange={setGamesMenuOpen}
           >
-            <NavigationMenuList aria-orientation={undefined}>
-              <NavigationMenuItem>
+            <NavigationMenuList aria-orientation={undefined} className="flex items-center">
+              <NavigationMenuItem className="flex items-center">
                 <NavigationMenuTrigger
                   className={navTriggerClass}
                   style={{
