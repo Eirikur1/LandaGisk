@@ -27,8 +27,8 @@ export default function GameList({ games }: { games: readonly Game[] }) {
         transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
         <h2
-          className="text-base font-bold tracking-tight"
-          style={{ fontFamily: "var(--font-display)", color: "var(--color-foreground)" }}
+          className="text-4xl font-bold tracking-tight"
+          style={{ fontFamily: "var(--font-jersey10)", color: "var(--color-blue)" }}
         >
           {t("topGamesThisWeek")}
         </h2>

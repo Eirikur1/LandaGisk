@@ -10,7 +10,7 @@ export default function HeroMonkeyLottieClient() {
   const [heroData, setHeroData] = useState<object | null>(null);
 
   useEffect(() => {
-    import("@/assets/lottie/herosupermonkeypunch.json").then((m) =>
+    import("@/assets/lottie/Hero3dMonkey_v2.json").then((m) =>
       setHeroData(m.default)
     );
   }, []);

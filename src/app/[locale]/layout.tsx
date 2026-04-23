@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Jersey_15 } from "next/font/google";
+import { Inter, Jersey_15, Jersey_10 } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -11,6 +11,7 @@ import MonkeyPet from "@/components/ui/Monkeypet/MonkeyPetClient";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
 import "flag-icons/css/flag-icons.min.css";
+import "@fontsource/redaction-50";
 
 function supabaseOrigin(): string | null {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -31,6 +32,12 @@ const interSans = Inter({
 const jersey15 = Jersey_15({
   subsets: ["latin"],
   variable: "--font-jersey15",
+  weight: "400",
+});
+
+const jersey10 = Jersey_10({
+  subsets: ["latin"],
+  variable: "--font-jersey10",
   weight: "400",
 });
 
@@ -60,7 +67,7 @@ export default async function LocaleLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang={locale} className={`${interSans.variable} ${jersey15.variable} h-full`}>
+    <html lang={locale} className={`${interSans.variable} ${jersey15.variable} ${jersey10.variable} h-full`}>
       <head>
         {nonce && <meta property="csp-nonce" content={nonce} />}
         {preconnectSupabase ? (
@@ -75,7 +82,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <Header />
             <main className="flex-1 pt-16">{children}</main>
-          <footer className="relative border-t border-(--color-border) py-10 text-center overflow-visible">
+          <footer className="relative z-50 border-t border-(--color-border) py-10 text-center overflow-visible bg-(--color-background)">
             <MonkeyPet />
             <p
               className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"

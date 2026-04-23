@@ -9,6 +9,30 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "ShadowHand";
+  src: url("../fonts/ShadowHand.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Comrade";
+  src: url("../fonts/Comrade-Bold Regular.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Patriot";
+  src: url("../fonts/Patriotfont/Patriot-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   /* Landly-style warm cream */
   --color-background: #f2f0e6;

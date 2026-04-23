@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import staringIntoTheAbiss from "@/assets/lottie/StaringIntoTheAbiss.svg";
 
 const LEFT_FADE =
@@ -9,15 +9,33 @@ const LEFT_FADE =
 
 export default function HeroAbyssClient() {
   const [ready, setReady] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setReady(true));
     return () => cancelAnimationFrame(id);
   }, []);
 
+  useEffect(() => {
+    function onScroll() {
+      const el = wrapperRef.current;
+      if (!el) return;
+      const scrolled = window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      const threshold = pageHeight - viewportHeight - 300;
+      const overshoot = Math.max(0, scrolled - threshold);
+      el.style.transform = overshoot > 0 ? `translateY(-${overshoot}px)` : "";
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <div
-      className="pointer-events-none absolute top-0 right-0 select-none overflow-visible"
+      ref={wrapperRef}
+      className="pointer-events-none fixed top-0 right-0 select-none overflow-visible will-change-transform"
       style={{ width: "min(96vw, 1680px)", height: "100dvh" }}
       aria-hidden="true"
     >

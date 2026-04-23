@@ -32,14 +32,8 @@ export default async function HomePage({
           <HeroSplitText
             as="h1"
             text={t("title")}
-            className="text-[clamp(2.5rem,10vw,8rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
-            style={{ fontFamily: "var(--font-display)" }}
-          />
-          <HeroSplitText
-            as="p"
-            text={t("subtitle")}
-            className="text-lg font-semibold text-(--color-muted) max-w-sm leading-relaxed"
-            style={{ fontFamily: "var(--font-sans)" }}
+            className="text-[clamp(3.5rem,13vw,10rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-1"
+            style={{ fontFamily: "'Comrade', sans-serif" }}
           />
         </div>
 

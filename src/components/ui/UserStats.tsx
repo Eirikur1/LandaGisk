@@ -78,8 +78,8 @@ export default function UserStats() {
       {items.map(({ id, msgKey, value }) => (
         <div key={id} className="flex flex-col gap-1.5">
           <span
-            className="text-2xl sm:text-3xl font-black tabular-nums text-(--color-blue) leading-none"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-2xl sm:text-3xl font-bold tabular-nums text-(--color-foreground) leading-none"
+            style={{ fontFamily: "'Patriot', serif" }}
           >
             {value}
           </span>

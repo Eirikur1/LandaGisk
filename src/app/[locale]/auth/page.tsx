@@ -74,7 +74,7 @@ export default function AuthPage() {
         <motion.a
           href={`/${locale}`}
           className="absolute top-8 left-10 text-[11px] font-bold tracking-[0.22em] uppercase hover:opacity-60 transition-opacity"
-          style={{ color: "rgba(255,255,255,0.35)" }}
+          style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'Comrade', sans-serif" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
