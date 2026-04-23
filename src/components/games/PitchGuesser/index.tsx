@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import { ymdUtcNow } from "@/lib/game-date";
 import PitchLeaderboard from "@/components/ui/PitchLeaderboard";
+import monoPng from "@/assets/lottie/mono.png";
 
 const TOTAL_ROUNDS = 5;
 const LISTEN_MS = 3000;
@@ -465,7 +467,15 @@ export default function PitchGuesser() {
             <RoundDots round={round} completedCount={results.length} />
             <MuteButton muted={muted} onToggle={() => setMuted((m) => !m)} />
           </div>
-          <div className="w-full card-height-container">
+          <div className="relative w-full card-height-container">
+            {/* Monkey peeking over the top of the card */}
+            <Image
+              src={monoPng}
+              alt=""
+              aria-hidden
+              className="absolute pointer-events-none select-none z-20"
+              style={{ width: 80, height: "auto", top: -33, right:200 }}
+            />
             <AnimatePresence mode="wait" initial={false}>
               {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
               {phase === "countdown" && <CountdownPhase key={`cd-${round}`} num={countdownNum} />}

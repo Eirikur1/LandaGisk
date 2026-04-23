@@ -21,8 +21,17 @@ import {
   NavigationMenuPositioner,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
-import { User, Settings, LogOut, Trophy, Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, Palette, CalendarDays, ArrowRight, MinusCircle, Music2, Grid3x3, MapPin } from "lucide-react";
+import { User, Settings, LogOut, Trophy, ArrowRight, MinusCircle } from "lucide-react";
 import { FaGamepad } from "react-icons/fa6";
+import waterfallIcon from "@/assets/lottie/ApaBiz_icons/Watefall Of the day.svg";
+import flagsIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
+import worldIcon from "@/assets/lottie/ApaBiz_icons/CountryGuess.svg";
+import mushroomIcon from "@/assets/lottie/ApaBiz_icons/Mushroom Gues.svg";
+import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatch.svg";
+import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
+import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
+import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
+import yearIcon from "@/assets/lottie/ApaBiz_icons/Not yet.svg";
 
 
 const menuItemVariants = {
@@ -125,16 +134,20 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
   );
 }
 
+function SvgIcon({ src }: { src: { src: string } }) {
+  return <Image src={src} alt="" width={14} height={14} />;
+}
+
 const GAMES = [
-  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: Waves },
-  { href: "flags", titleKey: "games.flags.title", available: true, icon: Flag },
-  { href: "world", titleKey: "games.world.title", available: true, icon: Globe2 },
-  { href: "mushroom", titleKey: "games.mushroom.title", available: true, icon: Sprout },
-  { href: "color", titleKey: "games.color.title", available: true, icon: Palette },
-  { href: "year", titleKey: "games.year.title", available: true, icon: CalendarDays },
-  { href: "pitch", titleKey: "games.pitch.title", available: true, icon: Music2 },
-  { href: "grid",  titleKey: "games.grid.title",  available: true, icon: Grid3x3 },
-  { href: "territory", titleKey: "games.territory.title", available: true, icon: MapPin },
+  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: () => <SvgIcon src={waterfallIcon} /> },
+  { href: "flags",     titleKey: "games.flags.title",     available: true, icon: () => <SvgIcon src={flagsIcon} /> },
+  { href: "world",     titleKey: "games.world.title",     available: true, icon: () => <SvgIcon src={worldIcon} /> },
+  { href: "mushroom",  titleKey: "games.mushroom.title",  available: true, icon: () => <SvgIcon src={mushroomIcon} /> },
+  { href: "color",     titleKey: "games.color.title",     available: true, icon: () => <SvgIcon src={colorIcon} /> },
+  { href: "year",      titleKey: "games.year.title",      available: true, icon: () => <SvgIcon src={yearIcon} /> },
+  { href: "pitch",     titleKey: "games.pitch.title",     available: true, icon: () => <SvgIcon src={pitchIcon} /> },
+  { href: "grid",      titleKey: "games.grid.title",      available: true, icon: () => <SvgIcon src={gridIcon} /> },
+  { href: "territory", titleKey: "games.territory.title", available: true, icon: () => <SvgIcon src={territoryIcon} /> },
 ];
 
 

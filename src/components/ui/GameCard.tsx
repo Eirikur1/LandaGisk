@@ -1,29 +1,43 @@
 "use client";
 
 import Link from "next/link";
+import Image, { StaticImageData } from "next/image";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { Waves, Flag, Globe2, Bird, Leaf, Mountain, Dog, Car, Sprout, ArrowRight, MapPin } from "lucide-react";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { LuCalendarDays } from "react-icons/lu";
+import { ArrowRight } from "lucide-react";
+
+import waterfallIcon from "@/assets/lottie/ApaBiz_icons/Watefall Of the day.svg";
+import flagsIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
+import worldIcon from "@/assets/lottie/ApaBiz_icons/CountryGuess.svg";
+import mushroomIcon from "@/assets/lottie/ApaBiz_icons/Mushroom Gues.svg";
+import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatch.svg";
+import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
+import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
+import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
+import yearIcon from "@/assets/lottie/ApaBiz_icons/Not yet.svg";
+import birdsIcon from "@/assets/lottie/ApaBiz_icons/Bird Spotter.svg";
+import plantsIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
+import carIcon from "@/assets/lottie/ApaBiz_icons/Car Guess.svg";
+import mountainsIcon from "@/assets/lottie/ApaBiz_icons/peakFInder.svg";
+import dogIcon from "@/assets/lottie/ApaBiz_icons/Dog.svg";
 
 type GameColor = "navy" | "forest" | "amber" | "rust";
 
-type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
-
-const gameIcons: Record<string, IconComponent> = {
-  waterfall: Waves,
-  flags: Flag,
-  world: Globe2,
-  birds: Bird,
-  plants: Leaf,
-  dogbreed: Dog,
-  car: Car,
-  mushroom: Sprout,
-  mountains: Mountain,
-  color: IoColorPaletteOutline,
-  year: LuCalendarDays,
-  territory: MapPin,
+const gameIcons: Record<string, StaticImageData> = {
+  waterfall: waterfallIcon,
+  flags: flagsIcon,
+  world: worldIcon,
+  mushroom: mushroomIcon,
+  color: colorIcon,
+  pitch: pitchIcon,
+  grid: gridIcon,
+  territory: territoryIcon,
+  year: yearIcon,
+  birds: birdsIcon,
+  plants: plantsIcon,
+  car: carIcon,
+  mountains: mountainsIcon,
+  dogbreed: dogIcon,
 };
 
 const gameTags: Record<string, string[]> = {
@@ -86,7 +100,7 @@ export default function GameCard({
 }: GameCardProps) {
   const locale = useLocale();
   const t = useTranslations();
-  const Icon = gameIcons[slug] ?? Globe2;
+  const icon = gameIcons[slug];
   const tags = gameTags[slug] ?? [];
 
   const inner = (
@@ -103,10 +117,9 @@ export default function GameCard({
       <div className="flex items-start gap-4 min-w-0">
         {/* Animated game-type icon */}
         <motion.div variants={leftIcon} className="mt-1 shrink-0">
-          <Icon
-            size={16}
-            className="text-(--color-muted) group-hover:text-(--color-blue) transition-colors duration-200"
-          />
+          {icon && (
+            <Image src={icon} alt="" width={20} height={20} className="opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
+          )}
         </motion.div>
 
         <div className="min-w-0">
