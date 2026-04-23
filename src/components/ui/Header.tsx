@@ -3,7 +3,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,16 +22,16 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
 import { User, Settings, LogOut, Trophy, ArrowRight, MinusCircle } from "lucide-react";
-import { FaGamepad } from "react-icons/fa6";
-import waterfallIcon from "@/assets/lottie/ApaBiz_icons/Watefall Of the day.svg";
+import waterfallIcon from "@/assets/lottie/ApaBiz_icons/waterfall.svg";
 import flagsIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
 import worldIcon from "@/assets/lottie/ApaBiz_icons/CountryGuess.svg";
-import mushroomIcon from "@/assets/lottie/ApaBiz_icons/Mushroom Gues.svg";
-import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatch.svg";
+import mushroomIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
+import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatchnew.svg";
+import allGamesIcon from "@/assets/lottie/ApaBiz_icons/Games.svg";
 import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
 import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
 import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
-import yearIcon from "@/assets/lottie/ApaBiz_icons/Not yet.svg";
+import yearIcon from "@/assets/lottie/ApaBiz_icons/icon.svg";
 
 
 const menuItemVariants = {
@@ -58,9 +58,12 @@ const menuArrow = {
   },
 };
 
+type MenuDropdownIcon = React.ComponentType<{ size?: number; className?: string }>;
+type MenuIconProps = { size?: number; className?: string };
+
 type DropdownItemProps =
-  | { variant: "game" | "plain"; href: string; icon: React.ElementType; label: React.ReactNode; active?: boolean; fontFamily?: string; fontWeight?: number; onClick?: never; onClose?: () => void }
-  | { variant: "destructive"; href?: never; icon: React.ElementType; label: React.ReactNode; onClick: () => void; active?: never; fontFamily?: string; fontWeight?: never; onClose?: never };
+  | { variant: "game" | "plain"; href: string; icon: MenuDropdownIcon; label: React.ReactNode; active?: boolean; fontFamily?: string; fontWeight?: number; onClick?: never; onClose?: () => void }
+  | { variant: "destructive"; href?: never; icon: MenuDropdownIcon; label: React.ReactNode; onClick: () => void; active?: never; fontFamily?: string; fontWeight?: never; onClose?: never };
 
 function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeight, onClose, ...rest }: DropdownItemProps) {
   if (variant === "destructive") {
@@ -134,20 +137,28 @@ function DropdownItem({ icon: Icon, label, variant, active, fontFamily, fontWeig
   );
 }
 
-function SvgIcon({ src }: { src: { src: string } }) {
-  return <Image src={src} alt="" width={14} height={14} />;
+function SvgIcon({
+  src,
+  size = 14,
+  className,
+}: {
+  src: StaticImageData;
+  size?: number;
+  className?: string;
+}) {
+  return <Image src={src} alt="" width={size} height={size} className={className} />;
 }
 
 const GAMES = [
-  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: () => <SvgIcon src={waterfallIcon} /> },
-  { href: "flags",     titleKey: "games.flags.title",     available: true, icon: () => <SvgIcon src={flagsIcon} /> },
-  { href: "world",     titleKey: "games.world.title",     available: true, icon: () => <SvgIcon src={worldIcon} /> },
-  { href: "mushroom",  titleKey: "games.mushroom.title",  available: true, icon: () => <SvgIcon src={mushroomIcon} /> },
-  { href: "color",     titleKey: "games.color.title",     available: true, icon: () => <SvgIcon src={colorIcon} /> },
-  { href: "year",      titleKey: "games.year.title",      available: true, icon: () => <SvgIcon src={yearIcon} /> },
-  { href: "pitch",     titleKey: "games.pitch.title",     available: true, icon: () => <SvgIcon src={pitchIcon} /> },
-  { href: "grid",      titleKey: "games.grid.title",      available: true, icon: () => <SvgIcon src={gridIcon} /> },
-  { href: "territory", titleKey: "games.territory.title", available: true, icon: () => <SvgIcon src={territoryIcon} /> },
+  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: (p: MenuIconProps) => <SvgIcon src={waterfallIcon} {...p} /> },
+  { href: "flags",     titleKey: "games.flags.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={flagsIcon} {...p} /> },
+  { href: "world",     titleKey: "games.world.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={worldIcon} {...p} /> },
+  { href: "mushroom",  titleKey: "games.mushroom.title",  available: true, icon: (p: MenuIconProps) => <SvgIcon src={mushroomIcon} {...p} /> },
+  { href: "color",     titleKey: "games.color.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={colorIcon} {...p} /> },
+  { href: "year",      titleKey: "games.year.title",      available: true, icon: (p: MenuIconProps) => <SvgIcon src={yearIcon} {...p} /> },
+  { href: "pitch",     titleKey: "games.pitch.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={pitchIcon} {...p} /> },
+  { href: "grid",      titleKey: "games.grid.title",      available: true, icon: (p: MenuIconProps) => <SvgIcon src={gridIcon} {...p} /> },
+  { href: "territory", titleKey: "games.territory.title", available: true, icon: (p: MenuIconProps) => <SvgIcon src={territoryIcon} {...p} /> },
 ];
 
 
@@ -343,7 +354,7 @@ export default function Header() {
                     <li>
                       <DropdownItem
                         href={allGamesPath}
-                        icon={FaGamepad}
+                        icon={(p: MenuIconProps) => <SvgIcon src={allGamesIcon} {...p} />}
                         label={locale === "is" ? "Allir leikir" : "All games"}
                         variant="game"
                         active={pathname === allGamesPath || pathname.startsWith(`${allGamesPath}/`)}
@@ -462,13 +473,13 @@ export default function Header() {
                     <li>
                       <DropdownItem
                         href={otherLocalePath}
-                        icon={() => (
+                        icon={({ size, className }: MenuIconProps) => (
                           <Image
                             src={locale === "en" ? "/flags/is.svg" : "/flags/gb.svg"}
                             alt=""
-                            width={14}
-                            height={14}
-                            className="rounded-sm"
+                            width={size ?? 14}
+                            height={size ?? 14}
+                            className={["rounded-sm", className].filter(Boolean).join(" ")}
                           />
                         )}
                         label={otherLocale.toUpperCase()}

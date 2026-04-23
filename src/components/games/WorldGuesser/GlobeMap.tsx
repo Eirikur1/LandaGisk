@@ -275,6 +275,7 @@ export default function GlobeMap({ guessedProximity, targetCcn3, won, panTo, inl
         width: "100%",
         height: "100%",
         pointerEvents: "none",
+        touchAction: "none",
       } : {
         position: "absolute",
         width: "min(80vmin, min(75dvh, 720px))",

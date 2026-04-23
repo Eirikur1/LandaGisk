@@ -6,15 +6,15 @@ import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 
-import waterfallIcon from "@/assets/lottie/ApaBiz_icons/Watefall Of the day.svg";
+import waterfallIcon from "@/assets/lottie/ApaBiz_icons/waterfall.svg";
 import flagsIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
 import worldIcon from "@/assets/lottie/ApaBiz_icons/CountryGuess.svg";
-import mushroomIcon from "@/assets/lottie/ApaBiz_icons/Mushroom Gues.svg";
-import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatch.svg";
+import mushroomIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
+import colorIcon from "@/assets/lottie/ApaBiz_icons/colormatchnew.svg";
 import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
 import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
 import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
-import yearIcon from "@/assets/lottie/ApaBiz_icons/Not yet.svg";
+import yearIcon from "@/assets/lottie/ApaBiz_icons/icon.svg";
 import birdsIcon from "@/assets/lottie/ApaBiz_icons/Bird Spotter.svg";
 import plantsIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
 import carIcon from "@/assets/lottie/ApaBiz_icons/Car Guess.svg";
@@ -118,7 +118,7 @@ export default function GameCard({
         {/* Animated game-type icon */}
         <motion.div variants={leftIcon} className="mt-1 shrink-0">
           {icon && (
-            <Image src={icon} alt="" width={20} height={20} className="opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
+            <Image src={icon} alt="" width={20} height={20} className="opacity-60 group-hover:opacity-100 transition-all duration-200 group-hover:filter-[invert(24%)_sepia(94%)_saturate(2000%)_hue-rotate(214deg)_brightness(90%)_contrast(110%)]" />
           )}
         </motion.div>
 

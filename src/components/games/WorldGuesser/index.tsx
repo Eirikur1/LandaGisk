@@ -245,7 +245,7 @@ function WorldGuesserInner() {
         ?
       </button>
 
-      <div className="relative z-10 w-full px-6 pt-1 pb-8 md:px-8 xl:px-10">
+      <div className="relative z-10 w-full px-6 pt-0 pb-8 md:px-8 xl:px-10">
         {/* ── Left: Game UI (mirrors hero left column) ────────────── */}
         <div className="w-full">
 
@@ -314,15 +314,20 @@ function WorldGuesserInner() {
         )}
 
         {/* Title */}
-        <div className="mb-3 md:mb-6">
+        <div className="mb-1 md:mb-3">
           <motion.h1
-            className="text-[clamp(2.4rem,8vw,5.5rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-4"
+            className="text-[clamp(2rem,6vw,4rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-2"
             style={{ fontFamily: "var(--font-display)" }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            {t.title}
+            {locale === "en" ? (
+              <>
+                <span className="block">Country</span>
+                <span className="block">Guess</span>
+              </>
+            ) : t.title}
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) max-w-sm leading-relaxed"
@@ -353,6 +358,7 @@ function WorldGuesserInner() {
             width: "clamp(220px, 44vh, 520px)",
             position: "relative",
             margin: "0 auto 1rem",
+            touchAction: "none",
           }}
         >
           <GlobeMap

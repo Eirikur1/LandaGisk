@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Jersey_15, Jersey_10 } from "next/font/google";
+import { Inter, Jersey_15, Jersey_10, Space_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -41,6 +41,12 @@ const jersey10 = Jersey_10({
   weight: "400",
 });
 
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-space-mono",
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
   title: "ApaBiz — Daily Icelandic Games",
   description: "Daily fun games to challenge your memory, logic, and world knowledge",
@@ -67,7 +73,7 @@ export default async function LocaleLayout({
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang={locale} className={`${interSans.variable} ${jersey15.variable} ${jersey10.variable} h-full`}>
+    <html lang={locale} className={`${interSans.variable} ${jersey15.variable} ${jersey10.variable} ${spaceMono.variable} h-full`}>
       <head>
         {nonce && <meta property="csp-nonce" content={nonce} />}
         {preconnectSupabase ? (
