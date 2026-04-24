@@ -22,25 +22,44 @@ export default function HeroSplitText({
     const el = ref.current;
     if (!el) return;
 
-    const split = splitText(el, { chars: true });
+    // anime.js text splitting + 3D transforms are brittle on some mobile WebKit builds;
+    // keep the static wordmark there and only animate on larger screens.
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches) {
+      return;
+    }
 
-    split.addEffect(({ chars }: { chars: HTMLElement[] }) => {
-      // Promote to GPU layer before animating to avoid mid-animation compositing cost
-      chars.forEach((c) => { c.style.willChange = "transform, opacity"; });
-      const anim = animate(chars, {
-        opacity: [{ from: 0, to: 1 }],
-        y: [{ from: "0.6em", to: "0em" }],
-        rotateX: [{ from: 40, to: 0 }],
-        ease: "out(3)",
-        duration: 700,
-        delay: (_el: unknown, index: number) => index * 26,
+    let split: ReturnType<typeof splitText> | null = null;
+    try {
+      split = splitText(el, { chars: true });
+      split.addEffect(({ chars }: { chars: HTMLElement[] }) => {
+        chars.forEach((c) => {
+          c.style.willChange = "transform, opacity";
+        });
+        const anim = animate(chars, {
+          opacity: [{ from: 0, to: 1 }],
+          y: [{ from: "0.6em", to: "0em" }],
+          rotateX: [{ from: 40, to: 0 }],
+          ease: "out(3)",
+          duration: 700,
+          delay: (_el: unknown, index: number) => index * 26,
+        });
+        anim.then(() => {
+          chars.forEach((c) => {
+            c.style.willChange = "auto";
+          });
+        });
+        return anim;
       });
-      anim.then(() => { chars.forEach((c) => { c.style.willChange = "auto"; }); });
-      return anim;
-    });
+    } catch {
+      return;
+    }
 
     return () => {
-      split.revert();
+      try {
+        split?.revert();
+      } catch {
+        /* ignore */
+      }
     };
   }, [text]);
 

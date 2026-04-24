@@ -95,7 +95,7 @@ function NavigationMenuPositioner({
         collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
         collisionAvoidance={{ side: "none" }}
         className={cn(
-          "z-50 box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] before:absolute before:content-[''] data-[side=bottom]:before:top-[-14px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0 data-[side=bottom]:before:h-[14px] data-[side=left]:before:top-0 data-[side=left]:before:right-[-14px] data-[side=left]:before:bottom-0 data-[side=left]:before:w-[14px] data-[side=right]:before:top-0 data-[side=right]:before:bottom-0 data-[side=right]:before:left-[-14px] data-[side=right]:before:w-[14px] data-[side=top]:before:right-0 data-[side=top]:before:bottom-[-14px] data-[side=top]:before:left-0 data-[side=top]:before:h-[14px]",
+          "z-50 box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] before:absolute before:content-[''] pointer-coarse:before:hidden data-[side=bottom]:before:top-[-14px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0 data-[side=bottom]:before:h-[14px] data-[side=left]:before:top-0 data-[side=left]:before:right-[-14px] data-[side=left]:before:bottom-0 data-[side=left]:before:w-[14px] data-[side=right]:before:top-0 data-[side=right]:before:bottom-0 data-[side=right]:before:left-[-14px] data-[side=right]:before:w-[14px] data-[side=top]:before:right-0 data-[side=top]:before:bottom-[-14px] data-[side=top]:before:left-0 data-[side=top]:before:h-[14px]",
           className,
         )}
         style={
@@ -120,7 +120,7 @@ function NavigationMenuPopup({
   return (
     <NavigationMenuPrimitive.NavigationMenu.Popup
       className={cn(
-        "data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-popover shadow-lg outline-1 outline-border transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1",
+        "data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-popover shadow-lg outline-1 outline-border transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:pointer-events-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1",
         className,
       )}
       {...props}

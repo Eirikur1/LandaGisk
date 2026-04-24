@@ -1,11 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
+
 export default function Error({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error("[locale error]", error?.message ?? error, error?.digest);
+  }, [error]);
+
   return (
     <div
       style={{

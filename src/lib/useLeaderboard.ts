@@ -66,9 +66,11 @@ async function fetchAndCache(force = false): Promise<void> {
 
   const todayStr = ymdNow();
 
-  const [atResult, todayResult] =
-    await Promise.all([
-      // All-time top 50 — only columns the original queries used successfully
+  let atResult: { data: unknown; error: unknown };
+  let todayResult: { data: unknown; error: unknown };
+
+  try {
+    [atResult, todayResult] = await Promise.all([
       supabase
         .from("leaderboard")
         .select("username, avatar_url, world_xp, flags_xp, waterfall_xp, mushroom_xp, total_xp")
@@ -76,7 +78,6 @@ async function fetchAndCache(force = false): Promise<void> {
         .order("total_xp", { ascending: false })
         .limit(50),
 
-      // Today's scores
       supabase
         .from("game_scores")
         .select("user_id, game_type, guesses, xp, profiles(username, avatar_url)")
@@ -85,12 +86,23 @@ async function fetchAndCache(force = false): Promise<void> {
         .order("xp", { ascending: false })
         .limit(200),
     ]);
+  } catch (e) {
+    console.warn("[leaderboard] fetch failed", e);
+    if (!cache) {
+      cache = {
+        allTime: [],
+        today: [],
+        allTimeDetailed: [],
+        todayDetailed: [],
+        ts: Date.now(),
+      };
+      notifyListeners();
+    }
+    return;
+  }
 
-  console.log("[leaderboard] atResult", { data: atResult.data, error: atResult.error });
-  console.log("[leaderboard] todayResult", { data: todayResult.data, error: todayResult.error });
-
-  const atData = atResult.data;
-  const todayData = todayResult.data;
+  const atData = atResult.data as any[] | null;
+  const todayData = todayResult.data as any[] | null;
 
   // All-time leaders — used by home widget, mini widget, and full leaderboard page
   const allTimeDetailed: AllTimeRow[] = atData
@@ -191,12 +203,17 @@ export function useLeaderboard() {
   const mountedRef = useRef(true);
 
   const sync = useCallback((force = false) => {
-    void fetchAndCache(force).then(() => {
-      if (mountedRef.current) {
-        setData(cache);
-        setLoading(false);
-      }
-    });
+    void fetchAndCache(force)
+      .then(() => {
+        if (mountedRef.current) {
+          setData(cache);
+          setLoading(false);
+        }
+      })
+      .catch((e) => {
+        console.warn("[leaderboard] sync failed", e);
+        if (mountedRef.current) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -204,8 +221,8 @@ export function useLeaderboard() {
 
     // Register as listener for shared cache updates
     const onUpdate = () => {
-      if (mountedRef.current) {
-        setData({ ...cache! });
+      if (mountedRef.current && cache) {
+        setData({ ...cache });
         setLoading(false);
       }
     };
