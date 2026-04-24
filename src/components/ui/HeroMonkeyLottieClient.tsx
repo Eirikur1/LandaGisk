@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import monoPng from "@/assets/lottie/mono.png";
 
 const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
   ssr: false,
@@ -24,6 +26,16 @@ export default function HeroMonkeyLottieClient() {
   }, []);
 
   return (
+    <>
+    {/* Mobile: static mono peeking from right edge, rotated 90° */}
+    <Image
+      src={monoPng}
+      alt=""
+      aria-hidden
+      className="pointer-events-none select-none fixed z-10 sm:hidden"
+      style={{ width: 280, height: "auto", top: "30%", right: -95, transform: "rotate(-90deg)", animation: "monkeySlideIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}
+    />
+
     <div
       id="hero-monkey-root"
       className="pointer-events-none absolute top-0 right-0 select-none overflow-hidden hidden sm:block"
@@ -55,5 +67,6 @@ export default function HeroMonkeyLottieClient() {
         )}
       </div>
     </div>
+    </>
   );
 }

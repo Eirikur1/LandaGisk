@@ -75,6 +75,7 @@ function FlagGuesserInner() {
 
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [earnedXp, setEarnedXp] = useState<number | null>(null);
   const [gaveUp, setGaveUp] = useState(false);
@@ -183,6 +184,7 @@ function FlagGuesserInner() {
     setError("");
     setGuesses((g) => [match.name, ...g]);
     setValue("");
+    setActiveIndex(-1);
   }
 
   function clearDay() {
@@ -494,20 +496,40 @@ function FlagGuesserInner() {
               <div className="flex-1 relative">
                 <input
                   value={value}
-                  onChange={(e) => { setValue(e.target.value); setError(""); }}
-                  onKeyDown={(e) => { if (e.key === "Enter") onGuess(); }}
+                  onChange={(e) => { setValue(e.target.value); setError(""); setActiveIndex(-1); }}
+                  onKeyDown={(e) => {
+                    if (suggestions.length > 0) {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
+                        return;
+                      }
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setActiveIndex((i) => Math.max(i - 1, -1));
+                        return;
+                      }
+                      if (e.key === "Enter" && activeIndex >= 0) {
+                        e.preventDefault();
+                        const selected = suggestions[activeIndex];
+                        if (selected) { setValue(selected.name); setActiveIndex(-1); setError(""); }
+                        return;
+                      }
+                    }
+                    if (e.key === "Enter") onGuess();
+                  }}
                   placeholder={t.input}
                   disabled={won || gaveUp || failed}
                   className="w-full rounded-xl border border-(--color-border) bg-white px-4 py-2.5 text-sm outline-none focus:border-(--color-blue) transition-colors"
                 />
                 {!won && !gaveUp && !failed && suggestions.length > 0 && (
                   <div className="absolute top-full mt-1 left-0 right-0 rounded-xl border border-(--color-border) bg-white shadow-lg overflow-y-auto z-50 max-h-48">
-                    {suggestions.map((s) => (
+                    {suggestions.map((s, i) => (
                       <button
                         key={s.code}
                         type="button"
-                        onClick={() => { setValue(s.name); setError(""); }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-(--color-blue-light) transition-colors"
+                        onClick={() => { setValue(s.name); setActiveIndex(-1); setError(""); }}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${i === activeIndex ? "bg-(--color-blue-light)" : "hover:bg-(--color-blue-light)"}`}
                       >
                         {s.name}
                       </button>

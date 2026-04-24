@@ -50,6 +50,11 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
   title: "ApaBiz — Daily Icelandic Games",
   description: "Daily fun games to challenge your memory, logic, and world knowledge",
+  icons: {
+    icon: "/MonoIcon.svg",
+    shortcut: "/MonoIcon.svg",
+    apple: "/MonoIcon.svg",
+  },
 };
 
 export default async function LocaleLayout({

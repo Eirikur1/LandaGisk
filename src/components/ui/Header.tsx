@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 import dynamic from "next/dynamic";
-import staringIntoTheAbiss from "@/assets/lottie/StaringIntoTheAbiss.svg";
+import monoIcon from "@/assets/lottie/MonoIcon.svg";
 
 const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
   ssr: false,
@@ -204,9 +204,13 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
   React.useEffect(() => {
     if (navbarLeft === null || navbarRight === null) return;
 
-    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutIds = new Set<ReturnType<typeof setTimeout>>();
+    let cancelled = false;
+
+    const track = (id: ReturnType<typeof setTimeout>) => { timeoutIds.add(id); return id; };
 
     const spawn = async () => {
+      if (cancelled) return;
       if (!animsRef.current) {
         const [plain, swingIn] = await Promise.all([
           import("@/assets/lottie/PlainSwingingMonkey.json").then((m) => m.default),
@@ -214,6 +218,7 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
         ]);
         animsRef.current = { plain, swingIn };
       }
+      if (cancelled) return;
       const { plain, swingIn } = animsRef.current;
       const left = navbarLeft + Math.random() * (navbarRight - navbarLeft);
       const isSwing = Math.random() < 0.5;
@@ -224,15 +229,19 @@ function HangingMonkey({ logoRef }: { logoRef: React.RefObject<HTMLAnchorElement
 
       // Wait for animation to finish, then remove and schedule next spawn
       const gap = 6000 + Math.random() * 8000;
-      setTimeout(() => {
+      track(setTimeout(() => {
         setMonkeys((prev) => prev.filter((m) => m.id !== id));
-        timeoutId = setTimeout(spawn, gap);
-      }, duration);
+        if (!cancelled) track(setTimeout(spawn, gap));
+      }, duration));
     };
 
     // Initial delay before first monkey
-    timeoutId = setTimeout(spawn, 4000);
-    return () => clearTimeout(timeoutId);
+    track(setTimeout(spawn, 4000));
+    return () => {
+      cancelled = true;
+      timeoutIds.forEach(clearTimeout);
+      setMonkeys([]);
+    };
   }, [navbarLeft, navbarRight]);
 
   if (!mounted) return null;
@@ -317,7 +326,7 @@ export default function Header() {
         <Link
           ref={logoRef}
           href={`/${locale}`}
-          className="text-(--color-blue) flex items-center"
+          className="text-(--color-blue) flex items-center self-stretch"
           aria-label="ApaBiz home"
         >
           <motion.span
@@ -329,7 +338,7 @@ export default function Header() {
             }}
             whileTap={{ scale: 0.92, transition: { type: "spring", stiffness: 500, damping: 18 } }}
           >
-            <Image src={staringIntoTheAbiss} alt="" width={20} height={20} className="block" aria-hidden />
+            <Image src={monoIcon} alt="" width={20} height={20} className="block" style={{ transform: "translateY(-3px)" }} aria-hidden />
           </motion.span>
         </Link>
 

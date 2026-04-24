@@ -360,14 +360,9 @@ export default function ColorGuesser() {
 
   return (
     <div className="relative z-10 pt-0 pb-6 px-4 sm:px-8">
-      {/*
-        Single unified layout. CSS grid switches between:
-        - mobile: 1 column (stacked)
-        - md+: 2 columns (title left, card right)
-      */}
-      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,320px)_1fr] gap-y-0 md:gap-x-8 items-start w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,320px)_1fr_clamp(180px,22vw,320px)] gap-y-0 md:gap-x-8 items-start w-full">
 
-        {/* Title block — full width on mobile, left column on desktop */}
+        {/* Title block — left column on desktop */}
         <div className="md:pt-2 mb-3 md:mb-0">
           <motion.h1
             className="font-black leading-[0.85] tracking-tight text-(--color-blue)"
@@ -417,13 +412,13 @@ export default function ColorGuesser() {
           </motion.div>
         </div>
 
-        {/* Game card — full width on mobile, right column on desktop */}
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center justify-between mb-2" style={{ minHeight: 28 }}>
+        {/* Game card — centered middle column on desktop */}
+        <div className="flex flex-col md:items-center">
+          <div className="flex items-center justify-between mb-2 card-width-only" style={{ minHeight: 28 }}>
             <RoundDots round={round} completedCount={results.length} />
             {muteButton}
           </div>
-          <div className="w-full card-height-container">
+          <div className="card-height-container">
             <AnimatePresence mode="wait" initial={false}>
               {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
               {phase === "countdown" && <CountdownPhase key={`cd-${round}`} num={countdownNum} />}
@@ -434,17 +429,21 @@ export default function ColorGuesser() {
           </div>
         </div>
 
-        {/* Leaderboard: below card on mobile only */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="md:hidden mt-8"
-        >
-          <Suspense fallback={null}><ColorLeaderboard /></Suspense>
-        </motion.div>
+        {/* Right column spacer — empty, just balances the layout */}
+        <div className="hidden md:block" />
 
       </div>
+
+      {/* Leaderboard: below card on mobile only, outside the grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="md:hidden mt-8"
+      >
+        <Suspense fallback={null}><ColorLeaderboard /></Suspense>
+      </motion.div>
+
     </div>
   );
 }

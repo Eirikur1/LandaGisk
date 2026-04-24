@@ -412,7 +412,7 @@ export default function PitchGuesser() {
 
   return (
     <div className="relative z-10 pt-0 pb-6 px-4 sm:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,320px)_1fr] gap-y-0 md:gap-x-8 items-start w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[clamp(180px,22vw,320px)_1fr_clamp(180px,22vw,320px)] gap-y-0 md:gap-x-8 items-start w-full">
 
         {/* Title block */}
         <div className="md:pt-2 mb-3 md:mb-0">
@@ -465,8 +465,8 @@ export default function PitchGuesser() {
         </div>
 
         {/* Game card */}
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center justify-between mb-2" style={{ minHeight: 28 }}>
+        <div className="flex flex-col md:items-center">
+          <div className="flex items-center justify-between mb-2 card-width-only" style={{ minHeight: 28 }}>
             <RoundDots round={round} completedCount={results.length} />
             <MuteButton muted={muted} onToggle={() => setMuted((m) => !m)} />
           </div>
@@ -477,7 +477,7 @@ export default function PitchGuesser() {
               alt=""
               aria-hidden
               className="absolute pointer-events-none select-none z-20"
-              style={{ width: 80, height: "auto", top: -33, right:200 }}
+              style={{ width: 80, height: "auto", top: -33, right: 200 }}
             />
             <AnimatePresence mode="wait" initial={false}>
               {phase === "intro" && <IntroPhase key="intro" onPlay={handlePlay} />}
@@ -499,6 +499,10 @@ export default function PitchGuesser() {
             </AnimatePresence>
           </div>
         </div>
+
+        {/* Right column spacer */}
+        <div className="hidden md:block" />
+
       </div>
 
       {/* Leaderboard: below card on mobile only */}
@@ -506,7 +510,7 @@ export default function PitchGuesser() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="md:hidden mt-8 px-4 sm:px-8"
+        className="md:hidden mt-8"
       >
         <Suspense fallback={null}><PitchLeaderboard /></Suspense>
       </motion.div>

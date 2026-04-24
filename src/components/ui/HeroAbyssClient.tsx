@@ -51,7 +51,7 @@ export default function HeroAbyssClient() {
           height: "min(120vmin, min(118dvh, 1160px))",
           right: "max(-17vw, -9.5rem)",
           top: "50%",
-          transform: ready ? "translateY(-38%) translateX(0)" : "translateY(20%) translateX(100vw)",
+          transform: ready ? "translateY(-30%) translateX(min(18vw, 10rem))" : "translateY(20%) translateX(100vw)",
           opacity: ready ? 1 : 0,
           transition: "opacity 1.4s ease, transform 2.2s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
