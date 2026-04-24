@@ -101,7 +101,7 @@ export default function GameCardMobile({
       <div className="flex items-center gap-3 min-w-0">
         <div className="shrink-0">
           {icon && (
-            <Image src={icon} alt="" width={20} height={20} style={{ filter: "brightness(0) invert(1) sepia(1) hue-rotate(190deg) saturate(4) brightness(0.85)" }} />
+            <Image src={icon} alt="" width={20} height={20} />
           )}
         </div>
         <h3
