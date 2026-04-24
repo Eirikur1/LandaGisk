@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
+  ssr: false,
+  loading: () => null,
+});
 
 type LottieData = object;
 
@@ -27,6 +32,9 @@ export default function MonkeyPet() {
   const [sleepData, setSleepData] = useState<LottieData | null>(null);
 
   useEffect(() => {
+    // Skip on mobile — BlueWalkingMonkey.json is 2.1MB, too heavy for small screens
+    if (window.matchMedia("(max-width: 639px)").matches) return;
+
     import("@/assets/lottie/BlueWalkingMonkey.json").then((m) => setWalkData(m.default));
     import("@/assets/lottie/64bitSleepingMono.json").then((m) => setSleepData(m.default));
   }, []);
@@ -78,11 +86,13 @@ export default function MonkeyPet() {
     return () => clearInterval(interval);
   }, [direction, phase]);
 
+  if (!walkData && !sleepData) return null;
+
   const isSleeping = phase === "sleeping";
 
   return (
     <div
-      className="absolute z-10 select-none"
+      className="absolute z-10 select-none pointer-events-none"
       style={{
         top: isSleeping ? "-48px" : "-56px",
         left: `${posX}%`,

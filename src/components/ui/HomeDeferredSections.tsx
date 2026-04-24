@@ -22,13 +22,11 @@ export default function HomeDeferredSections({ games }: { games: readonly Game[]
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   return (
     <>
       <GameList games={games} />
-      <UserStats />
-      <HomeLeaderboard />
+      {mounted && <UserStats />}
+      {mounted && <HomeLeaderboard />}
     </>
   );
 }

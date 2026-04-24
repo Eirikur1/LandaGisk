@@ -88,7 +88,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <Header />
             <main className="flex-1 pt-16">{children}</main>
-          <footer className="relative z-50 border-t border-(--color-border) py-10 text-center overflow-visible bg-(--color-background)">
+          <footer className="relative z-30 border-t border-(--color-border) py-10 text-center overflow-visible bg-(--color-background)">
             <MonkeyPet />
             <p
               className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"

@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
+  ssr: false,
+  loading: () => null,
+});
 
 const LEFT_FADE =
   "linear-gradient(to right, var(--color-background) 0%, var(--color-background) 28%, transparent 100%)";
@@ -10,6 +15,9 @@ export default function HeroMonkeyLottieClient() {
   const [heroData, setHeroData] = useState<object | null>(null);
 
   useEffect(() => {
+    // Component is hidden on mobile (sm:block) — skip the 110KB fetch entirely
+    if (window.matchMedia("(max-width: 639px)").matches) return;
+
     import("@/assets/lottie/finalfinalMonkey.json").then((m) =>
       setHeroData(m.default)
     );

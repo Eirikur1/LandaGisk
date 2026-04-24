@@ -9,8 +9,13 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 import staringIntoTheAbiss from "@/assets/lottie/StaringIntoTheAbiss.svg";
+
+const Lottie = dynamic(() => import("lottie-react").then((m) => m.default), {
+  ssr: false,
+  loading: () => null,
+});
 import {
   NavigationMenu,
   NavigationMenuContent,

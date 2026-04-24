@@ -353,7 +353,10 @@ export default function PitchGuesser() {
   function handlePlay() {
     const hz = randomHz();
     setTarget(hz);
-    startCountdown(() => startListen(hz));
+    // Resume AudioContext from within the user gesture so iOS Safari allows audio.
+    const ctx = getAudioCtx();
+    const resume = ctx ? ctx.resume() : Promise.resolve();
+    resume.then(() => startCountdown(() => startListen(hz)));
   }
 
   function submitGuess() {
@@ -668,11 +671,14 @@ function GuessPhase({ guessPos, setGuessPos, onSubmit, round, muted }: {
   const hz = posToHz(guessPos);
   const isPlayingRef = useRef(false);
 
-  // Start preview tone when phase mounts
+  // Start preview tone when phase mounts — deferred so iOS AudioContext is resumed
+  // from the pointer event on first interaction rather than here.
   useEffect(() => {
     if (!muted) {
-      startPreviewTone(hz);
-      isPlayingRef.current = true;
+      getAudioCtx()?.resume().then(() => {
+        startPreviewTone(hz);
+        isPlayingRef.current = true;
+      });
     }
     return () => { stopPreviewTone(); isPlayingRef.current = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps

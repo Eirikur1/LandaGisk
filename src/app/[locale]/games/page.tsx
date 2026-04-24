@@ -26,7 +26,7 @@ export default async function GamesPage() {
   const comingSoon = ALL_GAMES.filter((g) => !g.available);
 
   return (
-    <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="relative z-40 min-h-[calc(100vh-5rem)] overflow-hidden">
       <HeroAbyssClient />
     <div className="relative z-10 max-w-xl px-8 pt-10 pb-16">
 
