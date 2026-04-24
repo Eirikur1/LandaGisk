@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import GameCard from "@/components/ui/GameCard";
+import GameCardMobile from "@/components/ui/GameCardMobile";
 import HeroAbyssClient from "@/components/ui/HeroAbyssClient";
 
 const ALL_GAMES = [
@@ -50,9 +51,16 @@ export default async function GamesPage() {
         >
           Available now
         </p>
-        {available.map((game, i) => (
-          <GameCard key={game.slug} {...game} index={i} />
-        ))}
+        <div className="sm:hidden flex flex-col pt-2">
+          {available.map((game, i) => (
+            <GameCardMobile key={game.slug} {...game} index={i} />
+          ))}
+        </div>
+        <div className="hidden sm:block">
+          {available.map((game, i) => (
+            <GameCard key={game.slug} {...game} index={i} />
+          ))}
+        </div>
       </div>
 
       {/* Coming soon */}
@@ -63,9 +71,16 @@ export default async function GamesPage() {
         >
           {t("comingSoon")}
         </p>
-        {comingSoon.map((game, i) => (
-          <GameCard key={game.slug} {...game} index={i} />
-        ))}
+        <div className="sm:hidden flex flex-col pt-2">
+          {comingSoon.map((game, i) => (
+            <GameCardMobile key={game.slug} {...game} index={i} />
+          ))}
+        </div>
+        <div className="hidden sm:block">
+          {comingSoon.map((game, i) => (
+            <GameCard key={game.slug} {...game} index={i} />
+          ))}
+        </div>
       </div>
 
     </div>

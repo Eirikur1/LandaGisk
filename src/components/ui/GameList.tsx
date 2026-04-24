@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import GameCard from "@/components/ui/GameCard";
+import GameCardMobile from "@/components/ui/GameCardMobile";
 
 type Game = {
   slug: string;
@@ -34,9 +35,16 @@ export default function GameList({ games }: { games: readonly Game[] }) {
         </h2>
       </motion.div>
 
-      {games.map((game, i) => (
-        <GameCard key={game.slug} {...game} index={i} />
-      ))}
+      <div className="sm:hidden flex flex-col">
+        {games.map((game, i) => (
+          <GameCardMobile key={game.slug} {...game} index={i} />
+        ))}
+      </div>
+      <div className="hidden sm:block">
+        {games.map((game, i) => (
+          <GameCard key={game.slug} {...game} index={i} />
+        ))}
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
