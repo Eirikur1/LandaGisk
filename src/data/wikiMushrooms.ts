@@ -1,4 +1,5 @@
-import payload from "./icelandic-wiki-mushrooms.json";
+import englishPayload from "./english-wiki-mushrooms.json";
+import icelandicPayload from "./icelandic-wiki-mushrooms.json";
 
 export type WikiMushroom = {
   pageid: number;
@@ -10,10 +11,17 @@ export type WikiMushroom = {
   thumbHeight: number | null;
 };
 
-const species = payload.species as WikiMushroom[];
+const icelandicSpecies = icelandicPayload.species as WikiMushroom[];
+const englishSpecies = englishPayload.species as WikiMushroom[];
 
 /** Entries with a lead image from Wikipedia (required for the guessing UI). */
-export const MUSHROOM_GUESS_POOL = species.filter((m) => Boolean(m.thumbnailUrl));
+export const ICELANDIC_MUSHROOM_GUESS_POOL = icelandicSpecies.filter((m) => Boolean(m.thumbnailUrl));
+export const ENGLISH_MUSHROOM_GUESS_POOL = englishSpecies.filter((m) => Boolean(m.thumbnailUrl));
+export const MUSHROOM_GUESS_POOL = ICELANDIC_MUSHROOM_GUESS_POOL;
+
+export function getMushroomGuessPool(locale: "en" | "is"): WikiMushroom[] {
+  return locale === "en" ? ENGLISH_MUSHROOM_GUESS_POOL : ICELANDIC_MUSHROOM_GUESS_POOL;
+}
 
 /** Primary label before a trailing parenthetical, e.g. "Rauðhetta (sveppur)" → "Rauðhetta". */
 export function mushroomPrimaryTitle(title: string): string {

@@ -6,7 +6,7 @@ import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseGameDateParam, ymdUtcNow } from "@/lib/game-date";
-import { MUSHROOM_GUESS_POOL, mushroomPrimaryTitle, type WikiMushroom } from "@/data/wikiMushrooms";
+import { getMushroomGuessPool, mushroomPrimaryTitle, type WikiMushroom } from "@/data/wikiMushrooms";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { invalidateLeaderboard } from "@/lib/useLeaderboard";
@@ -34,6 +34,13 @@ const copy = {
     great: "Great job!",
     good: "Not bad!",
     keep: "Keep practicing!",
+    helpTitle: "How to play",
+    helpIntro: "Each round shows a mushroom photo from English Wikipedia. Pick the correct species from",
+    helpRounds: "There are",
+    helpRoundsSuffix: "rounds per day. Each correct answer earns",
+    helpDaily: "A new set of mushrooms every day.",
+    gotIt: "Got it",
+    dontShowAgain: "Don't show again",
   },
   is: {
     title: "Sveppa þraut",
@@ -53,6 +60,13 @@ const copy = {
     great: "Vel gert!",
     good: "Ekki slæmt!",
     keep: "Haltu áfram að æfa!",
+    helpTitle: "Hvernig á að spila",
+    helpIntro: "Hver umferð sýnir sveppamynd frá íslensku Wikipedia. Veldu rétta tegund úr",
+    helpRounds: "Það eru",
+    helpRoundsSuffix: "umferðir á dag. Hvert rétt svar gefur",
+    helpDaily: "Nýtt sett af sveppum á hverjum degi.",
+    gotIt: "Skilið",
+    dontShowAgain: "Ekki sýna aftur",
   },
 } as const;
 
@@ -73,9 +87,9 @@ type Round = {
   options: WikiMushroom[]; // always OPTIONS length, target is one of them
 };
 
-function buildRounds(day: string): Round[] {
-  const rng = seededRng(day + "mushroomquiz");
-  const pool = [...MUSHROOM_GUESS_POOL];
+function buildRounds(day: string, locale: "en" | "is"): Round[] {
+  const rng = seededRng(`${day}:${locale}:mushroomquiz`);
+  const pool = [...getMushroomGuessPool(locale)];
 
   // Pick ROUNDS distinct targets
   const targets: WikiMushroom[] = [];
@@ -126,7 +140,7 @@ function MushroomGuesserInner() {
     if (permanent) { try { window.localStorage.setItem(helpSeenKey, "1"); } catch {} }
   }
 
-  const rounds = useMemo(() => buildRounds(day), [day]);
+  const rounds = useMemo(() => buildRounds(day, locale), [day, locale]);
 
   // answers[i] = title of chosen option, or null if not answered yet
   const [answers, setAnswers] = useState<(string | null)[]>(Array(ROUNDS).fill(null));
@@ -134,7 +148,7 @@ function MushroomGuesserInner() {
   // "idle" | "answered" | "done"
   const [phase, setPhase] = useState<"idle" | "answered" | "done">("idle");
 
-  const storageKey = `mushroom-quiz:${day}`;
+  const storageKey = `mushroom-quiz:${locale}:${day}`;
   const scoreSavedRef = useRef(false);
   const confettiFiredRef = useRef(false);
   const prevUserRef = useRef<string | null | undefined>(undefined);
@@ -275,12 +289,12 @@ function MushroomGuesserInner() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-black mb-4 text-(--color-foreground)" style={{ fontFamily: "var(--font-display)" }}>
-              How to play
+              {t.helpTitle}
             </h2>
             <div className="space-y-3 text-sm text-(--color-muted) leading-relaxed">
-              <p>Each round shows a mushroom photo from Icelandic Wikipedia. Pick the correct species from <strong className="text-(--color-foreground)">4 options</strong>.</p>
-              <p>There are <strong className="text-(--color-foreground)">5 rounds</strong> per day. Each correct answer earns <strong className="text-(--color-foreground)">200 XP</strong>.</p>
-              <p>A new set of mushrooms every day.</p>
+              <p>{t.helpIntro} <strong className="text-(--color-foreground)">4 options</strong>.</p>
+              <p>{t.helpRounds} <strong className="text-(--color-foreground)">5</strong> {t.helpRoundsSuffix} <strong className="text-(--color-foreground)">200 XP</strong>.</p>
+              <p>{t.helpDaily}</p>
             </div>
             <div className="mt-5 flex gap-2">
               <button
@@ -288,14 +302,14 @@ function MushroomGuesserInner() {
                 onClick={() => dismissHelp(false)}
                 className="flex-1 rounded-xl py-2.5 text-sm font-bold text-white bg-(--color-blue) hover:opacity-90 transition-opacity"
               >
-                Got it
+                {t.gotIt}
               </button>
               <button
                 type="button"
                 onClick={() => dismissHelp(true)}
                 className="flex-1 rounded-xl py-2.5 text-sm font-semibold border border-(--color-border) text-(--color-muted) hover:opacity-60 transition-opacity"
               >
-                Don&apos;t show again
+                {t.dontShowAgain}
               </button>
             </div>
           </motion.div>
@@ -325,7 +339,7 @@ function MushroomGuesserInner() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            Mushroom<br />Quiz
+            {t.title}
           </motion.h1>
           <motion.p
             className="text-sm text-(--color-muted) leading-relaxed"
