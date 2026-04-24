@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { invalidateLeaderboard } from "@/lib/useLeaderboard";
 import { ymdUtcNow } from "@/lib/game-date";
-import PitchLeaderboard from "@/components/ui/PitchLeaderboard";
+import PitchLeaderboard, { invalidatePitchLeaderboard } from "@/components/ui/PitchLeaderboard";
 import monoPng from "@/assets/lottie/mono.png";
 
 const TOTAL_ROUNDS = 5;
@@ -403,7 +403,7 @@ export default function PitchGuesser() {
     supabase
       .from("game_scores")
       .insert({ user_id: user.id, game_type: "pitch", game_date: ymdUtcNow(), guesses: TOTAL_ROUNDS, xp, won: true })
-      .then(({ error }) => { if (!error) invalidateLeaderboard(); });
+      .then(({ error }) => { if (!error) { invalidateLeaderboard(); invalidatePitchLeaderboard(); } });
   }, [phase, user, totalScore]);
 
   if (phase === "final") {
