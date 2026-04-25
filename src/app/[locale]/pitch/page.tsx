@@ -1,4 +1,12 @@
-import PitchGuesser from "@/components/games/PitchGuesser";
+"use client";
+
+import dynamic from "next/dynamic";
+import GameLoading from "@/components/games/GameLoading";
+
+const PitchGuesser = dynamic(() => import("@/components/games/PitchGuesser"), {
+  ssr: false,
+  loading: () => <GameLoading />,
+});
 
 export default function PitchPage() {
   return (

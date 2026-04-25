@@ -64,9 +64,7 @@ export default function HeroAbyssClient() {
             priority
             className="object-contain scale-[1.02]"
             style={{
-              filter: ready ? "none" : "blur(8px)",
-              transition: "filter 1.4s cubic-bezier(0.16, 1, 0.3, 1)",
-              imageRendering: "pixelated",
+              filter: "none",
             }}
           />
         </div>

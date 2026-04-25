@@ -1,4 +1,12 @@
-import WorldGuesser from "@/components/games/WorldGuesser";
+"use client";
+
+import dynamic from "next/dynamic";
+import GameLoading from "@/components/games/GameLoading";
+
+const WorldGuesser = dynamic(() => import("@/components/games/WorldGuesser"), {
+  ssr: false,
+  loading: () => <GameLoading />,
+});
 
 export default function WorldPage() {
   return (

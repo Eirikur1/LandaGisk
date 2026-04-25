@@ -1,4 +1,12 @@
-import ColorGuesser from "@/components/games/ColorGuesser";
+"use client";
+
+import dynamic from "next/dynamic";
+import GameLoading from "@/components/games/GameLoading";
+
+const ColorGuesser = dynamic(() => import("@/components/games/ColorGuesser"), {
+  ssr: false,
+  loading: () => <GameLoading />,
+});
 
 export default function ColorPage() {
   return (

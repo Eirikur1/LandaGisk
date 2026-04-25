@@ -36,7 +36,7 @@ export default async function GamesPage() {
           className="text-[clamp(2.5rem,8vw,4rem)] font-black leading-[0.95] tracking-tight text-(--color-blue) mb-3"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          {t("seeAllGames").replace(" →", "")}
+          All games
         </h1>
         <p className="text-sm text-(--color-muted)" style={{ fontFamily: "var(--font-sans)" }}>
           {available.length} games available · {comingSoon.length} coming soon
