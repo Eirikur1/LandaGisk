@@ -9,7 +9,7 @@ export default function Footer() {
   if (pathname.includes("/auth")) return null;
 
   return (
-    <footer className="relative z-30 border-t border-(--color-border) py-10 text-center overflow-visible bg-(--color-background)">
+    <footer className="relative z-30 border-t border-(--color-border) pt-10 pb-20 text-center overflow-visible bg-(--color-background)">
       <MonkeyPet />
       <p
         className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"

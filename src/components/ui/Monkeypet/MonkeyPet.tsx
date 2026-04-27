@@ -32,9 +32,6 @@ export default function MonkeyPet() {
   const [sleepData, setSleepData] = useState<LottieData | null>(null);
 
   useEffect(() => {
-    // Skip on mobile — BlueWalkingMonkey.json is 2.1MB, too heavy for small screens
-    if (window.matchMedia("(max-width: 639px)").matches) return;
-
     import("@/assets/lottie/BlueWalkingMonkey.json").then((m) => setWalkData(m.default));
     import("@/assets/lottie/64bitSleepingMono.json").then((m) => setSleepData(m.default));
   }, []);
@@ -92,12 +89,12 @@ export default function MonkeyPet() {
 
   return (
     <div
-      className="absolute z-10 select-none pointer-events-none"
+      className="absolute z-10 select-none pointer-events-none sm:top-auto"
       style={{
-        top: isSleeping ? "-48px" : "-56px",
+        bottom: 0,
         left: `${posX}%`,
         transform: "translateX(-50%)",
-        transition: "left 0.2s linear, top 0.3s ease",
+        transition: "left 0.2s linear",
       }}
     >
       {walkData && (

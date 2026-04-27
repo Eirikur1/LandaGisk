@@ -28,7 +28,7 @@ export default async function GamesPage() {
   const comingSoon = ALL_GAMES.filter((g) => !g.available);
 
   return (
-    <div className="relative z-40 min-h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="relative z-40 min-h-[calc(100vh-5rem)]">
       <HeroAbyssClient />
     <div className="relative z-10 max-w-xl px-8 pt-10 pb-16">
 
@@ -67,7 +67,7 @@ export default async function GamesPage() {
       {/* Coming soon */}
       <div className="border-t border-(--color-border) mt-4">
         <p
-          className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) pt-5 pb-1"
+          className="text-[10px] tracking-[0.25em] uppercase text-(--color-muted) mt-5 mb-1 w-fit px-2 py-1 border border-(--color-border) rounded-md bg-(--color-background)"
           style={{ fontFamily: "var(--font-sans)" }}
         >
           {t("comingSoon")}
