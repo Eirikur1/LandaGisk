@@ -35,17 +35,18 @@ export default async function ArchivePage({ params }: { params: Promise<{ locale
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm" style={{ fontFamily: "var(--font-sans)" }}>
             <thead>
-              <tr className="border-b border-(--color-border) bg-black/[0.02]">
+              <tr className="border-b border-(--color-border) bg-black/2">
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("date")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colWaterfall")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colFlags")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colWorld")}</th>
                 <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colMushroom")}</th>
+                <th className="px-4 py-3 font-semibold text-(--color-foreground)">{t("colLanguage")}</th>
               </tr>
             </thead>
             <tbody>
               {dates.map((day) => (
-                <tr key={day} className="border-b border-(--color-border) last:border-0 hover:bg-black/[0.02]">
+                <tr key={day} className="border-b border-(--color-border) last:border-0 hover:bg-black/2">
                   <td className="px-4 py-2.5 text-(--color-muted) whitespace-nowrap">{formatArchiveRow(day, locale)}</td>
                   <td className="px-4 py-2.5">
                     <Link
@@ -74,6 +75,14 @@ export default async function ArchivePage({ params }: { params: Promise<{ locale
                   <td className="px-4 py-2.5">
                     <Link
                       href={`${base}/mushroom?date=${day}`}
+                      className="font-semibold text-(--color-blue) hover:opacity-70 transition-opacity"
+                    >
+                      {t("play")}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <Link
+                      href={`${base}/language?date=${day}`}
                       className="font-semibold text-(--color-blue) hover:opacity-70 transition-opacity"
                     >
                       {t("play")}

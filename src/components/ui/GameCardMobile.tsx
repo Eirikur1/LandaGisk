@@ -15,6 +15,7 @@ import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
 import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
 import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
 import yearIcon from "@/assets/lottie/ApaBiz_icons/icon.svg";
+import languageIcon from "@/assets/lottie/ApaBiz_icons/Games.svg";
 import birdsIcon from "@/assets/lottie/ApaBiz_icons/Bird Spotter.svg";
 import plantsIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
 import carIcon from "@/assets/lottie/ApaBiz_icons/Car Guess.svg";
@@ -33,6 +34,7 @@ const gameIcons: Record<string, StaticImageData> = {
   grid: gridIcon,
   territory: territoryIcon,
   year: yearIcon,
+  language: languageIcon,
   birds: birdsIcon,
   plants: plantsIcon,
   car: carIcon,
@@ -40,32 +42,9 @@ const gameIcons: Record<string, StaticImageData> = {
   dogbreed: dogIcon,
 };
 
-const gameTags: Record<string, string[]> = {
-  waterfall: ["Iceland", "Nature",    "Daily"],
-  flags:     ["World",   "Flags",     "Daily"],
-  world:     ["World",   "Geography", "Daily"],
-  birds:     ["Nature",  "Wildlife",  "Daily"],
-  plants:    ["Nature",  "Botany",    "Daily"],
-  dogbreed:  ["Animals", "Breeds",    "Daily"],
-  car:       ["Cars",    "Models",    "Daily"],
-  mushroom:  ["Nature",  "Fungi",     "Daily"],
-  mountains: ["Nature",  "Geography", "Daily"],
-  territory: ["World",   "Flags",     "Daily"],
-};
-
 const card = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0 },
-};
-
-const leftIcon = {
-  animate: { rotate: 0, scale: 1, y: 0 },
-  hover: {
-    rotate: -14,
-    scale: 1.3,
-    y: -3,
-    transition: { type: "spring" as const, stiffness: 380, damping: 10 },
-  },
 };
 
 type GameCardMobileProps = {
@@ -80,14 +59,12 @@ type GameCardMobileProps = {
 export default function GameCardMobile({
   slug,
   titleKey,
-  descriptionKey,
   available = true,
   index = 0,
 }: GameCardMobileProps) {
   const locale = useLocale();
   const t = useTranslations();
   const icon = gameIcons[slug];
-  const tags = gameTags[slug] ?? [];
 
   const inner = (
     <motion.div

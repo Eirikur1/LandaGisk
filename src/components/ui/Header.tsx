@@ -27,7 +27,6 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu-1";
 import { User, Settings, LogOut, Trophy, ArrowRight, MinusCircle } from "lucide-react";
-import waterfallIcon from "@/assets/lottie/ApaBiz_icons/waterfall.svg";
 import flagsIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
 import worldIcon from "@/assets/lottie/ApaBiz_icons/CountryGuess.svg";
 import mushroomIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
@@ -155,7 +154,6 @@ function SvgIcon({
 }
 
 const GAMES = [
-  { href: "waterfall", titleKey: "games.waterfall.title", available: true, icon: (p: MenuIconProps) => <SvgIcon src={waterfallIcon} {...p} /> },
   { href: "flags",     titleKey: "games.flags.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={flagsIcon} {...p} /> },
   { href: "world",     titleKey: "games.world.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={worldIcon} {...p} /> },
   { href: "mushroom",  titleKey: "games.mushroom.title",  available: true, icon: (p: MenuIconProps) => <SvgIcon src={mushroomIcon} {...p} /> },
@@ -164,6 +162,7 @@ const GAMES = [
   { href: "pitch",     titleKey: "games.pitch.title",     available: true, icon: (p: MenuIconProps) => <SvgIcon src={pitchIcon} {...p} /> },
   { href: "grid",      titleKey: "games.grid.title",      available: true, icon: (p: MenuIconProps) => <SvgIcon src={gridIcon} {...p} /> },
   { href: "territory", titleKey: "games.territory.title", available: true, icon: (p: MenuIconProps) => <SvgIcon src={territoryIcon} {...p} /> },
+  { href: "language",  titleKey: "games.language.title",  available: true, icon: (p: MenuIconProps) => <SvgIcon src={allGamesIcon} {...p} /> },
 ];
 
 
@@ -296,6 +295,10 @@ export default function Header() {
   /** Icon-only account control: fill header row height so the glyph centers vertically (no text underline offsets). */
   const accountIconTriggerClass =
     "inline-flex h-11 min-h-11 max-h-11 w-auto items-center justify-center !rounded-none !bg-transparent !px-0 !py-0 !shadow-none hover:!bg-transparent focus:!bg-transparent data-[popup-open]:!bg-transparent";
+
+  React.useEffect(() => {
+    setGamesMenuOpen("");
+  }, [pathname]);
 
   // Hide on auth pages
   if (pathname.includes("/auth")) return null;

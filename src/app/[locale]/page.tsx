@@ -9,6 +9,7 @@ const GAMES = [
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true },
   { slug: "pitch",     titleKey: "games.pitch.title",     descriptionKey: "games.pitch.description",     color: "navy"   as const, available: true },
   { slug: "color",     titleKey: "games.color.title",     descriptionKey: "games.color.description",     color: "rust"   as const, available: true },
+  { slug: "language",  titleKey: "games.language.title",  descriptionKey: "games.language.description",  color: "amber"  as const, available: true },
 ] as const;
 
 export default async function HomePage({

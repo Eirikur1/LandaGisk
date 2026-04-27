@@ -15,6 +15,7 @@
     "colFlags": "Fánar",
     "colWorld": "Land",
     "colMushroom": "Sveppir",
+    "colLanguage": "Tungumál",
     "play": "Spila"
   },
   "home": {
@@ -89,6 +90,10 @@
     "territory": {
       "title": "Fánar yfirráðasvæða",
       "description": "Nefndu yfirráðasvæðið út frá fánanum — 5 lotur"
+    },
+    "language": {
+      "title": "Tungumála gisk",
+      "description": "Lestu dularfulla setningu og nefndu tungumálið — 5 lotur"
     }
   },
   "game": {

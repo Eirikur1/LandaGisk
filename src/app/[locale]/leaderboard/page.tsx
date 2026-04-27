@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { worldXpTable } from "@/lib/xp";
 import { TbInfoCircle } from "react-icons/tb";
-import { useLeaderboard, type AllTimeRow, type TodayRow } from "@/lib/useLeaderboard";
+import { useLeaderboard } from "@/lib/useLeaderboard";
 import { OptimizedAvatar } from "@/components/ui/OptimizedAvatar";
 
 function Avatar({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
@@ -32,11 +32,7 @@ function Avatar({ username, avatarUrl }: { username: string; avatarUrl: string |
   );
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────
-
 type Tab = "today" | "alltime";
-
-function ymdNow() { return new Date().toISOString().slice(0, 10); }
 
 // ── XP Info ────────────────────────────────────────────────────────────────
 
@@ -103,6 +99,7 @@ export default function LeaderboardPage() {
     flags: "Flag",
     waterfall: "Waterfall",
     mushroom: "Mushroom",
+    language: "Language",
   };
 
   return (
@@ -225,6 +222,7 @@ export default function LeaderboardPage() {
               <span className="w-9 sm:w-10 shrink-0 text-right">Flag</span>
               <span className="w-11 sm:w-14 shrink-0 text-right hidden sm:block">Water.</span>
               <span className="w-11 sm:w-14 shrink-0 text-right hidden sm:block">Mush.</span>
+              <span className="w-11 sm:w-14 shrink-0 text-right hidden sm:block">Lang.</span>
               <span className="w-12 sm:w-14 shrink-0 text-right font-semibold text-(--color-foreground)">Total</span>
             </div>
             <ul className="divide-y divide-(--color-border)">
@@ -260,6 +258,9 @@ export default function LeaderboardPage() {
                     </span>
                     <span className="w-11 sm:w-14 shrink-0 text-right tabular-nums text-xs text-(--color-muted) hidden sm:block">
                       {row.mushroom_xp > 0 ? row.mushroom_xp.toLocaleString() : "—"}
+                    </span>
+                    <span className="w-11 sm:w-14 shrink-0 text-right tabular-nums text-xs text-(--color-muted) hidden sm:block">
+                      {row.language_xp > 0 ? row.language_xp.toLocaleString() : "—"}
                     </span>
                     <span className="w-12 sm:w-14 shrink-0 text-right font-bold tabular-nums text-(--color-blue)">
                       {row.total_xp.toLocaleString()}

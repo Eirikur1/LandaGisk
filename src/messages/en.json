@@ -15,6 +15,7 @@
     "colFlags": "Flags",
     "colWorld": "Country",
     "colMushroom": "Mushrooms",
+    "colLanguage": "Language",
     "play": "Play"
   },
   "home": {
@@ -89,6 +90,10 @@
     "territory": {
       "title": "Territory Flags",
       "description": "Name the territory from its flag — 5 rounds"
+    },
+    "language": {
+      "title": "Language Guess",
+      "description": "Read a mystery sentence and name the language — 5 rounds"
     }
   },
   "game": {

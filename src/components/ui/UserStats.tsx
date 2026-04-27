@@ -40,7 +40,7 @@ export default function UserStats() {
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
       // Streak only counts if they played today or yesterday
       if (days[0] === today || days[0] === yesterday) {
-        let cursor = new Date(days[0]);
+        const cursor = new Date(days[0]);
         for (let i = 0; i < days.length; i++) {
           const expected = new Date(cursor);
           expected.setDate(expected.getDate() - i);
@@ -53,13 +53,18 @@ export default function UserStats() {
         }
       }
 
-      // Rank — count users with higher total_xp than this user
-      const { data: rankData } = await supabase
-        .from("leaderboard")
-        .select("user_id, total_xp")
-        .gt("total_xp", totalXp);
+      // Rank — aggregate directly from game_scores so new game types count.
+      const { data: allScores } = await supabase
+        .from("game_scores")
+        .select("user_id, xp")
+        .eq("won", true);
 
-      const rank = totalXp > 0 ? (rankData?.length ?? 0) + 1 : null;
+      const totalsByUser = new Map<string, number>();
+      for (const row of allScores ?? []) {
+        totalsByUser.set(row.user_id as string, (totalsByUser.get(row.user_id as string) ?? 0) + (row.xp ?? 0));
+      }
+      const higherScores = [...totalsByUser.values()].filter((xp) => xp > totalXp).length;
+      const rank = totalXp > 0 ? higherScores + 1 : null;
 
       setStats({ streak, totalXp, rank });
     }

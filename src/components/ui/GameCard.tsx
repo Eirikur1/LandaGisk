@@ -15,6 +15,7 @@ import pitchIcon from "@/assets/lottie/ApaBiz_icons/PitchMatch.svg";
 import gridIcon from "@/assets/lottie/ApaBiz_icons/GridGuesser.svg";
 import territoryIcon from "@/assets/lottie/ApaBiz_icons/FlagGuess.svg";
 import yearIcon from "@/assets/lottie/ApaBiz_icons/icon.svg";
+import languageIcon from "@/assets/lottie/ApaBiz_icons/Games.svg";
 import birdsIcon from "@/assets/lottie/ApaBiz_icons/Bird Spotter.svg";
 import plantsIcon from "@/assets/lottie/ApaBiz_icons/plant Id.svg";
 import carIcon from "@/assets/lottie/ApaBiz_icons/Car Guess.svg";
@@ -33,6 +34,7 @@ const gameIcons: Record<string, StaticImageData> = {
   grid: gridIcon,
   territory: territoryIcon,
   year: yearIcon,
+  language: languageIcon,
   birds: birdsIcon,
   plants: plantsIcon,
   car: carIcon,
@@ -51,6 +53,7 @@ const gameTags: Record<string, string[]> = {
   mushroom:  ["Nature",  "Fungi",     "Daily"],
   mountains: ["Nature",  "Geography", "Daily"],
   territory: ["World",   "Flags",     "Daily"],
+  language:  ["Words",   "Language",  "Daily"],
 };
 
 // ── Variants ───────────────────────────────────────────────────────────────

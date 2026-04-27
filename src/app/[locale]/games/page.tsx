@@ -4,7 +4,6 @@ import GameCardMobile from "@/components/ui/GameCardMobile";
 import HeroAbyssClient from "@/components/ui/HeroAbyssClient";
 
 const ALL_GAMES = [
-  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: true  },
   { slug: "flags",     titleKey: "games.flags.title",     descriptionKey: "games.flags.description",     color: "forest" as const, available: true  },
   { slug: "world",     titleKey: "games.world.title",     descriptionKey: "games.world.description",     color: "amber"  as const, available: true  },
   { slug: "mushroom",  titleKey: "games.mushroom.title",  descriptionKey: "games.mushroom.description",  color: "forest" as const, available: true  },
@@ -13,6 +12,8 @@ const ALL_GAMES = [
   { slug: "grid",     titleKey: "games.grid.title",     descriptionKey: "games.grid.description",     color: "forest" as const, available: true  },
   { slug: "year",      titleKey: "games.year.title",      descriptionKey: "games.year.description",      color: "navy"   as const, available: true  },
   { slug: "territory", titleKey: "games.territory.title", descriptionKey: "games.territory.description", color: "rust"   as const, available: true  },
+  { slug: "language",  titleKey: "games.language.title",  descriptionKey: "games.language.description",  color: "amber"  as const, available: true  },
+  { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: false },
   { slug: "birds",     titleKey: "games.birds.title",     descriptionKey: "games.birds.description",     color: "forest" as const, available: false },
   { slug: "plants",    titleKey: "games.plants.title",    descriptionKey: "games.plants.description",    color: "rust"   as const, available: false },
   { slug: "dogbreed",  titleKey: "games.dogbreed.title",  descriptionKey: "games.dogbreed.description",  color: "amber"  as const, available: false },
