@@ -6,8 +6,8 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
+import Footer from "@/components/ui/Footer";
 import CookieConsent from "@/components/ui/CookieConsent";
-import MonkeyPet from "@/components/ui/Monkeypet/MonkeyPetClient";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "../globals.css";
 import "flag-icons/css/flag-icons.min.css";
@@ -93,15 +93,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <Header />
             <main className="flex-1 pt-16">{children}</main>
-          <footer className="relative z-30 border-t border-(--color-border) py-10 text-center overflow-visible bg-(--color-background)">
-            <MonkeyPet />
-            <p
-              className="text-[10px] tracking-[0.35em] uppercase text-(--color-muted)"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              Made in Iceland
-            </p>
-          </footer>
+          <Footer />
           <CookieConsent />
           </AuthProvider>
         </NextIntlClientProvider>
