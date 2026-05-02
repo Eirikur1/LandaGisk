@@ -3,7 +3,7 @@
 import Lottie from "lottie-react";
 import animationData from "@/assets/lottie/StaringIntoLottie.json";
 
-const SIZE = "min(135vmin, min(133dvh, 1260px))";
+const SIZE = "min(105vmin, min(104dvh, 980px))";
 
 export default function HeroAbyssClient() {
   return (

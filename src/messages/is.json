@@ -94,6 +94,10 @@
     "language": {
       "title": "Tungumála gisk",
       "description": "Lestu dularfulla setningu og nefndu tungumálið — 5 lotur"
+    },
+    "euroflags": {
+      "title": "Evrópa Fánagisk",
+      "description": "Nefndu alla 47 evrópska fána eins fljótt og þú getur — tímamæling"
     }
   },
   "game": {

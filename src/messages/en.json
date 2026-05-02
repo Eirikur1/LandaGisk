@@ -94,6 +94,10 @@
     "language": {
       "title": "Language Guess",
       "description": "Read a mystery sentence and name the language — 5 rounds"
+    },
+    "euroflags": {
+      "title": "Euro Flag Run",
+      "description": "Name all 47 European flags as fast as you can — timed speed run"
     }
   },
   "game": {

@@ -13,6 +13,7 @@ const ALL_GAMES = [
   { slug: "year",      titleKey: "games.year.title",      descriptionKey: "games.year.description",      color: "navy"   as const, available: true  },
   { slug: "territory", titleKey: "games.territory.title", descriptionKey: "games.territory.description", color: "rust"   as const, available: true  },
   { slug: "language",  titleKey: "games.language.title",  descriptionKey: "games.language.description",  color: "amber"  as const, available: true  },
+  { slug: "euroflags", titleKey: "games.euroflags.title", descriptionKey: "games.euroflags.description", color: "navy"   as const, available: true  },
   { slug: "waterfall", titleKey: "games.waterfall.title", descriptionKey: "games.waterfall.description", color: "navy"   as const, available: false },
   { slug: "birds",     titleKey: "games.birds.title",     descriptionKey: "games.birds.description",     color: "forest" as const, available: false },
   { slug: "plants",    titleKey: "games.plants.title",    descriptionKey: "games.plants.description",    color: "rust"   as const, available: false },
