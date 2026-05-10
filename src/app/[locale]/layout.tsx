@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { Analytics } from "@vercel/analytics/next";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
@@ -97,6 +98,7 @@ export default async function LocaleLayout({
           <CookieConsent />
           </AuthProvider>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
